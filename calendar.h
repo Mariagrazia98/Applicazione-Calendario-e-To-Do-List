@@ -34,6 +34,7 @@ public:
 private slots:
     void selectedDateChanged();
     void reformatCalendarPage();
+    void onDateTextChanged();
 
     void responseHandler(QNetworkReply*);
     void authenticationRequired(QNetworkReply *, QAuthenticator *);

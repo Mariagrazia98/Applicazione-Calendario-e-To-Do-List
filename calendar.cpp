@@ -44,6 +44,7 @@ void Calendar::setupCalendar() {
     currentDateEdit->setDate(QDate::currentDate());
     currentDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
+
     setupWeek();
     connect(calendar, &QCalendarWidget::selectionChanged,
             this, &Calendar::selectedDateChanged);
@@ -58,6 +59,10 @@ void Calendar::setupCalendar() {
     dateString->setText(italianDate);
     tasksLayout->addWidget(dateString);
 
+    QSize size = dateString->document()->size().toSize();
+    dateString->setFixedHeight( 30 );
+    dateString->setAlignment(Qt::AlignCenter);
+
     // TODO: aggiungere widget tasks
     setupRequest();
 
@@ -70,6 +75,7 @@ void Calendar::selectedDateChanged() {
     QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
     QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
     dateString->setText(italianDate);
+    dateString->setAlignment(Qt::AlignCenter);
 }
 
 void Calendar::setupWeek() {
@@ -96,7 +102,6 @@ void Calendar::reformatCalendarPage() {
         firstFriday = firstFriday.addDays(1);
 
     calendar->setDateTextFormat(firstFriday, firstFridayFormat);
-
     calendar->setDateTextFormat(mayFirst, mayFirstFormat);
 }
 
@@ -152,6 +157,10 @@ void Calendar::responseHandler(QNetworkReply *serverAnswer) {
 void Calendar::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
     authenticator->setPassword(QString("admin"));
     authenticator->setUser(QString("admin"));
+}
+
+void Calendar::onDateTextChanged() {
+
 }
 
 
