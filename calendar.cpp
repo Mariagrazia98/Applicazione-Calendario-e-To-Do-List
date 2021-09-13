@@ -1,21 +1,12 @@
 #include "calendar.h"
 #include "ui_calendar.h"
 
-#include <QCalendarWidget>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDateEdit>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLocale>
-#include <QTextCharFormat>
-#include <QMessageBox>
-#include <QTextBrowser>
 Calendar::Calendar(QWidget *parent) :
         QWidget(parent),
         ui(new Ui::Calendar),
-        dateString(new QTextBrowser){
+        networkAccessManager(new QNetworkAccessManager),
+        dateString(new QTextBrowser),
+        answerString(new QTextBrowser) {
     ui->setupUi(this);
 
     createPreviewGroupBox();
@@ -58,31 +49,27 @@ void Calendar::setupCalendar() {
             this, &Calendar::selectedDateChanged);
     generalOptionsGroupBox = new QGroupBox(tr("Tasks"));
 
-    QHBoxLayout *checkBoxLayout = new QHBoxLayout;
-    checkBoxLayout->addStretch();
-    QGridLayout *outerLayout = new QGridLayout;
-    outerLayout->addLayout(checkBoxLayout, 3, 0, 1, 2);
+    tasksLayout = new QVBoxLayout;
 
-
-   QDate date = currentDateEdit->date();
-    QLocale locale  = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
+    QDate date = currentDateEdit->date();
+    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
     QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
 
     dateString->setText(italianDate);
-    outerLayout->addWidget(dateString);
+    tasksLayout->addWidget(dateString);
 
-    generalOptionsGroupBox->setLayout(outerLayout);
+    // TODO: aggiungere widget tasks
+    setupRequest();
 
-
+    generalOptionsGroupBox->setLayout(tasksLayout);
 }
 
 void Calendar::selectedDateChanged() {
     currentDateEdit->setDate(calendar->selectedDate());
     QDate date = currentDateEdit->date();
-    QLocale locale  = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
+    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
     QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
     dateString->setText(italianDate);
-
 }
 
 void Calendar::setupWeek() {
@@ -143,6 +130,28 @@ QComboBox *Calendar::createColorComboBox() {
     comboBox->addItem(tr("Black"), QColor(Qt::black));
     comboBox->addItem(tr("Magenta"), QColor(Qt::magenta));
     return comboBox;
+}
+
+void Calendar::setupRequest() {
+    QNetworkRequest request;
+    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default?export"));
+
+    connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(responseHandler(QNetworkReply * )));
+    connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )), this,
+            SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
+
+    networkAccessManager->get(request);
+}
+
+void Calendar::responseHandler(QNetworkReply *serverAnswer) {
+    QByteArray answer = serverAnswer->readAll();
+    answerString->setText(QString::fromUtf8(answer));
+    tasksLayout->addWidget(answerString);
+}
+
+void Calendar::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
+    authenticator->setPassword(QString("admin"));
+    authenticator->setUser(QString("admin"));
 }
 
 

@@ -4,21 +4,24 @@
 #include <QWidget>
 #include <QDateTime>
 #include <QTextBrowser>
+#include <QCalendarWidget>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QDateEdit>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLocale>
+#include <QTextCharFormat>
+#include <QMessageBox>
+#include <QTextBrowser>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QAuthenticator>
 
 namespace Ui {
 class Calendar;
 }
-
-QT_BEGIN_NAMESPACE
-class QCalendarWidget;
-class QCheckBox;
-class QComboBox;
-class QDate;
-class QDateEdit;
-class QGridLayout;
-class QGroupBox;
-class QLabel;
-QT_END_NAMESPACE
 
 class Calendar : public QWidget
 {
@@ -32,6 +35,9 @@ private slots:
     void selectedDateChanged();
     void reformatCalendarPage();
 
+    void responseHandler(QNetworkReply*);
+    void authenticationRequired(QNetworkReply *, QAuthenticator *);
+
 private:
     Ui::Calendar *ui;
 private:
@@ -41,14 +47,23 @@ private:
     void createGeneralOptionsGroupBox();
     QComboBox *createColorComboBox();
 
+    /* Network functions */
+    void setupRequest();
+
+
     QGroupBox *previewGroupBox;
     QGridLayout *previewLayout;
     QCalendarWidget *calendar;
 
     QGroupBox *generalOptionsGroupBox;
+    QVBoxLayout *tasksLayout;
 
     QDateEdit *currentDateEdit;
     QTextBrowser *dateString;
+
+    QTextBrowser *answerString;
+
+    QNetworkAccessManager* networkAccessManager;
 };
 
 #endif // CALENDAR_H
