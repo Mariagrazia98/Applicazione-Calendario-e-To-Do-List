@@ -17,6 +17,7 @@ add_executable(${PROJECT_NAME} main.cpp
     mainwindow.h mainwindow.cpp mainwindow.ui
     loginform.h loginform.cpp loginform.ui
     calendar.h calendar.cpp calendar.ui
+    taskform.h taskform.cpp taskform.ui
         )
 
 if (NOT CMAKE_PREFIX_PATH)
