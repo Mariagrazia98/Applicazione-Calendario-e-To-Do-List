@@ -59,12 +59,12 @@
      <widget class="QComboBox" name="comboBox">
       <item>
        <property name="text">
-        <string>Task</string>
+        <string>Event</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string>Event</string>
+        <string>Task</string>
        </property>
       </item>
      </widget>

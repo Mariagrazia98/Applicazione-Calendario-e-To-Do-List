@@ -20,6 +20,10 @@ public:
     explicit TaskForm(QWidget *parent = nullptr);
     ~TaskForm();
 
+private slots:
+    void on_buttonBox_rejected();
+    void on_comboBox_currentIndexChanged(int index);
+
 private:
     Ui::TaskForm *ui;
 };
