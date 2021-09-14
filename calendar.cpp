@@ -4,7 +4,7 @@
 Calendar::Calendar(QWidget *parent) :
         QWidget(parent),
         ui(new Ui::Calendar),
-        networkAccessManager(new QNetworkAccessManager),
+
         dateString(new QTextBrowser),
         answerString(new QTextBrowser) {
     ui->setupUi(this);
@@ -64,7 +64,6 @@ void Calendar::setupCalendar() {
     dateString->setAlignment(Qt::AlignCenter);
 
     // TODO: aggiungere widget tasks
-    setupRequest();
 
     generalOptionsGroupBox->setLayout(tasksLayout);
 }
@@ -124,8 +123,6 @@ void Calendar::createPreviewGroupBox() {
 void Calendar::createGeneralOptionsGroupBox() {
     //TODO use as template for tasks widget
 
-
-
 }
 
 QComboBox *Calendar::createColorComboBox() {
@@ -137,30 +134,15 @@ QComboBox *Calendar::createColorComboBox() {
     return comboBox;
 }
 
-void Calendar::setupRequest() {
-    QNetworkRequest request;
-    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default?export"));
 
-    connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(responseHandler(QNetworkReply * )));
-    connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )), this,
-            SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
-
-    networkAccessManager->get(request);
-}
-
-void Calendar::responseHandler(QNetworkReply *serverAnswer) {
-    QByteArray answer = serverAnswer->readAll();
-    answerString->setText(QString::fromUtf8(answer));
-    tasksLayout->addWidget(answerString);
-}
-
-void Calendar::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
-    authenticator->setPassword(QString("admin"));
-    authenticator->setUser(QString("admin"));
-}
 
 void Calendar::onDateTextChanged() {
 
+}
+
+void Calendar::parseCalendar(QString calendar) {
+    answerString->setText(calendar);
+    tasksLayout->addWidget(answerString);
 }
 
 

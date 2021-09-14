@@ -8,20 +8,20 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    /*
-    MainWindow mainWindow;
+
+    //MainWindow mainWindow;
     LoginForm loginForm;
+    Calendar calendar;
+    QObject::connect(&loginForm, &LoginForm::calendarObtained, &calendar, &Calendar::parseCalendar);
     if(loginForm.exec() == QDialog::Accepted)
     {
         //mainWindow.show();
         //QHBoxLayout* mainlayout = new QHBoxLayout();
-        Calendar* calendar = new Calendar();
         //mainlayout->addWidget(calendar);
         //mainWindow.setLayout(mainlayout);
-        calendar->show();
+        calendar.show();
     }
-    */
-    Calendar calendar;
-    calendar.show();
+    //Calendar calendar;
+    //calendar.show();
     return QApplication::exec();
 }

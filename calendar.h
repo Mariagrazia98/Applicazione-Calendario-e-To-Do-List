@@ -20,36 +20,43 @@
 #include <QAuthenticator>
 
 namespace Ui {
-class Calendar;
+    class Calendar;
 }
 
-class Calendar : public QWidget
-{
-    Q_OBJECT
+class Calendar : public QWidget {
+Q_OBJECT
 
 public:
     explicit Calendar(QWidget *parent = nullptr);
+
     ~Calendar();
 
+public slots:
+    void parseCalendar(QString calendar);
+
 private slots:
+
     void selectedDateChanged();
+
     void reformatCalendarPage();
+
     void onDateTextChanged();
 
-    void responseHandler(QNetworkReply*);
-    void authenticationRequired(QNetworkReply *, QAuthenticator *);
+
+
 
 private:
     Ui::Calendar *ui;
 private:
     void setupCalendar();
-    void setupWeek();
-    void createPreviewGroupBox();
-    void createGeneralOptionsGroupBox();
-    QComboBox *createColorComboBox();
 
-    /* Network functions */
-    void setupRequest();
+    void setupWeek();
+
+    void createPreviewGroupBox();
+
+    void createGeneralOptionsGroupBox();
+
+    QComboBox *createColorComboBox();
 
 
     QGroupBox *previewGroupBox;
@@ -64,7 +71,7 @@ private:
 
     QTextBrowser *answerString;
 
-    QNetworkAccessManager* networkAccessManager;
+
 };
 
 #endif // CALENDAR_H
