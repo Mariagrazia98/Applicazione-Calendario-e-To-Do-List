@@ -4,28 +4,23 @@
 Calendar::Calendar(QWidget *parent) :
         QWidget(parent),
         ui(new Ui::Calendar),
-
         dateString(new QTextBrowser),
         answerString(new QTextBrowser) {
     ui->setupUi(this);
 
-    createPreviewGroupBox();
-    createGeneralOptionsGroupBox();
-    //createDatesGroupBox();
-    //createTextFormatsGroupBox();
+    createCalendarGroupBox();
 
     setupCalendar();
 
     QGridLayout *layout = new QGridLayout;
-    layout->addWidget(previewGroupBox, 0, 0);
-    layout->addWidget(generalOptionsGroupBox, 0, 1);
-    //layout->addWidget(datesGroupBox, 1, 0);
-    //layout->addWidget(textFormatsGroupBox, 1, 1);
+    layout->addWidget(calendarGroupBox, 0, 0);
+    layout->addWidget(tasksGroupBox, 0, 1);
+
     layout->setSizeConstraint(QLayout::SetFixedSize);
     setLayout(layout);
 
-    previewLayout->setRowMinimumHeight(0, calendar->sizeHint().height());
-    previewLayout->setColumnMinimumWidth(0, calendar->sizeHint().width());
+    calendarLayout->setRowMinimumHeight(0, calendar->sizeHint().height());
+    calendarLayout->setColumnMinimumWidth(0, calendar->sizeHint().width());
 
     setWindowTitle(tr("Calendar Widget"));
 }
@@ -48,7 +43,7 @@ void Calendar::setupCalendar() {
     setupWeek();
     connect(calendar, &QCalendarWidget::selectionChanged,
             this, &Calendar::selectedDateChanged);
-    generalOptionsGroupBox = new QGroupBox(tr("Tasks"));
+    tasksGroupBox = new QGroupBox(tr("Tasks"));
 
     tasksLayout = new QVBoxLayout;
 
@@ -63,9 +58,14 @@ void Calendar::setupCalendar() {
     dateString->setFixedHeight( 30 );
     dateString->setAlignment(Qt::AlignCenter);
 
-    // TODO: aggiungere widget tasks
+    tasksGroupBox->setLayout(tasksLayout);
+    tasksLayout->addWidget(answerString);
 
-    generalOptionsGroupBox->setLayout(tasksLayout);
+    addTaskButton = new QPushButton(tr("&Add"));
+    addTaskButton->setEnabled(true);
+    addTaskButton->setToolTip(tr("Add new task"));
+    connect(addTaskButton, &QPushButton::clicked, this, &Calendar::addTaskButtonClicked);
+    tasksLayout->addWidget(addTaskButton);
 }
 
 void Calendar::selectedDateChanged() {
@@ -104,8 +104,8 @@ void Calendar::reformatCalendarPage() {
     calendar->setDateTextFormat(mayFirst, mayFirstFormat);
 }
 
-void Calendar::createPreviewGroupBox() {
-    previewGroupBox = new QGroupBox(tr("Preview"));
+void Calendar::createCalendarGroupBox() {
+    calendarGroupBox = new QGroupBox(tr("Preview"));
 
     calendar = new QCalendarWidget;
     calendar->setMinimumDate(QDate(2000, 1, 1));
@@ -115,14 +115,9 @@ void Calendar::createPreviewGroupBox() {
     connect(calendar, &QCalendarWidget::currentPageChanged,
             this, &Calendar::reformatCalendarPage);
 
-    previewLayout = new QGridLayout;
-    previewLayout->addWidget(calendar, 0, 0, Qt::AlignCenter);
-    previewGroupBox->setLayout(previewLayout);
-}
-
-void Calendar::createGeneralOptionsGroupBox() {
-    //TODO use as template for tasks widget
-
+    calendarLayout = new QGridLayout;
+    calendarLayout->addWidget(calendar);
+    calendarGroupBox->setLayout(calendarLayout);
 }
 
 QComboBox *Calendar::createColorComboBox() {
@@ -134,15 +129,26 @@ QComboBox *Calendar::createColorComboBox() {
     return comboBox;
 }
 
-
-
 void Calendar::onDateTextChanged() {
 
 }
 
 void Calendar::parseCalendar(QString calendar) {
     answerString->setText(calendar);
-    tasksLayout->addWidget(answerString);
+}
+
+void Calendar::addTaskButtonClicked() {
+    // disabilita calendar widget
+    this->setEnabled(false);
+    TaskForm* taskForm = new TaskForm();
+    // crea widget per aggiungere un nuovo task/evento/ecc...
+    // widget.show()
+    taskForm->show();
+    // all'invio del form crea la query
+    // chiude il widget
+    // riabilita il calendar widget
+    this->setEnabled(true);
+    // aggiorna il calendario se la richiesta va a buon fine
 }
 
 

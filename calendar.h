@@ -18,6 +18,9 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QAuthenticator>
+#include <QPushButton>
+
+#include "taskForm.h"
 
 namespace Ui {
     class Calendar;
@@ -42,8 +45,7 @@ private slots:
 
     void onDateTextChanged();
 
-
-
+    void addTaskButtonClicked();
 
 private:
     Ui::Calendar *ui;
@@ -52,18 +54,16 @@ private:
 
     void setupWeek();
 
-    void createPreviewGroupBox();
+    void createCalendarGroupBox();
 
-    void createGeneralOptionsGroupBox();
 
     QComboBox *createColorComboBox();
 
-
-    QGroupBox *previewGroupBox;
-    QGridLayout *previewLayout;
+    QGroupBox *calendarGroupBox; // calendar group box (left)
+    QGridLayout *calendarLayout;
     QCalendarWidget *calendar;
 
-    QGroupBox *generalOptionsGroupBox;
+    QGroupBox *tasksGroupBox; // tasks group box (right)
     QVBoxLayout *tasksLayout;
 
     QDateEdit *currentDateEdit;
@@ -71,7 +71,7 @@ private:
 
     QTextBrowser *answerString;
 
-
+    QPushButton* addTaskButton;
 };
 
 #endif // CALENDAR_H

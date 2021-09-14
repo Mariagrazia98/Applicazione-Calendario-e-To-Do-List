@@ -23,9 +23,6 @@ void LoginForm::closeEvent(QCloseEvent *event) {
 }
 
 void LoginForm::on_loginButton_clicked() {
-    QString username = ui->usernameText->text();
-    QString password = ui->passwordText->text();
-
     makeRequest();
 }
 
@@ -48,7 +45,7 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
     QNetworkReply::NetworkError error = reply->error();
     const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
-        QMessageBox::warning(this, "Login", errorString);
+        QMessageBox::warning(this, "Error", errorString);
     } else {
         //QMessageBox::information(this, "Login", "Username and password is correct");
         loggedIn = true;
