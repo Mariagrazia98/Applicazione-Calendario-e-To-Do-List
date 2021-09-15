@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
         //mainlayout->addWidget(calendar);
         //mainWindow.setLayout(mainlayout);
         calendar.show();
+        //calendar.setPassword(loginForm.getPassword());
     }
     //Calendar calendar;
     //calendar.show();

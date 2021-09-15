@@ -1,3 +1,4 @@
+#include <iostream>
 #include "calendar.h"
 #include "ui_calendar.h"
 
@@ -5,14 +6,15 @@ Calendar::Calendar(QWidget *parent) :
         QWidget(parent),
         ui(new Ui::Calendar),
         dateString(new QTextBrowser),
-        answerString(new QTextBrowser) {
+        answerString(new QTextBrowser),
+        stream(new QTextStream()) {
     ui->setupUi(this);
 
     createCalendarGroupBox();
 
     setupCalendar();
 
-    QGridLayout *layout = new QGridLayout;
+    QGridLayout * layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -55,7 +57,7 @@ void Calendar::setupCalendar() {
     tasksLayout->addWidget(dateString);
 
     QSize size = dateString->document()->size().toSize();
-    dateString->setFixedHeight( 30 );
+    dateString->setFixedHeight(30);
     dateString->setAlignment(Qt::AlignCenter);
 
     tasksGroupBox->setLayout(tasksLayout);
@@ -134,13 +136,63 @@ void Calendar::onDateTextChanged() {
 }
 
 void Calendar::parseCalendar(QString calendar) {
+    stream = new QTextStream(&calendar);
+    QString line;
+    while (stream->readLineInto(&line)) {
+        /*
+        std::cout << line.toStdString() << '\n';
+        std::cout << "----\n";
+         */
+        if (line.contains("BEGIN:VEVENT")) {
+            std::cout << "parsing event \n";
+        }
+        parseEvent();
+    }
+    stream->seek(0);
     answerString->setText(calendar);
+    for (int i = 0; i < calendarObjects.length(); ++i) {
+        calendarObjects[i]->printCalendarObject();
+    }
+}
+
+
+void Calendar::parseEvent() {
+    QString line;
+    CalendarObject *calendarObject = new CalendarEvent(this);
+    while (stream->readLineInto(&line)) {
+        if (line.contains(QByteArray("END:VEVENT"))) {
+            if (calendarObject->getName() != "") {
+                calendarObjects.append(calendarObject);
+            }
+            return;
+        }
+        const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
+        const QString key = line.mid(0, deliminatorPosition);
+        QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
+        if (key.startsWith(QLatin1String("DTSTAMP"))) {
+            static_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
+                    getDateTimeFromString(value).toLocalTime());
+        }
+        if (key.startsWith(QLatin1String("DTSTART"))) {
+            static_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("DTEND"))) {
+            static_cast<CalendarEvent *>(calendarObject)->setEndDateTime(getDateTimeFromString(value).toLocalTime());
+        } else if (key == QLatin1String("SUMMARY")) {
+            calendarObject->setName(value);
+        } else if (key == QLatin1String("LOCATION")) {
+            calendarObject->setLocation(value);
+        } else if (key == QLatin1String("UID")) {
+            calendarObject->setUID(value);
+        } else if (key == QLatin1String("DESCRIPTION")) {
+            calendarObject->setDescription(value);
+        }
+    }
 }
 
 void Calendar::addTaskButtonClicked() {
     // disabilita calendar widget
     this->setEnabled(false);
-    TaskForm* taskForm = new TaskForm();
+    TaskForm *taskForm = new TaskForm(this);
     // crea widget per aggiungere un nuovo task/evento/ecc...
     // widget.show()
     taskForm->show();
@@ -150,5 +202,19 @@ void Calendar::addTaskButtonClicked() {
     this->setEnabled(true);
     // aggiorna il calendario se la richiesta va a buon fine
 }
+
+QDateTime Calendar::getDateTimeFromString(const QString &string) {
+    QDateTime dateTime = QDateTime::fromString(string, "yyyyMMdd'T'hhmmss'Z'");
+    if (!dateTime.isValid())
+        dateTime = QDateTime::fromString(string, "yyyyMMdd'T'hhmmss");
+    if (!dateTime.isValid())
+        dateTime = QDateTime::fromString(string, "yyyyMMddhhmmss");
+    if (!dateTime.isValid())
+        dateTime = QDateTime::fromString(string, "yyyyMMdd");
+    if (!dateTime.isValid())
+        qDebug() << "Calendar" << ": " << "could not parse" << string;
+    return dateTime;
+}
+
 
 

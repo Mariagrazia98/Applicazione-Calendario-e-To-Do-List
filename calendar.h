@@ -19,8 +19,11 @@
 #include <QNetworkReply>
 #include <QAuthenticator>
 #include <QPushButton>
+#include <QDebug>
 
 #include "taskForm.h"
+#include "calendarobject.h"
+#include "calendarevent.h"
 
 namespace Ui {
     class Calendar;
@@ -47,6 +50,8 @@ private slots:
 
     void addTaskButtonClicked();
 
+    void parseEvent();
+
 private:
     Ui::Calendar *ui;
 private:
@@ -56,8 +61,9 @@ private:
 
     void createCalendarGroupBox();
 
-
     QComboBox *createColorComboBox();
+
+    QDateTime getDateTimeFromString(const QString& string);
 
     QGroupBox *calendarGroupBox; // calendar group box (left)
     QGridLayout *calendarLayout;
@@ -72,6 +78,10 @@ private:
     QTextBrowser *answerString;
 
     QPushButton* addTaskButton;
+
+
+    QTextStream* stream;
+    QList<CalendarObject*> calendarObjects;
 };
 
 #endif // CALENDAR_H
