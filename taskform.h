@@ -11,6 +11,7 @@
 #include <QBuffer>
 #include <QMessageBox>
 #include <QNetworkReply>
+#include <QAuthenticator>
 
 namespace Ui {
 class TaskForm;
@@ -29,6 +30,7 @@ private slots:
     void on_buttonBox_accepted();
     void on_comboBox_currentIndexChanged(int index);
     void handleUploadFinished(QNetworkReply* reply);
+    void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
 private:
     Ui::TaskForm *ui;

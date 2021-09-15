@@ -61,9 +61,12 @@ void TaskForm::on_buttonBox_accepted() {
     contentlength.append(buffersize);
 
     QNetworkRequest request;
-    request.setUrl(QUrl("localhost/progettopds/calendarserver.php/"+ filename));
+    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default/"+ filename));
+    /*todo: DEFAULT nome cartella calendario*/
+
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", contentlength);
+
     qNetworkReply= networkAccessManager->put(request, buffer);
 
     if (NULL != qNetworkReply)
@@ -73,7 +76,8 @@ void TaskForm::on_buttonBox_accepted() {
 
         connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)),
                 this, SLOT(handleUploadFinished(QNetworkReply *)));
-
+        connect(networkAccessManager, SIGNAL (authenticationRequired(QNetworkReply *, QAuthenticator *)),
+                this, SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));
         //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
     }
     else
@@ -112,4 +116,9 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
         default:
             break;
     }
+}
+
+void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator* authenticator) {
+    authenticator->setUser("admin");
+    authenticator->setPassword("admin");
 }
