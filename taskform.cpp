@@ -69,7 +69,7 @@ void TaskForm::on_buttonBox_accepted() {
 
     qNetworkReply= networkAccessManager->put(request, buffer);
 
-    if (NULL != qNetworkReply)
+    if (qNetworkReply)
     {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
                 this, SLOT(handleUploadHTTPError())); */
@@ -116,6 +116,11 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
         default:
             break;
     }
+}
+
+void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime)
+{
+    ui->expireDateTime->setDateTime(dateTime);
 }
 
 void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator* authenticator) {

@@ -29,6 +29,8 @@ private slots:
     void on_buttonBox_rejected();
     void on_buttonBox_accepted();
     void on_comboBox_currentIndexChanged(int index);
+    void on_beginDateTime_dateTimeChanged(const QDateTime &dateTime);
+
     void handleUploadFinished(QNetworkReply* reply);
     void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
