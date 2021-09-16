@@ -138,14 +138,9 @@ void Calendar::parseCalendar(QString calendar) {
     stream = new QTextStream(&calendar);
     QString line;
     while (stream->readLineInto(&line)) {
-        /*
-        std::cout << line.toStdString() << '\n';
-        std::cout << "----\n";
-         */
         if (line.contains("BEGIN:VEVENT")) {
-            std::cout << "parsing event \n";
+            parseEvent();
         }
-        parseEvent();
     }
     stream->seek(0);
     //answerString->setText(calendar);
