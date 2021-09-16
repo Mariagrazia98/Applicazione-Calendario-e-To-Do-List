@@ -122,7 +122,7 @@ void Calendar::createCalendarGroupBox() {
 }
 
 QComboBox *Calendar::createColorComboBox() {
-    QComboBox *comboBox = new QComboBox;
+    QComboBox * comboBox = new QComboBox;
     comboBox->addItem(tr("Red"), QColor(Qt::red));
     comboBox->addItem(tr("Blue"), QColor(Qt::blue));
     comboBox->addItem(tr("Black"), QColor(Qt::black));
@@ -151,7 +151,7 @@ void Calendar::parseCalendar(QString calendar) {
     //answerString->setText(calendar);
 
     for (int i = 0; i < calendarObjects.length(); ++i) {
-        calendarObjectWidget* obj = new calendarObjectWidget(this, *calendarObjects[i]);
+        calendarObjectWidget *obj = new calendarObjectWidget(this, *calendarObjects[i]);
         obj->setVisible(true);
         obj->setEnabled(true);
         tasksLayout->addWidget(obj);
@@ -197,7 +197,7 @@ void Calendar::addTaskButtonClicked() {
     addTaskButton->setEnabled(false);
     TaskForm *taskForm = new TaskForm();
     taskForm->show();
-    // TODO: aggiorna il calendario se la richiesta va a buon fine
+    connect(taskForm, &TaskForm::closing, this, &Calendar::onTaskFormClosed);
 }
 
 QDateTime Calendar::getDateTimeFromString(const QString &string) {
@@ -211,6 +211,11 @@ QDateTime Calendar::getDateTimeFromString(const QString &string) {
     if (!dateTime.isValid())
         qDebug() << "Calendar" << ": " << "could not parse" << string;
     return dateTime;
+}
+
+void Calendar::onTaskFormClosed() {
+    addTaskButton->setEnabled(true);
+    // TODO: aggiornare widgets se ce n'è bisogno
 }
 
 

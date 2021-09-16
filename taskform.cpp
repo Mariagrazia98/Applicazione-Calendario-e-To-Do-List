@@ -127,3 +127,7 @@ void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator* auth
     authenticator->setUser("admin");
     authenticator->setPassword("admin");
 }
+
+void TaskForm::closeEvent(QCloseEvent *event) {
+    emit(closing());
+}

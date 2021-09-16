@@ -34,10 +34,15 @@ private slots:
     void handleUploadFinished(QNetworkReply* reply);
     void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
+    signals:
+    void closing();
+
 private:
     Ui::TaskForm *ui;
     QNetworkAccessManager* networkAccessManager;
     QNetworkReply * qNetworkReply;
+
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // TASKFORM_H

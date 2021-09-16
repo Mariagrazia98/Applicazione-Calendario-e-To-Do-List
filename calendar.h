@@ -53,6 +53,8 @@ private slots:
 
     void parseEvent();
 
+    void onTaskFormClosed();
+
 private:
     Ui::Calendar *ui;
 private:
