@@ -3,13 +3,26 @@
 
 #include <iostream>
 
-TaskForm::TaskForm(QWidget *parent) :
+TaskForm::TaskForm(QWidget *parent, CalendarObject *calendarObject) :
         QWidget(parent),
         networkAccessManager(new QNetworkAccessManager),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
     ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
+    if (calendarObject) {
+        ui->name->setText(calendarObject->getName());
+        ui->description->setText((calendarObject->getDescription()));
+        ui->location->setText(calendarObject->getLocation());
+        CalendarEvent* calendarEvent = static_cast<CalendarEvent*>(calendarObject);
+        if(calendarEvent)
+        {
+            ui->comboBox->setCurrentIndex(0);
+            ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
+            ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
+        }
+        ui->buttonBox->setDisabled(true); // TODO: gestire la rimozione e la modifica di un task
+    }
 
 }
 
@@ -24,21 +37,25 @@ void TaskForm::on_buttonBox_rejected() {
 void TaskForm::on_buttonBox_accepted() {
     QString uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
                   ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
-    QBuffer* buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     QString filename = uid + ".ics";
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VEVENT\r\n"
                             "UID:" + uid + "\r\n"
-                            "VERSION:2.0\r\n"
-                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +"\r\n"
+                                           "VERSION:2.0\r\n"
+                                           "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
+                            "\r\n"
                             "SUMMARY:" + ui->name->text() + "\r\n"
-                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-                            "DTEND:" +  ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-                           "LOCATION:" + ui->location->text() + "\r\n"
-                            "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
-                           "TRANSP:OPAQUE\r\n";
+                                                            "DTSTART:" +
+                            ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                                                                                        "DTEND:" +
+                            ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                                                                                         "LOCATION:" +
+                            ui->location->text() + "\r\n"
+                                                   "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
+                                                                                                     "TRANSP:OPAQUE\r\n";
     /* TODO: campi opzionali
      if (!rrule.isEmpty())
     {
@@ -61,34 +78,32 @@ void TaskForm::on_buttonBox_accepted() {
     contentlength.append(buffersize);
 
     QNetworkRequest request;
-    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default/"+ filename));
+    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default/" + filename));
     /*todo: DEFAULT nome cartella calendario*/
 
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", contentlength);
 
-    qNetworkReply= networkAccessManager->put(request, buffer);
+    qNetworkReply = networkAccessManager->put(request, buffer);
 
-    if (qNetworkReply)
-    {
+    if (qNetworkReply) {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
                 this, SLOT(handleUploadHTTPError())); */
 
-        connect(networkAccessManager, SIGNAL(finished(QNetworkReply *)),
-                this, SLOT(handleUploadFinished(QNetworkReply *)));
-        connect(networkAccessManager, SIGNAL (authenticationRequired(QNetworkReply *, QAuthenticator *)),
-                this, SLOT(authenticationRequired(QNetworkReply *, QAuthenticator *)));
+        connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )),
+                this, SLOT(handleUploadFinished(QNetworkReply * )));
+        connect(networkAccessManager, SIGNAL (authenticationRequired(QNetworkReply * , QAuthenticator * )),
+                this, SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
         //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
-    }
-    else
-    {
+    } else {
         //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
         //emit error("Invalid reply pointer when requesting URL.");
-        QMessageBox::warning(this,"error", "something goes wrong");
+        QMessageBox::warning(this, "error", "something went wrong");
     }
 
 }
-void TaskForm::handleUploadFinished(QNetworkReply* reply){
+
+void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
 
@@ -118,12 +133,11 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
     }
 }
 
-void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime)
-{
+void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
     ui->expireDateTime->setDateTime(dateTime);
 }
 
-void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator* authenticator) {
+void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
     authenticator->setUser("admin");
     authenticator->setPassword("admin");
 }

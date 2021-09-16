@@ -13,6 +13,9 @@
 #include <QNetworkReply>
 #include <QAuthenticator>
 
+#include "calendarobject.h"
+#include "calendarevent.h"
+
 namespace Ui {
 class TaskForm;
 }
@@ -22,7 +25,7 @@ class TaskForm : public QWidget
     Q_OBJECT
 
 public:
-    explicit TaskForm(QWidget *parent = nullptr);
+    explicit TaskForm(QWidget *parent = nullptr, CalendarObject* calendarObject = nullptr);
     ~TaskForm();
 
 private slots:

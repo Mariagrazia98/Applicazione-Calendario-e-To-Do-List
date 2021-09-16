@@ -146,7 +146,7 @@ void Calendar::parseCalendar(QString calendar) {
     //answerString->setText(calendar);
 
     for (int i = 0; i < calendarObjects.length(); ++i) {
-        calendarObjectWidget *obj = new calendarObjectWidget(this, *calendarObjects[i]);
+        CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i]);
         obj->setVisible(true);
         obj->setEnabled(true);
         tasksLayout->addWidget(obj);
@@ -172,7 +172,7 @@ void Calendar::parseEvent() {
             static_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
                     getDateTimeFromString(value).toLocalTime());
         }
-        if (key.startsWith(QLatin1String("DTSTART"))) {
+        else if (key.startsWith(QLatin1String("DTSTART"))) {
             static_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTEND"))) {
             static_cast<CalendarEvent *>(calendarObject)->setEndDateTime(getDateTimeFromString(value).toLocalTime());

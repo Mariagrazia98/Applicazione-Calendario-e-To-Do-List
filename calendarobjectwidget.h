@@ -9,21 +9,26 @@
 
 #include "calendarobject.h"
 #include "calendarevent.h"
+#include "taskform.h"
 
 namespace Ui {
-class calendarObjectWidget;
+class CalendarObjectWidget;
 }
 
-class calendarObjectWidget : public QWidget
+class CalendarObjectWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    calendarObjectWidget(QWidget *parent, CalendarObject& calendarObject);
-    ~calendarObjectWidget();
+    CalendarObjectWidget(QWidget *parent, CalendarObject& calendarObject);
+    ~CalendarObjectWidget();
+
+private slots:
+    void onModifyButtonClicked();
+    void onRemoveButtonClicked();
 
 private:
-    Ui::calendarObjectWidget *ui;
+    Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
 
     void setupUI();

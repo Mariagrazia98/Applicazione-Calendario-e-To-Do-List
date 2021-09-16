@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-calendarObjectWidget::calendarObjectWidget(QWidget *parent, CalendarObject &calendarObject) :
+CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject) :
         QWidget(parent),
         calendarObject(&calendarObject),
         displayLayout(new QHBoxLayout),
@@ -12,17 +12,17 @@ calendarObjectWidget::calendarObjectWidget(QWidget *parent, CalendarObject &cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
-        ui(new Ui::calendarObjectWidget) {
+        ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
     setupUI();
 }
 
-calendarObjectWidget::~calendarObjectWidget() {
+CalendarObjectWidget::~CalendarObjectWidget() {
     delete ui;
 }
 
 
-void calendarObjectWidget::setupUI() {
+void CalendarObjectWidget::setupUI() {
     checkBox->setVisible(false); // TODO: set visible if To-Do
     setupText();
     displayLayout->addWidget(textBrowser);
@@ -30,7 +30,7 @@ void calendarObjectWidget::setupUI() {
     this->setLayout(displayLayout);
 }
 
-void calendarObjectWidget::setupText() {
+void CalendarObjectWidget::setupText() {
     QString text;
     text.append("Name: " + calendarObject->getName() + '\n');
     text.append("Description: " + calendarObject->getDescription() + '\n');
@@ -46,7 +46,7 @@ void calendarObjectWidget::setupText() {
 }
 
 
-void calendarObjectWidget::setupButtons() {
+void CalendarObjectWidget::setupButtons() {
     modifyButton->setIcon(QIcon(":/resources/edit.png"));
     if (modifyButton->icon().isNull()) {
         modifyButton->setText("Modify");
@@ -60,4 +60,19 @@ void calendarObjectWidget::setupButtons() {
     removeButton->setToolTip("Remove");
     buttonsLayout->addWidget(removeButton);
     displayLayout->addLayout(buttonsLayout);
+
+    connect(modifyButton, &QPushButton::clicked, this, &CalendarObjectWidget::onModifyButtonClicked);
+    connect(removeButton, &QPushButton::clicked, this, &CalendarObjectWidget::onRemoveButtonClicked);
 }
+
+void CalendarObjectWidget::onModifyButtonClicked() {
+    TaskForm *taskForm = new TaskForm(nullptr, calendarObject);
+    taskForm->show();
+    QMessageBox::warning(this, "Error", "Non premere Save o si sminchia tutto");
+    // TODO: segnalare la modifica al calendario (signal)
+}
+
+void CalendarObjectWidget::onRemoveButtonClicked() {
+    QMessageBox::warning(this, "ToDo", "To be implemented"); // TODO: implementare la rimozione
+}
+
