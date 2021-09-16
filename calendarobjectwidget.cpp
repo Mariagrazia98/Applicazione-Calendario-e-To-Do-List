@@ -38,8 +38,9 @@ void calendarObjectWidget::setupText() {
     CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
-        text.append("StartDateTime: " + calendarEvent->getStartDateTime().toString("yyyyMMddhhmmss") + '\n');
-        text.append("EndDateTime: " + calendarEvent->getEndDateTime().toString("yyyyMMddhhmmss") + '\n');
+        QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
+        text.append("StartDateTime: " + locale.toString(calendarEvent->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
+        text.append("EndDateTime: " + locale.toString(calendarEvent->getEndDateTime(), "dddd, d MMMM yyyy") + '\n');
     }
     textBrowser->setText(text);
 }
@@ -47,15 +48,13 @@ void calendarObjectWidget::setupText() {
 
 void calendarObjectWidget::setupButtons() {
     modifyButton->setIcon(QIcon(":/resources/edit.png"));
-    if(modifyButton->icon().isNull())
-    {
+    if (modifyButton->icon().isNull()) {
         modifyButton->setText("Modify");
     }
     modifyButton->setToolTip("Modify");
     buttonsLayout->addWidget(modifyButton);
     removeButton->setIcon(QIcon(":/resources/garbage.png"));
-    if(removeButton->icon().isNull())
-    {
+    if (removeButton->icon().isNull()) {
         removeButton->setText("Remove");
     }
     removeButton->setToolTip("Remove");
