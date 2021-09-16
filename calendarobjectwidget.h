@@ -35,6 +35,8 @@ private:
     QTextBrowser* textBrowser;
     QPushButton* modifyButton;
     QPushButton* removeButton;
+
+    void setupButtons();
 };
 
 #endif // CALENDAROBJECTWIDGET_H

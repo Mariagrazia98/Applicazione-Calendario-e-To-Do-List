@@ -10,16 +10,24 @@ calendarObjectWidget::calendarObjectWidget(QWidget *parent, CalendarObject &cale
         buttonsLayout(new QVBoxLayout),
         checkBox(new QCheckBox),
         textBrowser(new QTextBrowser),
-        modifyButton(new QPushButton("Modify", this)),
-        removeButton(new QPushButton("Remove", this)),
+        modifyButton(new QPushButton(this)),
+        removeButton(new QPushButton(this)),
         ui(new Ui::calendarObjectWidget) {
     ui->setupUi(this);
-    calendarObject.printCalendarObject();
     setupUI();
 }
 
 calendarObjectWidget::~calendarObjectWidget() {
     delete ui;
+}
+
+
+void calendarObjectWidget::setupUI() {
+    checkBox->setVisible(false); // TODO: set visible if To-Do
+    setupText();
+    displayLayout->addWidget(textBrowser);
+    setupButtons();
+    this->setLayout(displayLayout);
 }
 
 void calendarObjectWidget::setupText() {
@@ -33,17 +41,24 @@ void calendarObjectWidget::setupText() {
         text.append("StartDateTime: " + calendarEvent->getStartDateTime().toString("yyyyMMddhhmmss") + '\n');
         text.append("EndDateTime: " + calendarEvent->getEndDateTime().toString("yyyyMMddhhmmss") + '\n');
     }
-    std::cout << "------\n";
-    std::cout << text.toStdString() << '\n';
     textBrowser->setText(text);
 }
 
-void calendarObjectWidget::setupUI() {
-    checkBox->setVisible(false); // TODO: set visible if To-Do
-    setupText();
-    displayLayout->addWidget(textBrowser);
+
+void calendarObjectWidget::setupButtons() {
+    modifyButton->setIcon(QIcon(":/resources/edit.png"));
+    if(modifyButton->icon().isNull())
+    {
+        modifyButton->setText("Modify");
+    }
+    modifyButton->setToolTip("Modify");
     buttonsLayout->addWidget(modifyButton);
+    removeButton->setIcon(QIcon(":/resources/garbage.png"));
+    if(removeButton->icon().isNull())
+    {
+        removeButton->setText("Remove");
+    }
+    removeButton->setToolTip("Remove");
     buttonsLayout->addWidget(removeButton);
     displayLayout->addLayout(buttonsLayout);
-    this->setLayout(displayLayout);
 }
