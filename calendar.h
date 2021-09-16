@@ -24,6 +24,7 @@
 #include "taskForm.h"
 #include "calendarobject.h"
 #include "calendarevent.h"
+#include "calendarobjectwidget.h"
 
 namespace Ui {
     class Calendar;
@@ -78,6 +79,8 @@ private:
     QTextBrowser *answerString;
 
     QPushButton* addTaskButton;
+    //QPushButton* modifyTaskButton;
+    //QPushButton* removeTaskButton;
 
 
     QTextStream* stream;

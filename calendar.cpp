@@ -61,7 +61,6 @@ void Calendar::setupCalendar() {
     dateString->setAlignment(Qt::AlignCenter);
 
     tasksGroupBox->setLayout(tasksLayout);
-    tasksLayout->addWidget(answerString);
 
     addTaskButton = new QPushButton(tr("&Add"));
     addTaskButton->setEnabled(true);
@@ -149,10 +148,15 @@ void Calendar::parseCalendar(QString calendar) {
         parseEvent();
     }
     stream->seek(0);
-    answerString->setText(calendar);
+    //answerString->setText(calendar);
+
     for (int i = 0; i < calendarObjects.length(); ++i) {
-        calendarObjects[i]->printCalendarObject();
+        calendarObjectWidget* obj = new calendarObjectWidget(this, *calendarObjects[i]);
+        obj->setVisible(true);
+        obj->setEnabled(true);
+        tasksLayout->addWidget(obj);
     }
+
 }
 
 
@@ -190,17 +194,10 @@ void Calendar::parseEvent() {
 }
 
 void Calendar::addTaskButtonClicked() {
-    // disabilita calendar widget
-    this->setEnabled(false);
-    TaskForm *taskForm = new TaskForm(this);
-    // crea widget per aggiungere un nuovo task/evento/ecc...
-    // widget.show()
+    addTaskButton->setEnabled(false);
+    TaskForm *taskForm = new TaskForm();
     taskForm->show();
-    // all'invio del form crea la query
-    // chiude il widget
-    // riabilita il calendar widget
-    this->setEnabled(true);
-    // aggiorna il calendario se la richiesta va a buon fine
+    // TODO: aggiorna il calendario se la richiesta va a buon fine
 }
 
 QDateTime Calendar::getDateTimeFromString(const QString &string) {

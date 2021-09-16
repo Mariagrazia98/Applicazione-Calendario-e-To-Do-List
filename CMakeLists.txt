@@ -18,7 +18,9 @@ add_executable(${PROJECT_NAME} main.cpp
     loginform.h loginform.cpp loginform.ui
     calendar.h calendar.cpp calendar.ui
     taskform.h taskform.cpp taskform.ui
-        calendarobject.cpp calendarobject.h calendarevent.cpp calendarevent.h)
+    calendarobject.cpp calendarobject.h
+    calendarevent.cpp calendarevent.h
+    calendarobjectwidget.h calendarobjectwidget.cpp calendarobjectwidget.ui)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "
