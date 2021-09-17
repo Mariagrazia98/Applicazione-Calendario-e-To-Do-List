@@ -65,6 +65,8 @@ public:
     ConnectionManager *getConnectionManager() const;
     void setConnectionManager(ConnectionManager *connectionManager);
 
+    void getCalendarRequest();
+
 private:
     Ui::Calendar *ui;
 private:
@@ -73,6 +75,8 @@ private:
     void setupWeek();
 
     void createCalendarGroupBox();
+
+
 
     QComboBox *createColorComboBox();
 

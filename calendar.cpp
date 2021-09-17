@@ -2,7 +2,8 @@
 #include "calendar.h"
 #include "ui_calendar.h"
 #include <iostream>
-Calendar::Calendar(QWidget *parent, ConnectionManager* connectionManager) :
+
+Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         QWidget(parent),
         ui(new Ui::Calendar),
         dateString(new QTextBrowser),
@@ -10,6 +11,7 @@ Calendar::Calendar(QWidget *parent, ConnectionManager* connectionManager) :
         connectionManager(connectionManager),
         stream(new QTextStream()) {
     ui->setupUi(this);
+    connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
 
     createCalendarGroupBox();
 
@@ -25,15 +27,11 @@ Calendar::Calendar(QWidget *parent, ConnectionManager* connectionManager) :
     layout->setRowMinimumHeight(0, calendar->sizeHint().height());
     layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
     layout->setRowMinimumHeight(0, calendar->sizeHint().height());
-    layout->setColumnMinimumWidth(1, calendar->sizeHint().width()*1.5);
+    layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);
 
     setMinimumHeight(480);
 
     setWindowTitle(tr("Calendar Widget"));
-
-
-    connectionManager->getCalendarRequest();
-    connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
 }
 
 Calendar::~Calendar() {
@@ -42,7 +40,6 @@ Calendar::~Calendar() {
 
 void Calendar::setupCalendar() {
     // Calendar setup
-    std::cout<<"setUPCalendar";
     calendar->setFirstDayOfWeek(Qt::DayOfWeek(1));
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 31, 12));
@@ -142,7 +139,7 @@ void Calendar::createCalendarGroupBox() {
 }
 
 QComboBox *Calendar::createColorComboBox() {
-    QComboBox * comboBox = new QComboBox;
+    QComboBox *comboBox = new QComboBox;
     comboBox->addItem(tr("Red"), QColor(Qt::red));
     comboBox->addItem(tr("Blue"), QColor(Qt::blue));
     comboBox->addItem(tr("Black"), QColor(Qt::black));
@@ -198,8 +195,7 @@ void Calendar::parseEvent() {
         if (key.startsWith(QLatin1String("DTSTAMP"))) {
             static_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
                     getDateTimeFromString(value).toLocalTime());
-        }
-        else if (key.startsWith(QLatin1String("DTSTART"))) {
+        } else if (key.startsWith(QLatin1String("DTSTART"))) {
             static_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTEND"))) {
             static_cast<CalendarEvent *>(calendarObject)->setEndDateTime(getDateTimeFromString(value).toLocalTime());
@@ -240,7 +236,7 @@ void Calendar::onTaskFormClosed() {
     // TODO: aggiornare widgets se ce n'è bisogno
 }
 
-void Calendar::onTaskModified(CalendarObject& obj) {
+void Calendar::onTaskModified(CalendarObject &obj) {
 
 }
 
@@ -253,7 +249,6 @@ void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
 }
 
 void Calendar::finished(QNetworkReply *reply) {
-    std::cout<<"finished";
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
 
@@ -263,8 +258,11 @@ void Calendar::finished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         parseCalendar(answerString);
-        std::cout<<answerString.toStdString()<<std::endl;
     }
+}
+
+void Calendar::getCalendarRequest() {
+    connectionManager->getCalendarRequest();
 }
 
 
