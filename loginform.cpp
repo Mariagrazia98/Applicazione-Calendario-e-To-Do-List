@@ -36,8 +36,6 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         //QMessageBox::information(this, "Login", "Username and password is correct");
-
-        std::cout << "login done \n";
         accept();
         this->close();
     }

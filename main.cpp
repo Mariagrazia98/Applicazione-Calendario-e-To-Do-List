@@ -14,15 +14,9 @@ int main(int argc, char *argv[]) {
     LoginForm loginForm(nullptr, &connectionManager);
     Calendar calendar(nullptr, &connectionManager);
     if (loginForm.exec() == QDialog::Accepted) {
-        //mainWindow.show();
-        //QHBoxLayout* mainlayout = new QHBoxLayout();
-        //mainlayout->addWidget(calendar);
-        //mainWindow.setLayout(mainlayout);
-        calendar.getCalendarRequest();
+
+        calendar.setupConnection();
         calendar.show();
-        //calendar.setPassword(loginForm.getPassword());
     }
-    //Calendar calendar;
-    //calendar.show();
     return QApplication::exec();
 }

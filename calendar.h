@@ -40,8 +40,16 @@ public:
 
     ~Calendar();
 
+    void setupConnection();
+
+    void setConnectionManager(ConnectionManager *connectionManager);
+
+    void getCalendarRequest();
+
 public slots:
     void parseCalendar(QString calendar);
+
+    void finished(QNetworkReply* reply);
 
 private slots:
 
@@ -58,25 +66,17 @@ private slots:
     void onTaskFormClosed();
 
     void onTaskModified(CalendarObject& obj);
-    void finished(QNetworkReply* reply);
-private:
-    ConnectionManager* connectionManager;
-public:
-    ConnectionManager *getConnectionManager() const;
-    void setConnectionManager(ConnectionManager *connectionManager);
-
-    void getCalendarRequest();
 
 private:
     Ui::Calendar *ui;
+
+    ConnectionManager *getConnectionManager() const;
 private:
     void setupCalendar();
 
     void setupWeek();
 
     void createCalendarGroupBox();
-
-
 
     QComboBox *createColorComboBox();
 
@@ -104,6 +104,10 @@ private:
     QWidget* taskScrollWidget;
     QScrollArea* scrollArea;
     QVBoxLayout* taskViewLayout;
+
+    ConnectionManager* connectionManager;
+
+    void showSelectedDateTasks();
 };
 
 #endif // CALENDAR_H

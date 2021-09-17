@@ -11,7 +11,7 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         connectionManager(connectionManager),
         stream(new QTextStream()) {
     ui->setupUi(this);
-    connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
+    //connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
 
     createCalendarGroupBox();
 
@@ -87,12 +87,16 @@ void Calendar::setupCalendar() {
 }
 
 void Calendar::selectedDateChanged() {
-    currentDateEdit->setDate(calendar->selectedDate());
-    QDate date = currentDateEdit->date();
-    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
-    QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
-    dateString->setText(italianDate);
-    dateString->setAlignment(Qt::AlignCenter);
+    if(currentDateEdit->date() != calendar->selectedDate())
+    {
+        currentDateEdit->setDate(calendar->selectedDate());
+        QDate date = currentDateEdit->date();
+        QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
+        QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
+        dateString->setText(italianDate);
+        dateString->setAlignment(Qt::AlignCenter);
+        showSelectedDateTasks();
+    }
 }
 
 void Calendar::setupWeek() {
@@ -162,20 +166,28 @@ void Calendar::parseCalendar(QString calendar) {
     stream->seek(0);
     //answerString->setText(calendar);
 
-    for (int i = 0; i < calendarObjects.length(); ++i) {
-        CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i]);
-        obj->setVisible(true);
-        obj->setEnabled(true);
-        taskViewLayout->addWidget(obj);
-        connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
-        /*
-        obj = new CalendarObjectWidget(this, *calendarObjects[i]);
-        obj->setVisible(true);
-        obj->setEnabled(true);
-        taskViewLayout->addWidget(obj);
-         */
+    showSelectedDateTasks();
+}
+
+void Calendar::showSelectedDateTasks() {
+    QLayoutItem *item;
+
+    while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
     }
 
+    for (int i = 0; i < calendarObjects.length(); ++i) {
+        CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObjects[i]);
+        if (calendarEvent && calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
+            calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
+            CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i]);
+            obj->setVisible(true);
+            obj->setEnabled(true);
+            taskViewLayout->addWidget(obj);
+            connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+        }
+    }
 }
 
 
@@ -263,6 +275,11 @@ void Calendar::finished(QNetworkReply *reply) {
 
 void Calendar::getCalendarRequest() {
     connectionManager->getCalendarRequest();
+}
+
+void Calendar::setupConnection() {
+    QObject::connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
+    getCalendarRequest();
 }
 
 
