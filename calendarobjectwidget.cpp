@@ -43,6 +43,7 @@ void CalendarObjectWidget::setupText() {
         text.append("EndDateTime: " + locale.toString(calendarEvent->getEndDateTime(), "dddd, d MMMM yyyy") + '\n');
     }
     textBrowser->setText(text);
+    //textBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }
 
 

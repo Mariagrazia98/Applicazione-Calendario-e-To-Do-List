@@ -18,11 +18,15 @@ Calendar::Calendar(QWidget *parent) :
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
-    layout->setSizeConstraint(QLayout::SetFixedSize);
+    //layout->setSizeConstraint(QLayout::SetFixedSize);
     setLayout(layout);
 
-    calendarLayout->setRowMinimumHeight(0, calendar->sizeHint().height());
-    calendarLayout->setColumnMinimumWidth(0, calendar->sizeHint().width());
+    layout->setRowMinimumHeight(0, calendar->sizeHint().height());
+    layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
+    layout->setRowMinimumHeight(0, calendar->sizeHint().height());
+    layout->setColumnMinimumWidth(1, calendar->sizeHint().width()*1.5);
+
+    setMinimumHeight(480);
 
     setWindowTitle(tr("Calendar Widget"));
 }
@@ -56,11 +60,21 @@ void Calendar::setupCalendar() {
     dateString->setText(italianDate);
     tasksLayout->addWidget(dateString);
 
-    QSize size = dateString->document()->size().toSize();
+    //QSize size = dateString->document()->size().toSize();
     dateString->setFixedHeight(30);
     dateString->setAlignment(Qt::AlignCenter);
 
     tasksGroupBox->setLayout(tasksLayout);
+
+    scrollArea = new QScrollArea(this);
+    scrollArea->setWidgetResizable(true);
+
+    taskScrollWidget = new QWidget(scrollArea);
+    taskViewLayout = new QVBoxLayout();
+    taskScrollWidget->setLayout(taskViewLayout);
+    scrollArea->setWidget(taskScrollWidget);
+
+    tasksLayout->addWidget(scrollArea);
 
     addTaskButton = new QPushButton(tr("&Add"));
     addTaskButton->setEnabled(true);
@@ -149,7 +163,13 @@ void Calendar::parseCalendar(QString calendar) {
         CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i]);
         obj->setVisible(true);
         obj->setEnabled(true);
-        tasksLayout->addWidget(obj);
+        taskViewLayout->addWidget(obj);
+        /*
+        obj = new CalendarObjectWidget(this, *calendarObjects[i]);
+        obj->setVisible(true);
+        obj->setEnabled(true);
+        taskViewLayout->addWidget(obj);
+         */
     }
 
 }

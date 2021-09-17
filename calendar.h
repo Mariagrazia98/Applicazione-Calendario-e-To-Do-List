@@ -20,6 +20,7 @@
 #include <QAuthenticator>
 #include <QPushButton>
 #include <QDebug>
+#include <QScrollArea>
 
 #include "taskForm.h"
 #include "calendarobject.h"
@@ -84,9 +85,12 @@ private:
     //QPushButton* modifyTaskButton;
     //QPushButton* removeTaskButton;
 
-
     QTextStream* stream;
     QList<CalendarObject*> calendarObjects;
+
+    QWidget* taskScrollWidget;
+    QScrollArea* scrollArea;
+    QVBoxLayout* taskViewLayout;
 };
 
 #endif // CALENDAR_H
