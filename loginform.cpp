@@ -6,10 +6,9 @@
 LoginForm::LoginForm(QWidget *parent) :
         loggedIn(false),
         QDialog(parent),
-        networkAccessManager(new QNetworkAccessManager),
         ui(new Ui::LoginForm) {
-    ui->setupUi(this);
-    setupRequest();
+        ui->setupUi(this);
+
 }
 
 LoginForm::~LoginForm() {
@@ -23,19 +22,14 @@ void LoginForm::closeEvent(QCloseEvent *event) {
 }
 
 void LoginForm::on_loginButton_clicked() {
-    makeRequest();
+    connectionManager->setUsername(ui->usernameText->text());
+    connectionManager->setPassword(ui->passwordText->text());
+    connectionManager->getCalendarRequest();
+    connect(connectionManager, &ConnectionManager::finished,this, &LoginForm::responseHandler );
 }
 
-void LoginForm::setupRequest() {
-    connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(responseHandler(QNetworkReply * )));
-    connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )), this,
-            SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
-}
-
-void LoginForm::makeRequest() {
-    QNetworkRequest request;
-    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default?export"));
-    networkAccessManager->get(request);
+void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
+    this->connectionManager=connectionManager;
 }
 
 void LoginForm::responseHandler(QNetworkReply *reply) {
@@ -48,16 +42,8 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         //QMessageBox::information(this, "Login", "Username and password is correct");
-        loggedIn = true;
         accept();
-        emit(calendarObtained(answerString));
         this->close();
     }
 }
 
-void LoginForm::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
-    QString username = ui->usernameText->text();
-    QString password = ui->passwordText->text();
-    authenticator->setUser(username);
-    authenticator->setPassword(password);
-}

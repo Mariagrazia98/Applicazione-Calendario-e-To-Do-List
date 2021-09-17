@@ -27,6 +27,9 @@ private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
 
+
+    signals:
+    void taskModified( CalendarObject& obj);
 private:
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;

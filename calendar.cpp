@@ -1,12 +1,13 @@
 #include <iostream>
 #include "calendar.h"
 #include "ui_calendar.h"
-
-Calendar::Calendar(QWidget *parent) :
+#include <iostream>
+Calendar::Calendar(QWidget *parent, ConnectionManager* connectionManager) :
         QWidget(parent),
         ui(new Ui::Calendar),
         dateString(new QTextBrowser),
         answerString(new QTextBrowser),
+        connectionManager(connectionManager),
         stream(new QTextStream()) {
     ui->setupUi(this);
 
@@ -29,6 +30,10 @@ Calendar::Calendar(QWidget *parent) :
     setMinimumHeight(480);
 
     setWindowTitle(tr("Calendar Widget"));
+
+
+    connectionManager->getCalendarRequest();
+    connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
 }
 
 Calendar::~Calendar() {
@@ -37,6 +42,7 @@ Calendar::~Calendar() {
 
 void Calendar::setupCalendar() {
     // Calendar setup
+    std::cout<<"setUPCalendar";
     calendar->setFirstDayOfWeek(Qt::DayOfWeek(1));
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 31, 12));
@@ -164,6 +170,7 @@ void Calendar::parseCalendar(QString calendar) {
         obj->setVisible(true);
         obj->setEnabled(true);
         taskViewLayout->addWidget(obj);
+        connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
         /*
         obj = new CalendarObjectWidget(this, *calendarObjects[i]);
         obj->setVisible(true);
@@ -231,6 +238,33 @@ QDateTime Calendar::getDateTimeFromString(const QString &string) {
 void Calendar::onTaskFormClosed() {
     addTaskButton->setEnabled(true);
     // TODO: aggiornare widgets se ce n'è bisogno
+}
+
+void Calendar::onTaskModified(CalendarObject& obj) {
+
+}
+
+ConnectionManager *Calendar::getConnectionManager() const {
+    return connectionManager;
+}
+
+void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
+    Calendar::connectionManager = connectionManager;
+}
+
+void Calendar::finished(QNetworkReply *reply) {
+    std::cout<<"finished";
+    QByteArray answer = reply->readAll();
+    QString answerString = QString::fromUtf8(answer);
+
+    QNetworkReply::NetworkError error = reply->error();
+    const QString &errorString = reply->errorString();
+    if (error != QNetworkReply::NoError) {
+        QMessageBox::warning(this, "Error", errorString);
+    } else {
+        parseCalendar(answerString);
+        std::cout<<answerString.toStdString()<<std::endl;
+    }
 }
 
 

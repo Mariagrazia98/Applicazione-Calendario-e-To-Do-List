@@ -5,6 +5,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QAuthenticator>
+#include "connectionManager.h"
 
 namespace Ui {
 class LoginForm;
@@ -17,28 +18,18 @@ class LoginForm : public QDialog
 public:
     explicit LoginForm(QWidget *parent = nullptr);
     ~LoginForm();
-
+    void setConnectionManager(ConnectionManager* connectionManager);
     void closeEvent(QCloseEvent* event);
 
 private slots:
     void on_loginButton_clicked();
-
-    void responseHandler(QNetworkReply*);
-    void authenticationRequired(QNetworkReply *, QAuthenticator *);
-
-    signals:
-    void calendarObtained(QString calendar);
-
-
+    void responseHandler(QNetworkReply *reply);
 private:
     Ui::LoginForm *ui;
     bool loggedIn;
+    ConnectionManager* connectionManager;
 
-    /* Network functions */
-    void setupRequest();
-    void makeRequest();
 
-    QNetworkAccessManager* networkAccessManager;
 };
 
 #endif // LOGINFORM_H

@@ -69,8 +69,8 @@ void CalendarObjectWidget::setupButtons() {
 void CalendarObjectWidget::onModifyButtonClicked() {
     TaskForm *taskForm = new TaskForm(nullptr, calendarObject);
     taskForm->show();
-    QMessageBox::warning(this, "Error", "Non premere Save o si sminchia tutto");
-    // TODO: segnalare la modifica al calendario (signal)
+    emit(taskModified(*calendarObject));
+
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {

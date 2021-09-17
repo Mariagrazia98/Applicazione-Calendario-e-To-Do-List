@@ -26,6 +26,7 @@
 #include "calendarobject.h"
 #include "calendarevent.h"
 #include "calendarobjectwidget.h"
+#include "connectionManager.h"
 
 namespace Ui {
     class Calendar;
@@ -35,7 +36,7 @@ class Calendar : public QWidget {
 Q_OBJECT
 
 public:
-    explicit Calendar(QWidget *parent = nullptr);
+   explicit Calendar(QWidget *parent = nullptr, ConnectionManager* connectionManager= nullptr);
 
     ~Calendar();
 
@@ -55,6 +56,14 @@ private slots:
     void parseEvent();
 
     void onTaskFormClosed();
+
+    void onTaskModified(CalendarObject& obj);
+    void finished(QNetworkReply* reply);
+private:
+    ConnectionManager* connectionManager;
+public:
+    ConnectionManager *getConnectionManager() const;
+    void setConnectionManager(ConnectionManager *connectionManager);
 
 private:
     Ui::Calendar *ui;

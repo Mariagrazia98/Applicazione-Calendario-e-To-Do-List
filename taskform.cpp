@@ -21,7 +21,7 @@ TaskForm::TaskForm(QWidget *parent, CalendarObject *calendarObject) :
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
             ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
         }
-        ui->buttonBox->setDisabled(true); // TODO: gestire la rimozione e la modifica di un task
+       // ui->buttonBox->setDisabled(true); // TODO: gestire la rimozione e la modifica di un task
     }
 
 }
