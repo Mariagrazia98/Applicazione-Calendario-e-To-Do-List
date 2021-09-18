@@ -20,19 +20,21 @@ class CalendarObjectWidget : public QWidget
     Q_OBJECT
 
 public:
-    CalendarObjectWidget(QWidget *parent, CalendarObject& calendarObject);
+    CalendarObjectWidget(QWidget *parent, CalendarObject& calendarObject, ConnectionManager* connectionManager);
     ~CalendarObjectWidget();
 
 private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
-
-
+    void finished(QNetworkReply* reply);
     signals:
     void taskModified( CalendarObject& obj);
+    void taskDeleted(CalendarObject& obj);
+
 private:
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
+    QMetaObject::Connection connectionToFinish;
 
     void setupUI();
     void setupText();
@@ -43,6 +45,7 @@ private:
     QTextBrowser* textBrowser;
     QPushButton* modifyButton;
     QPushButton* removeButton;
+    ConnectionManager* connectionManager;
 
     void setupButtons();
 };

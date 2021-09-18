@@ -3,7 +3,8 @@
 
 #include <iostream>
 
-CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject) :
+CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
+                                           ConnectionManager *connectionManager) :
         QWidget(parent),
         calendarObject(&calendarObject),
         displayLayout(new QHBoxLayout),
@@ -12,6 +13,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
+        connectionManager(connectionManager),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
     setupUI();
@@ -69,11 +71,28 @@ void CalendarObjectWidget::setupButtons() {
 void CalendarObjectWidget::onModifyButtonClicked() {
     TaskForm *taskForm = new TaskForm(nullptr, calendarObject);
     taskForm->show();
-    emit(taskModified(*calendarObject));
+    //emit(taskModified(*calendarObject));
 
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
-    QMessageBox::warning(this, "ToDo", "To be implemented"); // TODO: implementare la rimozione
+    connectionManager->deleteCalendarObject(calendarObject->getUID());
+    connectionToFinish= QObject::connect(connectionManager, &ConnectionManager::finished, this, &CalendarObjectWidget::finished);
 }
+
+void CalendarObjectWidget::finished(QNetworkReply *reply) {
+    disconnect(connectionToFinish);
+    QByteArray answer = reply->readAll();
+    QString answerString = QString::fromUtf8(answer);
+    QNetworkReply::NetworkError error = reply->error();
+    const QString &errorString = reply->errorString();
+    if (error != QNetworkReply::NoError) {
+        std::cout << error << "\n";
+        QMessageBox::warning(this, "Error", errorString);
+    } else {
+        std::cout<<"before emit\n";
+        emit(taskDeleted(*calendarObject));
+    }
+}
+
 

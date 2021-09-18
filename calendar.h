@@ -69,6 +69,7 @@ private slots:
     void onTaskFormClosed();
 
     void onTaskModified(CalendarObject &obj);
+    void onTaskDeleted(CalendarObject &obj);
 
 private:
     void setupCalendar();
@@ -105,6 +106,7 @@ private:
     QVBoxLayout *taskViewLayout;
 
     ConnectionManager *connectionManager;
+    QMetaObject::Connection connectionToFinished;
 
 };
 

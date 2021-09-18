@@ -139,7 +139,7 @@ void Calendar::createCalendarGroupBox() {
 }
 
 QComboBox *Calendar::createColorComboBox() {
-    QComboBox * comboBox = new QComboBox;
+    QComboBox *comboBox = new QComboBox;
     comboBox->addItem(tr("Red"), QColor(Qt::red));
     comboBox->addItem(tr("Blue"), QColor(Qt::blue));
     comboBox->addItem(tr("Black"), QColor(Qt::black));
@@ -165,7 +165,7 @@ void Calendar::parseCalendar(QString calendar) {
 }
 
 void Calendar::showSelectedDateTasks() {
-    QLayoutItem * item;
+    QLayoutItem *item;
 
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -176,11 +176,12 @@ void Calendar::showSelectedDateTasks() {
         CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObjects[i]);
         if (calendarEvent && calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
             calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
-            CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i]);
+            CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
             obj->setVisible(true);
             obj->setEnabled(true);
             taskViewLayout->addWidget(obj);
             connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+            connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
         }
     }
 }
@@ -244,7 +245,7 @@ void Calendar::onTaskFormClosed() {
 }
 
 void Calendar::onTaskModified(CalendarObject &obj) {
-
+    setupConnection();
 }
 
 void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
@@ -252,6 +253,8 @@ void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
 }
 
 void Calendar::finished(QNetworkReply *reply) {
+    disconnect(connectionToFinished); //DISCONNECT
+
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
 
@@ -260,6 +263,8 @@ void Calendar::finished(QNetworkReply *reply) {
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
+        calendarObjects.clear();
+        std::cout << "parse calendar after clear\n";
         parseCalendar(answerString);
     }
 }
@@ -269,8 +274,13 @@ void Calendar::getCalendarRequest() {
 }
 
 void Calendar::setupConnection() {
-    QObject::connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
+    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished); //Connect
     getCalendarRequest();
+}
+
+void Calendar::onTaskDeleted(CalendarObject &obj) {
+    std::cout<<"on task deleted\n";
+    setupConnection();
 }
 
 

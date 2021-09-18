@@ -9,12 +9,15 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QAuthenticator>
+#include <QMessageBox>
+#include <QWidget>
 class ConnectionManager: public QObject {
     Q_OBJECT
 public:
 
     ConnectionManager(QString username="", QString password="");
     void getCalendarRequest();
+    void deleteCalendarObject(const QString &UID);
     void setUsername(QString username);
     void setPassword(QString password);
 signals:
@@ -23,11 +26,12 @@ private:
     QNetworkAccessManager* networkAccessManager;
     QString  username;
     QString password;
-
+    QUrl    serverUrl;
     void setup();
 private slots:
     void responseHandler(QNetworkReply*);
     void authenticationRequired(QNetworkReply *, QAuthenticator *);
+
 
 };
 
