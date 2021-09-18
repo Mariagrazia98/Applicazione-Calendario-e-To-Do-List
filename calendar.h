@@ -22,6 +22,8 @@
 #include <QDebug>
 #include <QScrollArea>
 
+#include <iostream>
+
 #include "taskForm.h"
 #include "calendarobject.h"
 #include "calendarevent.h"
@@ -33,10 +35,10 @@ namespace Ui {
 }
 
 class Calendar : public QWidget {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-   explicit Calendar(QWidget *parent = nullptr, ConnectionManager* connectionManager= nullptr);
+    explicit Calendar(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
 
     ~Calendar();
 
@@ -47,9 +49,10 @@ public:
     void getCalendarRequest();
 
 public slots:
+
     void parseCalendar(QString calendar);
 
-    void finished(QNetworkReply* reply);
+    void finished(QNetworkReply *reply);
 
 private slots:
 
@@ -65,12 +68,8 @@ private slots:
 
     void onTaskFormClosed();
 
-    void onTaskModified(CalendarObject& obj);
+    void onTaskModified(CalendarObject &obj);
 
-private:
-    Ui::Calendar *ui;
-
-    ConnectionManager *getConnectionManager() const;
 private:
     void setupCalendar();
 
@@ -78,9 +77,13 @@ private:
 
     void createCalendarGroupBox();
 
+    void showSelectedDateTasks();
+
     QComboBox *createColorComboBox();
 
-    QDateTime getDateTimeFromString(const QString& string);
+    QDateTime getDateTimeFromString(const QString &string);
+
+    Ui::Calendar *ui;
 
     QGroupBox *calendarGroupBox; // calendar group box (left)
     QGridLayout *calendarLayout;
@@ -92,22 +95,17 @@ private:
     QDateEdit *currentDateEdit;
     QTextBrowser *dateString;
 
-    QTextBrowser *answerString;
+    QPushButton *addTaskButton;
 
-    QPushButton* addTaskButton;
-    //QPushButton* modifyTaskButton;
-    //QPushButton* removeTaskButton;
+    QTextStream *stream;
+    QList<CalendarObject *> calendarObjects;
 
-    QTextStream* stream;
-    QList<CalendarObject*> calendarObjects;
+    QWidget *taskScrollWidget;
+    QScrollArea *scrollArea;
+    QVBoxLayout *taskViewLayout;
 
-    QWidget* taskScrollWidget;
-    QScrollArea* scrollArea;
-    QVBoxLayout* taskViewLayout;
+    ConnectionManager *connectionManager;
 
-    ConnectionManager* connectionManager;
-
-    void showSelectedDateTasks();
 };
 
 #endif // CALENDAR_H

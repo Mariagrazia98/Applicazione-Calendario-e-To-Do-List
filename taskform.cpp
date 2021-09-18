@@ -1,11 +1,14 @@
 #include "taskform.h"
 #include "ui_taskform.h"
 
+
 #include <iostream>
 
 TaskForm::TaskForm(QWidget *parent, CalendarObject *calendarObject) :
         QWidget(parent),
+        //connectionManager(connectionManager),
         networkAccessManager(new QNetworkAccessManager),
+        calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
@@ -14,14 +17,12 @@ TaskForm::TaskForm(QWidget *parent, CalendarObject *calendarObject) :
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
-        CalendarEvent* calendarEvent = static_cast<CalendarEvent*>(calendarObject);
-        if(calendarEvent)
-        {
+        CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObject);
+        if (calendarEvent) {
             ui->comboBox->setCurrentIndex(0);
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
             ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
         }
-       // ui->buttonBox->setDisabled(true); // TODO: gestire la rimozione e la modifica di un task
     }
 
 }
@@ -35,9 +36,15 @@ void TaskForm::on_buttonBox_rejected() {
 }
 
 void TaskForm::on_buttonBox_accepted() {
-    QString uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
-                  ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
-    QBuffer *buffer = new QBuffer();
+    QString uid;
+    if (calendarObject) {
+        uid = calendarObject->getUID();
+    } else {
+        uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
+              ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
+    }
+
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     QString filename = uid + ".ics";
@@ -92,7 +99,7 @@ void TaskForm::on_buttonBox_accepted() {
 
         connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )),
                 this, SLOT(handleUploadFinished(QNetworkReply * )));
-        connect(networkAccessManager, SIGNAL (authenticationRequired(QNetworkReply * , QAuthenticator * )),
+        connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )),
                 this, SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
         //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
     } else {

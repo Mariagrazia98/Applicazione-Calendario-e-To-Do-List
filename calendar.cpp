@@ -1,13 +1,10 @@
-#include <iostream>
 #include "calendar.h"
 #include "ui_calendar.h"
-#include <iostream>
 
 Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         QWidget(parent),
         ui(new Ui::Calendar),
         dateString(new QTextBrowser),
-        answerString(new QTextBrowser),
         connectionManager(connectionManager),
         stream(new QTextStream()) {
     ui->setupUi(this);
@@ -87,8 +84,7 @@ void Calendar::setupCalendar() {
 }
 
 void Calendar::selectedDateChanged() {
-    if(currentDateEdit->date() != calendar->selectedDate())
-    {
+    if (currentDateEdit->date() != calendar->selectedDate()) {
         currentDateEdit->setDate(calendar->selectedDate());
         QDate date = currentDateEdit->date();
         QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
@@ -127,7 +123,7 @@ void Calendar::reformatCalendarPage() {
 }
 
 void Calendar::createCalendarGroupBox() {
-    calendarGroupBox = new QGroupBox(tr("Preview"));
+    calendarGroupBox = new QGroupBox(tr("Calendar"));
 
     calendar = new QCalendarWidget;
     calendar->setMinimumDate(QDate(2000, 1, 1));
@@ -143,7 +139,7 @@ void Calendar::createCalendarGroupBox() {
 }
 
 QComboBox *Calendar::createColorComboBox() {
-    QComboBox *comboBox = new QComboBox;
+    QComboBox * comboBox = new QComboBox;
     comboBox->addItem(tr("Red"), QColor(Qt::red));
     comboBox->addItem(tr("Blue"), QColor(Qt::blue));
     comboBox->addItem(tr("Black"), QColor(Qt::black));
@@ -156,7 +152,7 @@ void Calendar::onDateTextChanged() {
 }
 
 void Calendar::parseCalendar(QString calendar) {
-    stream = new QTextStream(&calendar);
+    stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
     while (stream->readLineInto(&line)) {
         if (line.contains("BEGIN:VEVENT")) {
@@ -164,13 +160,12 @@ void Calendar::parseCalendar(QString calendar) {
         }
     }
     stream->seek(0);
-    //answerString->setText(calendar);
 
     showSelectedDateTasks();
 }
 
 void Calendar::showSelectedDateTasks() {
-    QLayoutItem *item;
+    QLayoutItem * item;
 
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -250,10 +245,6 @@ void Calendar::onTaskFormClosed() {
 
 void Calendar::onTaskModified(CalendarObject &obj) {
 
-}
-
-ConnectionManager *Calendar::getConnectionManager() const {
-    return connectionManager;
 }
 
 void Calendar::setConnectionManager(ConnectionManager *connectionManager) {

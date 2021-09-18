@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <iostream>
 
-LoginForm::LoginForm(QWidget *parent, ConnectionManager* connectionManager) :
+LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
         QDialog(parent),
         connectionManager(connectionManager),
         ui(new Ui::LoginForm) {
