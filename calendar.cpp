@@ -264,7 +264,7 @@ void Calendar::finished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         calendarObjects.clear();
-        std::cout << "parse calendar after clear\n";
+
         parseCalendar(answerString);
     }
 }
@@ -274,12 +274,13 @@ void Calendar::getCalendarRequest() {
 }
 
 void Calendar::setupConnection() {
-    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished); //Connect
+    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::finished, this,
+                                            &Calendar::finished); //Connect
     getCalendarRequest();
 }
 
 void Calendar::onTaskDeleted(CalendarObject &obj) {
-    std::cout<<"on task deleted\n";
+
     setupConnection();
 }
 

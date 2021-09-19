@@ -76,12 +76,16 @@ void CalendarObjectWidget::onModifyButtonClicked() {
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
+
+    connect(connectionManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(finished(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
-    connectionToFinish= QObject::connect(connectionManager, &ConnectionManager::finished, this, &CalendarObjectWidget::finished);
+
+
 }
 
 void CalendarObjectWidget::finished(QNetworkReply *reply) {
-    disconnect(connectionToFinish);
+
+    //disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();
@@ -90,7 +94,7 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
         std::cout << error << "\n";
         QMessageBox::warning(this, "Error", errorString);
     } else {
-        std::cout<<"before emit\n";
+
         emit(taskDeleted(*calendarObject));
     }
 }

@@ -32,8 +32,9 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 }
 
 void ConnectionManager::responseHandler(QNetworkReply *reply) {
-    std::cout<<"Response handler finished\n";
+
     emit(finished(reply));
+
 }
 
 void ConnectionManager::setUsername(QString username) {
@@ -52,10 +53,13 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     request.setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", 0);
+
     QNetworkReply *reply = networkAccessManager->deleteResource(request);
+
     if (!reply) {
         std::cerr << "something went wrong" << std::endl;
     } else {
+
         QMessageBox::information(nullptr, "ToDo", "Task deleted successfully");
     }
 }
