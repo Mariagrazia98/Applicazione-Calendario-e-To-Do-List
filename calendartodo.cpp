@@ -10,11 +10,11 @@ unsigned int CalendarToDo::getPriority() const {
 
 void CalendarToDo::setPriority(unsigned int priority) {
     if (priority < 0) {
-        CalendarToDo::priority = 0;
+        this->priority = 0;
     } else if (priority > 9) {
-        CalendarToDo::priority = 9;
+        this->priority = 9;
     } else {
-        CalendarToDo::priority = priority;
+        this->priority = priority;
     }
 }
 
@@ -22,11 +22,11 @@ const std::optional<QDateTime> &CalendarToDo::getStartDateTime() const {
     return startDateTime;
 }
 
-void CalendarToDo::setStartDateTime(const std::optional<QDateTime> &startDateTime) {
-    if (dueDateTime && startDateTime && dueDateTime < startDateTime) {
-        CalendarToDo::startDateTime = dueDateTime;
+void CalendarToDo::setStartDateTime(const QDateTime &startDateTime) {
+    if (dueDateTime && this->startDateTime && dueDateTime < startDateTime) {
+        this->startDateTime = dueDateTime;
     } else {
-        CalendarToDo::startDateTime = startDateTime;
+        this->startDateTime = startDateTime;
     }
 
 }
@@ -35,11 +35,11 @@ const std::optional<QDateTime> &CalendarToDo::getDueDateTime() const {
     return dueDateTime;
 }
 
-void CalendarToDo::setDueDateTime(const std::optional<QDateTime> &dueDateTime) {
-    if (dueDateTime && startDateTime && dueDateTime < startDateTime) {
-        CalendarToDo::dueDateTime = startDateTime;
+void CalendarToDo::setDueDateTime(const QDateTime &dueDateTime) {
+    if (this->dueDateTime && startDateTime && dueDateTime < startDateTime) {
+        this->dueDateTime = startDateTime;
     } else {
-        CalendarToDo::dueDateTime = dueDateTime;
+        this->dueDateTime = dueDateTime;
     }
 
 }

@@ -27,7 +27,7 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 void CalendarObjectWidget::setupUI() {
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent) {
-        checkBox->setVisible(false); // TODO: set visible if To-Do
+        checkBox->setVisible(false);
     } else {
         checkBox->setVisible(true);
     }
@@ -61,7 +61,7 @@ void CalendarObjectWidget::setupText() {
             }
             if(calendarToDo->getDueDateTime())
             {
-                text.append("EndDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
+                text.append("DueDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
             }
 
         }

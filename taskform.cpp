@@ -21,8 +21,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->comboBox->setCurrentIndex(0);
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
             ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
-        }
-        else{
+        } else {
             ui->comboBox->setCurrentIndex(1);
             ui->expireLabel->setText("To complete");
         }
@@ -64,16 +63,15 @@ void TaskForm::on_buttonBox_accepted() {
                                                             "DTSTART:" +
                             ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
 
-                                                                                         "LOCATION:" +
+                                                                                        "LOCATION:" +
                             ui->location->text() + "\r\n"
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
     // TODO: campi opzionali
 
-    if(ui->comboBox->currentIndex() == 0)
-    {
+    if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
-    }else{
+    } else {
         requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
         requestString.append("STATUS:IN-PROCESS\r\n");

@@ -168,13 +168,11 @@ void Calendar::parseCalendar(QString calendar) {
 
 void Calendar::showSelectedDateTasks() {
     QLayoutItem *item;
-    //std::cout << "showSelectedDateTasks\n";
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
         delete item;
     }
-
-    for (int i = 0; i < calendarObjects.length(); ++i) {
+    for (int i = 0; i < calendarObjects.length(); i++) {
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
         if (calendarEvent) {
             if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
@@ -187,20 +185,18 @@ void Calendar::showSelectedDateTasks() {
                 connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
             }
         } else {
-            //TODO: fixare todo che non compaiono nei giorni tra la data di inizio e di fine
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
             if (!calendarToDo->getCompletedDateTime() &&
-                calendarToDo->getCreationDateTime().date() <= calendar->selectedDate()) {
-                if (calendarToDo->getDueDateTime() &&
-                    calendarToDo->getDueDateTime()->date() < calendar->selectedDate()) {
-                    break;
+                calendarToDo->getStartDateTime()->date() <= calendar->selectedDate()) {
+                if (!(calendarToDo->getDueDateTime() &&
+                      calendarToDo->getDueDateTime()->date() < calendar->selectedDate())) {
+                    CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
+                    obj->setVisible(true);
+                    obj->setEnabled(true);
+                    taskViewLayout->addWidget(obj);
+                    connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+                    connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
                 }
-                CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
-                obj->setVisible(true);
-                obj->setEnabled(true);
-                taskViewLayout->addWidget(obj);
-                connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
-                connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
             }
         }
     }
@@ -221,7 +217,7 @@ void Calendar::parseEvent() {
         const QString key = line.mid(0, deliminatorPosition);
         QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
         if (key.startsWith(QLatin1String("DTSTAMP"))) {
-            dynamic_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
+            calendarObject->setCreationDateTime(
                     getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTSTART"))) {
             dynamic_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());

@@ -28,11 +28,11 @@ public:
 
     const std::optional<QDateTime> &getStartDateTime() const;
 
-    void setStartDateTime(const std::optional<QDateTime> &startDateTime);
+    void setStartDateTime(const QDateTime &startDateTime);
 
     const std::optional<QDateTime> &getDueDateTime() const;
 
-    void setDueDateTime(const std::optional<QDateTime> &dueDateTime);
+    void setDueDateTime(const QDateTime &dueDateTime);
 
     const std::optional<QDateTime> &getCompletedDateTime() const;
 
