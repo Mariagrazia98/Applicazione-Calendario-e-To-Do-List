@@ -22,6 +22,10 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
             ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
         }
+        else{
+            ui->comboBox->setCurrentIndex(1);
+            ui->expireLabel->setText("To complete");
+        }
     }
 
 }
