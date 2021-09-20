@@ -5,11 +5,6 @@
 #include <iostream>
 #include "calendarevent.h"
 
-CalendarEvent::CalendarEvent(QObject *parent) : CalendarObject(parent) {
-
-}
-
-
 CalendarEvent::~CalendarEvent() {
 
 }

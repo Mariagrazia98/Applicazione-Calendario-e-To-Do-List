@@ -27,6 +27,7 @@
 #include "taskForm.h"
 #include "calendarobject.h"
 #include "calendarevent.h"
+#include "calendartodo.h"
 #include "calendarobjectwidget.h"
 #include "connectionManager.h"
 
@@ -85,6 +86,8 @@ private:
 
     QDateTime getDateTimeFromString(const QString &string);
 
+    void parseToDo();
+
     Ui::Calendar *ui;
 
     QGroupBox *calendarGroupBox; // calendar group box (left)
@@ -108,6 +111,7 @@ private:
 
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
+
 
 };
 

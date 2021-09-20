@@ -157,6 +157,8 @@ void Calendar::parseCalendar(QString calendar) {
     while (stream->readLineInto(&line)) {
         if (line.contains("BEGIN:VEVENT")) {
             parseEvent();
+        } else if (line.contains("BEGIN:VTODO")) {
+            parseToDo();
         }
     }
     stream->seek(0);
@@ -166,22 +168,40 @@ void Calendar::parseCalendar(QString calendar) {
 
 void Calendar::showSelectedDateTasks() {
     QLayoutItem *item;
-
+    //std::cout << "showSelectedDateTasks\n";
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
         delete item;
     }
 
     for (int i = 0; i < calendarObjects.length(); ++i) {
-        CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObjects[i]);
-        if (calendarEvent && calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
-            calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
-            CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
-            obj->setVisible(true);
-            obj->setEnabled(true);
-            taskViewLayout->addWidget(obj);
-            connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
-            connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
+        if (calendarEvent) {
+            if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
+                calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
+                CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
+                obj->setVisible(true);
+                obj->setEnabled(true);
+                taskViewLayout->addWidget(obj);
+                connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+                connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+            }
+        } else {
+            //TODO: fixare todo che non compaiono nei giorni tra la data di inizio e di fine
+            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
+            if (!calendarToDo->getCompletedDateTime() &&
+                calendarToDo->getCreationDateTime().date() <= calendar->selectedDate()) {
+                if (calendarToDo->getDueDateTime() &&
+                    calendarToDo->getDueDateTime()->date() < calendar->selectedDate()) {
+                    break;
+                }
+                CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
+                obj->setVisible(true);
+                obj->setEnabled(true);
+                taskViewLayout->addWidget(obj);
+                connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+                connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+            }
         }
     }
 }
@@ -189,7 +209,7 @@ void Calendar::showSelectedDateTasks() {
 
 void Calendar::parseEvent() {
     QString line;
-    CalendarObject *calendarObject = new CalendarEvent(this);
+    CalendarObject *calendarObject = new CalendarEvent();
     while (stream->readLineInto(&line)) {
         if (line.contains(QByteArray("END:VEVENT"))) {
             if (calendarObject->getName() != "") {
@@ -201,12 +221,12 @@ void Calendar::parseEvent() {
         const QString key = line.mid(0, deliminatorPosition);
         QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
         if (key.startsWith(QLatin1String("DTSTAMP"))) {
-            static_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
+            dynamic_cast<CalendarEvent *>(calendarObject)->setCreationDateTime(
                     getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTSTART"))) {
-            static_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
+            dynamic_cast<CalendarEvent *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTEND"))) {
-            static_cast<CalendarEvent *>(calendarObject)->setEndDateTime(getDateTimeFromString(value).toLocalTime());
+            dynamic_cast<CalendarEvent *>(calendarObject)->setEndDateTime(getDateTimeFromString(value).toLocalTime());
         } else if (key == QLatin1String("SUMMARY")) {
             calendarObject->setName(value);
         } else if (key == QLatin1String("LOCATION")) {
@@ -282,6 +302,40 @@ void Calendar::setupConnection() {
 
 void Calendar::onTaskDeleted(CalendarObject &obj) {
     setupConnection();
+}
+
+void Calendar::parseToDo() {
+    QString line;
+    CalendarObject *calendarObject = new CalendarToDo();
+    while (stream->readLineInto(&line)) {
+        if (line.contains(QByteArray("END:VTODO"))) {
+            if (calendarObject->getName() != "") {
+                calendarObjects.append(calendarObject);
+            }
+            return;
+        }
+        const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
+        const QString key = line.mid(0, deliminatorPosition);
+        QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
+        if (key.startsWith(QLatin1String("DTSTAMP"))) {
+            calendarObject->setCreationDateTime(
+                    getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("DTSTART"))) {
+            dynamic_cast<CalendarToDo *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("DUE"))) {
+            dynamic_cast<CalendarToDo *>(calendarObject)->setDueDateTime(getDateTimeFromString(value).toLocalTime());
+        } else if (key == QLatin1String("SUMMARY")) {
+            calendarObject->setName(value);
+        } else if (key == QLatin1String("LOCATION")) {
+            calendarObject->setLocation(value);
+        } else if (key == QLatin1String("UID")) {
+            calendarObject->setUID(value);
+        } else if (key == QLatin1String("DESCRIPTION")) {
+            calendarObject->setDescription(value);
+        } else if (key == QLatin1String("PRIORITY")) {
+            dynamic_cast<CalendarToDo *>(calendarObject)->setPriority(value.toInt());
+        }
+    }
 }
 
 

@@ -21,7 +21,7 @@ add_executable(${PROJECT_NAME} main.cpp
     calendarobject.cpp calendarobject.h
     calendarevent.cpp calendarevent.h
     calendarobjectwidget.h calendarobjectwidget.cpp calendarobjectwidget.ui
-    src.qrc connectionManager.cpp connectionManager.h)
+    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "

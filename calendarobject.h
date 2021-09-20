@@ -12,7 +12,6 @@
 class CalendarObject : public QObject {
 Q_OBJECT
 public:
-    explicit CalendarObject(QObject* parent);
 
     virtual ~CalendarObject()=0;
 
@@ -43,7 +42,6 @@ public:
     void setCreationDateTime(const QDateTime &creationDateTime);
 
 private:
-    QObject* parent;
 
     QString calendarName;
     QString name;

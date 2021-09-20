@@ -9,6 +9,7 @@
 
 #include "calendarobject.h"
 #include "calendarevent.h"
+#include "calendartodo.h"
 #include "taskform.h"
 
 namespace Ui {

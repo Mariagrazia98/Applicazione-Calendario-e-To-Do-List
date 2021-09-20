@@ -10,7 +10,6 @@
 class CalendarEvent : public CalendarObject {
 Q_OBJECT
 public:
-    explicit CalendarEvent(QObject *parent);
 
     ~CalendarEvent() override;
 

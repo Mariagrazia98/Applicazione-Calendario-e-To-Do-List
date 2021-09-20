@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-TaskForm::TaskForm(ConnectionManager* connectionManager, CalendarObject *calendarObject) :
+TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject) :
         QWidget(nullptr),
         connectionManager(connectionManager),
         calendarObject(calendarObject),
@@ -16,7 +16,7 @@ TaskForm::TaskForm(ConnectionManager* connectionManager, CalendarObject *calenda
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
-        CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObject);
+        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
             ui->comboBox->setCurrentIndex(0);
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
@@ -43,34 +43,50 @@ void TaskForm::on_buttonBox_accepted() {
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
 
-
+    QString objectType;
+    if (ui->comboBox->currentIndex() == 0) {
+        objectType = "VEVENT";
+    } else {
+        objectType = "VTODO";
+    }
     QString requestString = "BEGIN:VCALENDAR\r\n"
-                            "BEGIN:VEVENT\r\n"
-                            "UID:" + UID + "\r\n"
-                                           "VERSION:2.0\r\n"
-                                           "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
+                            "BEGIN:" + objectType + "\r\n"
+                                                    "UID:" + UID + "\r\n"
+                                                                   "VERSION:2.0\r\n"
+                                                                   "DTSTAMP:" +
+                            QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
                             "SUMMARY:" + ui->name->text() + "\r\n"
                                                             "DTSTART:" +
                             ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-                                                                                        "DTEND:" +
-                            ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+
                                                                                          "LOCATION:" +
                             ui->location->text() + "\r\n"
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
-    /* TODO: campi opzionali
+    // TODO: campi opzionali
+
+    if(ui->comboBox->currentIndex() == 0)
+    {
+        requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+    }else{
+        requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("PRIORITY:0\r\n");
+        requestString.append("STATUS:IN-PROCESS\r\n");
+    }
+    /*
      if (!rrule.isEmpty())
     {
         requestString.append("RRULE:" + rrule + "\r\n");
     }
+
 
     if (!exdate.isEmpty())
     {
         requestString.append("EXDATE:" + exdate + "\r\n");
     }
      */
-    requestString.append("END:VEVENT\r\nEND:VCALENDAR");
+    requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
@@ -87,6 +103,7 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
+        std::cerr << answerString.toStdString() << '\n';
     } else {
         emit(taskUploaded());
         close();
@@ -97,13 +114,13 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
 void TaskForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
-            ui->expireDateTime->setEnabled(true);
-            ui->beginDateTime->setEnabled(true);
+            //ui->expireDateTime->setEnabled(true);
+            //ui->beginDateTime->setEnabled(true);
             break;
         case 1:
             // task
-            ui->expireDateTime->setEnabled(false);
-            ui->beginDateTime->setEnabled(false);
+            //ui->expireDateTime->setEnabled(false);
+            //ui->beginDateTime->setEnabled(false);
             break;
         default:
             break;

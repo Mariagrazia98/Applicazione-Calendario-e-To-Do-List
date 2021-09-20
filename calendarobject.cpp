@@ -5,10 +5,6 @@
 #include <iostream>
 #include "calendarobject.h"
 
-CalendarObject::CalendarObject(QObject *parent)
-: parent(parent) {
-
-}
 
 CalendarObject::~CalendarObject() {
 

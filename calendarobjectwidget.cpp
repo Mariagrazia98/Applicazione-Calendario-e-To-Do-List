@@ -25,7 +25,13 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 
 void CalendarObjectWidget::setupUI() {
-    checkBox->setVisible(false); // TODO: set visible if To-Do
+    CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+    if (calendarEvent) {
+        checkBox->setVisible(false); // TODO: set visible if To-Do
+    } else {
+        checkBox->setVisible(true);
+    }
+    displayLayout->addWidget(checkBox);
     setupText();
     displayLayout->addWidget(textBrowser);
     setupButtons();
@@ -37,12 +43,28 @@ void CalendarObjectWidget::setupText() {
     text.append("Name: " + calendarObject->getName() + '\n');
     text.append("Description: " + calendarObject->getDescription() + '\n');
     text.append("Location: " + calendarObject->getLocation() + '\n');
-    CalendarEvent *calendarEvent = static_cast<CalendarEvent *>(calendarObject);
+    CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
         QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
         text.append("StartDateTime: " + locale.toString(calendarEvent->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
         text.append("EndDateTime: " + locale.toString(calendarEvent->getEndDateTime(), "dddd, d MMMM yyyy") + '\n');
+    }
+    else{
+        CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+        if (calendarToDo != nullptr) {
+            // calendarObject is a CalendarEvent
+            QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
+            if(calendarToDo->getStartDateTime())
+            {
+                text.append("StartDateTime: " + locale.toString(*calendarToDo->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
+            }
+            if(calendarToDo->getDueDateTime())
+            {
+                text.append("EndDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
+            }
+
+        }
     }
     textBrowser->setText(text);
     //textBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
