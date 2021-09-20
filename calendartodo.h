@@ -34,7 +34,7 @@ public:
 
     void setDueDateTime(const QDateTime &dueDateTime);
 
-    const std::optional<QDateTime> &getCompletedDateTime() const;
+    std::optional<QDateTime> &getCompletedDateTime();
 
     void setCompletedDateTime(const QDateTime &completedDateTime);
 

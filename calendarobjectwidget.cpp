@@ -28,10 +28,19 @@ void CalendarObjectWidget::setupUI() {
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent) {
         checkBox->setVisible(false);
+        displayLayout->addSpacing(17);
     } else {
+        CalendarToDo *calendarToDO = dynamic_cast<CalendarToDo *>(calendarObject);
+        if (calendarToDO->getCompletedDateTime()) {
+            checkBox->setCheckState(Qt::Checked);
+        } else {
+            checkBox->setCheckState(Qt::Unchecked);
+        }
         checkBox->setVisible(true);
+        displayLayout->addWidget(checkBox);
+        connect(checkBox, &QCheckBox::toggled, this, &CalendarObjectWidget::onCheckBoxToggled);
     }
-    displayLayout->addWidget(checkBox);
+
     setupText();
     displayLayout->addWidget(textBrowser);
     setupButtons();
@@ -41,27 +50,30 @@ void CalendarObjectWidget::setupUI() {
 void CalendarObjectWidget::setupText() {
     QString text;
     text.append("Name: " + calendarObject->getName() + '\n');
+
     text.append("Description: " + calendarObject->getDescription() + '\n');
     text.append("Location: " + calendarObject->getLocation() + '\n');
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
-        QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
         text.append("StartDateTime: " + locale.toString(calendarEvent->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
         text.append("EndDateTime: " + locale.toString(calendarEvent->getEndDateTime(), "dddd, d MMMM yyyy") + '\n');
-    }
-    else{
+    } else {
         CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
         if (calendarToDo != nullptr) {
             // calendarObject is a CalendarEvent
-            QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
-            if(calendarToDo->getStartDateTime())
-            {
-                text.append("StartDateTime: " + locale.toString(*calendarToDo->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
+            if (calendarToDo->getCompletedDateTime()) {
+                textBrowser->setTextColor(QColor(0, 150, 0));
             }
-            if(calendarToDo->getDueDateTime())
-            {
-                text.append("DueDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
+            if (calendarToDo->getStartDateTime()) {
+                text.append(
+                        "StartDateTime: " + locale.toString(*calendarToDo->getStartDateTime(), "dddd, d MMMM yyyy") +
+                        '\n');
+            }
+            if (calendarToDo->getDueDateTime()) {
+                text.append(
+                        "DueDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
             }
 
         }
@@ -99,16 +111,12 @@ void CalendarObjectWidget::onModifyButtonClicked() {
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
-
     connectionToFinish = connect(connectionManager, SIGNAL(finished(QNetworkReply * )), this,
                                  SLOT(finished(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
-
-
 }
 
 void CalendarObjectWidget::finished(QNetworkReply *reply) {
-
     disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
@@ -125,6 +133,46 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
 
 void CalendarObjectWidget::onTaskModified() {
     emit(taskModified());
+}
+
+void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
+    CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+    if (checked) {
+        calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
+    } else {
+        calendarToDo->getCompletedDateTime().reset();
+    }
+
+    QString requestString = "BEGIN:VCALENDAR\r\n"
+                            "BEGIN:VTODO\r\n"
+                            "UID:" + calendarObject->getUID() + "\r\n"
+                                                                "VERSION:2.0\r\n"
+                                                                "DTSTAMP:" +
+                            QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
+                            "\r\n"
+                            "SUMMARY:" + calendarObject->getName() + "\r\n"
+                                                                     "DTSTART:" +
+                            calendarToDo->getStartDateTime()->toString("yyyyMMddTHHmmss") + "\r\n"
+
+                                                                                            "LOCATION:" +
+                            calendarObject->getLocation() + "\r\n"
+                                                            "DESCRIPTION:" + calendarObject->getDescription() + "\r\n"
+                                                                                                                "TRANSP:OPAQUE\r\n";
+
+    requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+    if (calendarToDo->getCompletedDateTime()) {
+        requestString.append("COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("STATUS:COMPLETED\r\n");
+    } else {
+        requestString.append("STATUS:IN-PROCESS\r\n");
+    }
+    requestString.append("PRIORITY:0\r\n");
+
+    requestString.append("END:VTODO\r\nEND:VCALENDAR");
+
+    connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
+                                 &CalendarObjectWidget::finished);
+    connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }
 
 

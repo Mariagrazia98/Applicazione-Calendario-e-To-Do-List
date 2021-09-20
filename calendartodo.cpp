@@ -44,7 +44,7 @@ void CalendarToDo::setDueDateTime(const QDateTime &dueDateTime) {
 
 }
 
-const std::optional<QDateTime> &CalendarToDo::getCompletedDateTime() const {
+std::optional<QDateTime> &CalendarToDo::getCompletedDateTime() {
     return completedDateTime;
 }
 

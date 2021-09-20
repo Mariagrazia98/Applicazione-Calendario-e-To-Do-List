@@ -11,6 +11,7 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     //Set the app style sheet
+    /*
     QFile styleSheetStyle(":/QTheme/Fibers.qss");
     if (styleSheetStyle.exists()) {
         bool flag = styleSheetStyle.open(QFile::ReadOnly | QFile::Text);
@@ -20,7 +21,7 @@ int main(int argc, char *argv[]) {
         }
     } else {
         std::cerr << "Could not open stylesheet file\n";
-    }
+    }*/
 
     ConnectionManager connectionManager;
     LoginForm loginForm(nullptr, &connectionManager);

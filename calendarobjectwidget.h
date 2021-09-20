@@ -27,6 +27,7 @@ public:
 private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
+    void onCheckBoxToggled(bool checked);
     void finished(QNetworkReply* reply);
     void onTaskModified();
     signals:
