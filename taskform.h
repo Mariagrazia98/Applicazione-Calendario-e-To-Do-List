@@ -45,6 +45,7 @@ private
 
     signals:
             void closing();
+            void taskUploaded();
 
 private:
     Ui::TaskForm *ui;

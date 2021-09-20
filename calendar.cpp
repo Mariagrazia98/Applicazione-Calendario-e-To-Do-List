@@ -224,6 +224,7 @@ void Calendar::addTaskButtonClicked() {
     TaskForm *taskForm = new TaskForm();
     taskForm->show();
     connect(taskForm, &TaskForm::closing, this, &Calendar::onTaskFormClosed);
+    connect(taskForm, &TaskForm::taskUploaded, this, &Calendar::onTaskModified);
 }
 
 QDateTime Calendar::getDateTimeFromString(const QString &string) {
@@ -235,7 +236,7 @@ QDateTime Calendar::getDateTimeFromString(const QString &string) {
     if (!dateTime.isValid())
         dateTime = QDateTime::fromString(string, "yyyyMMdd");
     if (!dateTime.isValid())
-        qDebug() << "Calendar" << ": " << "could not parse" << string;
+        std::cerr << "Calendar" << ": " << "could not parse" << string;
     return dateTime;
 }
 
@@ -244,7 +245,7 @@ void Calendar::onTaskFormClosed() {
     // TODO: aggiornare widgets se ce n'è bisogno
 }
 
-void Calendar::onTaskModified(CalendarObject &obj) {
+void Calendar::onTaskModified() {
     setupConnection();
 }
 
@@ -280,7 +281,6 @@ void Calendar::setupConnection() {
 }
 
 void Calendar::onTaskDeleted(CalendarObject &obj) {
-
     setupConnection();
 }
 

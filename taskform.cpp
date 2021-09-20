@@ -44,7 +44,7 @@ void TaskForm::on_buttonBox_accepted() {
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
 
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     QString filename = uid + ".ics";
@@ -119,7 +119,9 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
-        QMessageBox::information(this, "Login", "Upload succesfull");
+        //QMessageBox::information(this, "Login", "Upload succesfull");
+        emit(taskUploaded());
+        close();
     }
 
 }

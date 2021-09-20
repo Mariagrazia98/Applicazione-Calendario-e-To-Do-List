@@ -77,7 +77,8 @@ void CalendarObjectWidget::onModifyButtonClicked() {
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
 
-    connect(connectionManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(finished(QNetworkReply * )));
+    connectionToFinish = connect(connectionManager, SIGNAL(finished(QNetworkReply * )), this,
+                                 SLOT(finished(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
 
 
@@ -85,7 +86,7 @@ void CalendarObjectWidget::onRemoveButtonClicked() {
 
 void CalendarObjectWidget::finished(QNetworkReply *reply) {
 
-    //disconnect(connectionToFinish);
+    disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();

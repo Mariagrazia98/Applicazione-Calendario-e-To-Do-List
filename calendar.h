@@ -35,7 +35,7 @@ namespace Ui {
 }
 
 class Calendar : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit Calendar(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
@@ -68,7 +68,8 @@ private slots:
 
     void onTaskFormClosed();
 
-    void onTaskModified(CalendarObject &obj);
+    void onTaskModified();
+
     void onTaskDeleted(CalendarObject &obj);
 
 private:
