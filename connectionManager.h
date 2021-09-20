@@ -11,27 +11,44 @@
 #include <QAuthenticator>
 #include <QMessageBox>
 #include <QWidget>
-class ConnectionManager: public QObject {
-    Q_OBJECT
+#include <QBuffer>
+#include <QMessageBox>
+
+#include <iostream>
+
+class ConnectionManager : public QObject {
+Q_OBJECT
 public:
 
-    ConnectionManager(QString username="", QString password="");
+    ConnectionManager(QString username = "", QString password = "");
+
     void getCalendarRequest();
+
     void deleteCalendarObject(const QString &UID);
+
     void setUsername(QString username);
+
     void setPassword(QString password);
-signals:
-    void finished(QNetworkReply* reply);
-private:
-    QNetworkAccessManager* networkAccessManager;
-    QString  username;
-    QString password;
-    QUrl    serverUrl;
-    void setup();
+
+    void addOrUpdateCalendarObject(const QString &request, const QString &UID);
+
 private slots:
-    void responseHandler(QNetworkReply*);
+
+    void responseHandler(QNetworkReply *);
+
     void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
+signals:
+
+    void finished(QNetworkReply *reply);
+
+private:
+    QNetworkAccessManager *networkAccessManager;
+    QString username;
+    QString password;
+    QUrl serverUrl;
+
+    void setup();
 
 };
 

@@ -27,8 +27,9 @@ private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
     void finished(QNetworkReply* reply);
+    void onTaskModified();
     signals:
-    void taskModified( CalendarObject& obj);
+    void taskModified();
     void taskDeleted(CalendarObject& obj);
 
 private:

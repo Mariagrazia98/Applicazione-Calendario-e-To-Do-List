@@ -64,3 +64,35 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     }
 }
 
+void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QNetworkRequest request;
+    QString filename = UID + ".ics";
+    request.setUrl(QUrl(serverUrl.toString() + '/' + filename));
+
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    request.setRawHeader("Content-Length", contentlength);
+
+    QNetworkReply* networkReply = networkAccessManager->put(request, buffer);
+
+    if (networkReply) {
+        /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
+                this, SLOT(handleUploadHTTPError())); */
+
+        //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
+    } else {
+        //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
+        //emit error("Invalid reply pointer when requesting URL.");
+        std::cerr << "Invalid reply pointer when requesting URL\n";
+    }
+}
+

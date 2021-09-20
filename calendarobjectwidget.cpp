@@ -69,8 +69,9 @@ void CalendarObjectWidget::setupButtons() {
 }
 
 void CalendarObjectWidget::onModifyButtonClicked() {
-    TaskForm *taskForm = new TaskForm(nullptr, calendarObject);
+    TaskForm *taskForm = new TaskForm(connectionManager, calendarObject);
     taskForm->show();
+    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
     //emit(taskModified(*calendarObject));
 
 }
@@ -98,6 +99,10 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
 
         emit(taskDeleted(*calendarObject));
     }
+}
+
+void CalendarObjectWidget::onTaskModified() {
+    emit(taskModified());
 }
 
 

@@ -4,10 +4,9 @@
 
 #include <iostream>
 
-TaskForm::TaskForm(QWidget *parent, CalendarObject *calendarObject) :
-        QWidget(parent),
-        //connectionManager(connectionManager),
-        networkAccessManager(new QNetworkAccessManager),
+TaskForm::TaskForm(ConnectionManager* connectionManager, CalendarObject *calendarObject) :
+        QWidget(nullptr),
+        connectionManager(connectionManager),
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
@@ -36,21 +35,18 @@ void TaskForm::on_buttonBox_rejected() {
 }
 
 void TaskForm::on_buttonBox_accepted() {
-    QString uid;
+    QString UID;
     if (calendarObject) {
-        uid = calendarObject->getUID();
+        UID = calendarObject->getUID();
     } else {
-        uid = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
+        UID = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
 
-    QBuffer *buffer = new QBuffer();
 
-    buffer->open(QIODevice::ReadWrite);
-    QString filename = uid + ".ics";
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VEVENT\r\n"
-                            "UID:" + uid + "\r\n"
+                            "UID:" + UID + "\r\n"
                                            "VERSION:2.0\r\n"
                                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
@@ -76,41 +72,14 @@ void TaskForm::on_buttonBox_accepted() {
      */
     requestString.append("END:VEVENT\r\nEND:VCALENDAR");
 
-
-    int buffersize = buffer->write(requestString.toUtf8());
-    buffer->seek(0);
-    buffer->size();
-
-    QByteArray contentlength;
-    contentlength.append(buffersize);
-
-    QNetworkRequest request;
-    request.setUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default/" + filename));
-    /*todo: DEFAULT nome cartella calendario*/
-
-    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
-    request.setRawHeader("Content-Length", contentlength);
-
-    qNetworkReply = networkAccessManager->put(request, buffer);
-
-    if (qNetworkReply) {
-        /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
-                this, SLOT(handleUploadHTTPError())); */
-
-        connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )),
-                this, SLOT(handleUploadFinished(QNetworkReply * )));
-        connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )),
-                this, SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
-        //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
-    } else {
-        //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
-        //emit error("Invalid reply pointer when requesting URL.");
-        QMessageBox::warning(this, "error", "something went wrong");
-    }
+    connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
+                                 &TaskForm::handleUploadFinished);
+    connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
+    disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
 
@@ -119,7 +88,6 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
-        //QMessageBox::information(this, "Login", "Upload succesfull");
         emit(taskUploaded());
         close();
     }
@@ -144,11 +112,6 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
 
 void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
     ui->expireDateTime->setDateTime(dateTime);
-}
-
-void TaskForm::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
-    authenticator->setUser("admin");
-    authenticator->setPassword("admin");
 }
 
 void TaskForm::closeEvent(QCloseEvent *event) {

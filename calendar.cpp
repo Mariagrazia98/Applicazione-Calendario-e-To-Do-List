@@ -221,7 +221,7 @@ void Calendar::parseEvent() {
 
 void Calendar::addTaskButtonClicked() {
     addTaskButton->setEnabled(false);
-    TaskForm *taskForm = new TaskForm();
+    TaskForm *taskForm = new TaskForm(connectionManager);
     taskForm->show();
     connect(taskForm, &TaskForm::closing, this, &Calendar::onTaskFormClosed);
     connect(taskForm, &TaskForm::taskUploaded, this, &Calendar::onTaskModified);
@@ -236,7 +236,7 @@ QDateTime Calendar::getDateTimeFromString(const QString &string) {
     if (!dateTime.isValid())
         dateTime = QDateTime::fromString(string, "yyyyMMdd");
     if (!dateTime.isValid())
-        std::cerr << "Calendar" << ": " << "could not parse" << string;
+        std::cerr << "Calendar" << ": " << "could not parse" << string.toStdString() << '\n';
     return dateTime;
 }
 

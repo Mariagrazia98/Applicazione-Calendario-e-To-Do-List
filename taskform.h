@@ -22,16 +22,17 @@ namespace Ui {
 }
 
 class TaskForm : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    explicit TaskForm(QWidget *parent = nullptr, CalendarObject *calendarObject = nullptr);
+    TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject = nullptr);
 
     ~TaskForm();
 
 private
     slots:
-            void on_buttonBox_rejected();
+
+    void on_buttonBox_rejected();
 
     void on_buttonBox_accepted();
 
@@ -41,17 +42,16 @@ private
 
     void handleUploadFinished(QNetworkReply *reply);
 
-    void authenticationRequired(QNetworkReply *, QAuthenticator *);
+signals:
 
-    signals:
-            void closing();
-            void taskUploaded();
+    void closing();
+
+    void taskUploaded();
 
 private:
     Ui::TaskForm *ui;
-    //ConnectionManager* connectionManager;
-    QNetworkAccessManager *networkAccessManager;
-    QNetworkReply *qNetworkReply;
+    ConnectionManager *connectionManager;
+    QMetaObject::Connection connectionToFinish;
 
     CalendarObject *calendarObject;
 
