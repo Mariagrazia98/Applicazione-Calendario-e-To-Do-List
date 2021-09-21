@@ -10,8 +10,13 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
+    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
+    ui->beginDateTime->setLocale(QLocale::English);
+    ui->beginDateTime->setDisplayFormat("dddd, yyyy/MM/d");
     ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
+    ui->expireDateTime->setLocale(QLocale::English);
+    ui->expireDateTime->setDisplayFormat("dddd, yyyy/MM/d");
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));

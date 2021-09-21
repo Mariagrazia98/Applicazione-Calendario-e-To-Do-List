@@ -41,7 +41,7 @@ void Calendar::setupCalendar() {
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 31, 12));
     currentDateEdit = new QDateEdit;
-    currentDateEdit->setDisplayFormat("MMM d yyyy");
+    currentDateEdit->setDisplayFormat("dddd, yyyy/MM/d");
     currentDateEdit->setDate(QDate::currentDate());
     currentDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
@@ -54,10 +54,10 @@ void Calendar::setupCalendar() {
     tasksLayout = new QVBoxLayout;
 
     QDate date = currentDateEdit->date();
-    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
-    QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
+    //QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
+    QString englishDate = date.toString("dddd, yyyy/MM/d");
 
-    dateString->setText(italianDate);
+    dateString->setText(englishDate);
     tasksLayout->addWidget(dateString);
 
     //QSize size = dateString->document()->size().toSize();
@@ -87,9 +87,9 @@ void Calendar::selectedDateChanged() {
     if (currentDateEdit->date() != calendar->selectedDate()) {
         currentDateEdit->setDate(calendar->selectedDate());
         QDate date = currentDateEdit->date();
-        QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
-        QString italianDate = locale.toString(date, "dddd, d MMMM yyyy");
-        dateString->setText(italianDate);
+        //QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
+        QString englishDate = date.toString("dddd, yyyy/MM/d");
+        dateString->setText(englishDate);
         dateString->setAlignment(Qt::AlignCenter);
         showSelectedDateTasks();
     }
@@ -126,6 +126,7 @@ void Calendar::createCalendarGroupBox() {
     calendarGroupBox = new QGroupBox(tr("Calendar"));
 
     calendar = new QCalendarWidget;
+    calendar->setLocale(QLocale::English);
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 12, 31));
     calendar->setGridVisible(true);

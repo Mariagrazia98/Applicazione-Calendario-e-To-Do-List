@@ -26,6 +26,7 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 void CalendarObjectWidget::setupUI() {
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+    //checkBox->setMinimumSize(50,50);
     if (calendarEvent) {
         checkBox->setVisible(false);
         displayLayout->addSpacing(17);
@@ -54,11 +55,11 @@ void CalendarObjectWidget::setupText() {
     text.append("Description: " + calendarObject->getDescription() + '\n');
     text.append("Location: " + calendarObject->getLocation() + '\n');
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-    QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // TODO: impostare in inglese ?
+    //QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // TODO: impostare in inglese ?
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
-        text.append("StartDateTime: " + locale.toString(calendarEvent->getStartDateTime(), "dddd, d MMMM yyyy") + '\n');
-        text.append("EndDateTime: " + locale.toString(calendarEvent->getEndDateTime(), "dddd, d MMMM yyyy") + '\n');
+        text.append("Start date and time: " + calendarEvent->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
+        text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
         CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
         if (calendarToDo != nullptr) {
@@ -68,12 +69,12 @@ void CalendarObjectWidget::setupText() {
             }
             if (calendarToDo->getStartDateTime()) {
                 text.append(
-                        "StartDateTime: " + locale.toString(*calendarToDo->getStartDateTime(), "dddd, d MMMM yyyy") +
+                        "Start date and time: " + calendarToDo->getStartDateTime()->toString("dddd, yyyy/MM/d hh:mm") +
                         '\n');
             }
             if (calendarToDo->getDueDateTime()) {
                 text.append(
-                        "DueDateTime: " + locale.toString(*calendarToDo->getDueDateTime(), "dddd, d MMMM yyyy") + '\n');
+                        "Due date and time: " + calendarToDo->getDueDateTime()->toString("dddd, yyyy/MM/d hh:mm") + '\n');
             }
 
         }
