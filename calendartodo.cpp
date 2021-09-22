@@ -4,6 +4,26 @@
 
 #include "calendartodo.h"
 
+
+CalendarToDo::CalendarToDo() {
+
+}
+
+CalendarToDo::CalendarToDo(const CalendarToDo &other) :
+        CalendarObject(other),
+        status(other.status),
+        priority(other.priority) {
+    if (other.completedDateTime) {
+        *completedDateTime = *other.completedDateTime;
+    }
+    if (other.startDateTime) {
+        *startDateTime = *other.startDateTime;
+    }
+    if (other.dueDateTime) {
+        *dueDateTime = *other.dueDateTime;
+    }
+}
+
 unsigned int CalendarToDo::getPriority() const {
     return priority;
 }

@@ -5,6 +5,16 @@
 #include <iostream>
 #include "calendarevent.h"
 
+CalendarEvent::CalendarEvent() {
+
+}
+
+CalendarEvent::CalendarEvent(const CalendarEvent &other) : CalendarObject(other),
+                                                           startDateTime(other.startDateTime),
+                                                           endDateTime(other.endDateTime) {
+
+}
+
 CalendarEvent::~CalendarEvent() {
 
 }
@@ -30,4 +40,5 @@ void CalendarEvent::printCalendarObject() {
     std::cout << "startDateTime: " << startDateTime.toString("yyyyMMddhhmmss").toStdString() << '\n';
     std::cout << "endDateTime: " << endDateTime.toString("yyyyMMddhhmmss").toStdString() << '\n';
 }
+
 

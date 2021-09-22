@@ -13,7 +13,11 @@ class CalendarObject : public QObject {
 Q_OBJECT
 public:
 
-    virtual ~CalendarObject()=0;
+    CalendarObject();
+
+    CalendarObject(const CalendarObject &other);
+
+    virtual ~CalendarObject() = 0;
 
     virtual void printCalendarObject();
 

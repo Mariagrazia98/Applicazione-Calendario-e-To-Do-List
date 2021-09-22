@@ -19,8 +19,9 @@ enum class ToDoStatus {
 class CalendarToDo : public CalendarObject {
 Q_OBJECT
 public:
-private:
-public:
+    CalendarToDo();
+
+    CalendarToDo(const CalendarToDo &other);
 
     unsigned int getPriority() const;
 

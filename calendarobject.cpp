@@ -5,6 +5,23 @@
 #include <iostream>
 #include "calendarobject.h"
 
+CalendarObject::CalendarObject() {
+
+}
+
+CalendarObject::CalendarObject(const CalendarObject &other) :
+        name(other.name),
+        calendarName(other.calendarName),
+        UID(other.UID),
+        location(other.location),
+        description(other.description),
+        creationDateTime(other.creationDateTime),
+        typeRepetition(other.typeRepetition),
+        numRepetition(other.numRepetition) {
+
+}
+
+
 CalendarObject::~CalendarObject() {
 
 }
@@ -69,7 +86,7 @@ int CalendarObject::getNumRepetition() const {
 
 void CalendarObject::setNumRepetition(int numRepetition) {
     CalendarObject::numRepetition = numRepetition;
-    std::cout<<numRepetition<<std::endl;
+    std::cout << numRepetition << std::endl;
 }
 
 int CalendarObject::getTypeRepetition() const {

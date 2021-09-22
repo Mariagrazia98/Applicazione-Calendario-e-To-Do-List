@@ -10,6 +10,9 @@
 class CalendarEvent : public CalendarObject {
 Q_OBJECT
 public:
+    CalendarEvent();
+
+    CalendarEvent(const CalendarEvent &other);
 
     ~CalendarEvent() override;
 
