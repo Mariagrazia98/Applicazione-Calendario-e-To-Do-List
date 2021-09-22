@@ -83,25 +83,25 @@ void TaskForm::on_buttonBox_accepted() {
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
     if(ui->typeRepetition->currentIndex()!=-1 || ui->numRepetition->value()!=0){
-        requestString.append("RRULE:FREQ=");
+        QString rrule = "RRULE:FREQ=";
         switch (ui->typeRepetition->currentIndex()){
+            case 0:
+                rrule+="DAILY";
+                break;
             case 1:
-                requestString.append("DAILY");
+                rrule+="WEEKLY";
                 break;
             case 2:
-                requestString.append("WEEKLY");
+                rrule+="MONTHLY";
                 break;
             case 3:
-                requestString.append("MONTHLY");
-                break;
-            case 4:
-                requestString.append("YEARLY");
+                rrule+="YEARLY";
                 break;
             default:
                 break;
         }
-
-        requestString.append(";COUNT="+QString::number(ui->numRepetition->value())+ "\r\n");
+        rrule+=";COUNT="+QString::number(ui->numRepetition->value())+ "\r\n";
+        requestString.append(rrule);
     }
     // TODO: campi opzionali
     if (ui->comboBox->currentIndex() == 0) {
