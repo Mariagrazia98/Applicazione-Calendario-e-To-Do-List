@@ -44,7 +44,7 @@
      <x>21</x>
      <y>11</y>
      <width>359</width>
-     <height>243</height>
+     <height>251</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -142,7 +142,68 @@
      </widget>
     </item>
     <item row="7" column="1">
-     <widget class="QLineEdit" name="repeats"/>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="numberRepetitionLabel">
+        <property name="text">
+         <string>Every</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="numRepetition">
+        <property name="maximum">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="typeRepetition">
+        <property name="locale">
+         <locale language="English" country="UnitedKingdom"/>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>day</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>week</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>month</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>year</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

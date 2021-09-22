@@ -4,6 +4,13 @@
 
 #include <iostream>
 
+enum class typeRep{
+    day,
+    week,
+    month,
+    year
+};
+
 TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject) :
         QWidget(nullptr),
         connectionManager(connectionManager),
@@ -17,10 +24,14 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
     ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
     ui->expireDateTime->setLocale(QLocale::English);
     ui->expireDateTime->setDisplayFormat("dddd, yyyy/MM/d");
+    ui->numRepetition->setValue(0);
+    ui->typeRepetition->setCurrentIndex(-1);
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
+        ui->numRepetition->setValue(calendarObject->getNumRepetition());
+        //TODO: setCurrentIndex based on typeRepetitionn of calendarObject
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
             ui->comboBox->setCurrentIndex(0);
@@ -31,7 +42,6 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->expireLabel->setText("To complete");
         }
     }
-
 }
 
 TaskForm::~TaskForm() {
@@ -72,8 +82,28 @@ void TaskForm::on_buttonBox_accepted() {
                             ui->location->text() + "\r\n"
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
-    // TODO: campi opzionali
+    if(ui->typeRepetition->currentIndex()!=-1 || ui->numRepetition->value()!=0){
+        requestString.append("RRULE:FREQ=");
+        switch (ui->typeRepetition->currentIndex()){
+            case 1:
+                requestString.append("DAILY");
+                break;
+            case 2:
+                requestString.append("WEEKLY");
+                break;
+            case 3:
+                requestString.append("MONTHLY");
+                break;
+            case 4:
+                requestString.append("YEARLY");
+                break;
+            default:
+                break;
+        }
 
+        requestString.append(";COUNT="+QString::number(ui->numRepetition->value())+ "\r\n");
+    }
+    // TODO: campi opzionali
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
     } else {
@@ -97,6 +127,7 @@ void TaskForm::on_buttonBox_accepted() {
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
+    std::cout<<requestString.toStdString()<<std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }

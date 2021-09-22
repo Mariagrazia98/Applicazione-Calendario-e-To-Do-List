@@ -48,8 +48,17 @@ private:
     QString location;
     QString description;
     QString UID;
-
+    int numRepetition;
+    QString typeRepetition;
     QDateTime creationDateTime;
+public:
+    int getNumRepetition() const;
+
+    void setNumRepetition(int numRepetition);
+
+    const QString &getTypeRepetition() const;
+
+    void setTypeRepetition(const QString &typeRepetition);
 
 };
 

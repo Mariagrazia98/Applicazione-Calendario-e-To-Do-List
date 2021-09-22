@@ -5,7 +5,6 @@
 #include <iostream>
 #include "calendarobject.h"
 
-
 CalendarObject::~CalendarObject() {
 
 }
@@ -62,6 +61,22 @@ void CalendarObject::printCalendarObject() {
     std::cout << "Name: " << name.toStdString() << '\n';
     std::cout << "Description: " << description.toStdString() << '\n';
     std::cout << "UID: " << UID.toStdString() << '\n';
+}
+
+int CalendarObject::getNumRepetition() const {
+    return numRepetition;
+}
+
+void CalendarObject::setNumRepetition(int numRepetition) {
+    CalendarObject::numRepetition = numRepetition;
+}
+
+const QString &CalendarObject::getTypeRepetition() const {
+    return typeRepetition;
+}
+
+void CalendarObject::setTypeRepetition(const QString &typeRepetition) {
+    CalendarObject::typeRepetition = typeRepetition;
 }
 
 
