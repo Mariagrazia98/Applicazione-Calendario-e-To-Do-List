@@ -1,6 +1,11 @@
 #include "calendar.h"
 #include "ui_calendar.h"
 
+#define DAILY 0
+#define WEEKLY 1
+#define MONTHLY 2
+#define YEARLY 3
+
 Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         QWidget(parent),
         ui(new Ui::Calendar),
@@ -8,7 +13,6 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         connectionManager(connectionManager),
         stream(new QTextStream()) {
     ui->setupUi(this);
-    //connect(connectionManager, &ConnectionManager::finished, this, &Calendar::finished);
 
     createCalendarGroupBox();
 
@@ -182,7 +186,7 @@ void Calendar::showSelectedDateTasks() {
 
             } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
                 switch (calendarToDo->getTypeRepetition()) {
-                    case 0: {   //daily
+                    case DAILY: {   //daily
                         QDate start = calendarToDo->getStartDateTime().date();
                         while (start < calendar->selectedDate()) {
                             start = start.addDays(calendarToDo->getNumRepetition());
@@ -193,7 +197,7 @@ void Calendar::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case 1: {      //weekly
+                    case WEEKLY: {      //weekly
                         QDate start = calendarToDo->getStartDateTime().date();
                         while (start < calendar->selectedDate()) {
                             start = start.addDays(7 * calendarToDo->getNumRepetition());
@@ -204,7 +208,7 @@ void Calendar::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case 2: {      //monthly
+                    case MONTHLY: {      //monthly
                         QDate start = calendarToDo->getStartDateTime().date();
                         while (start < calendar->selectedDate()) {
                             start = start.addMonths(calendarToDo->getNumRepetition());
@@ -215,7 +219,7 @@ void Calendar::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case 3: {      //yearly
+                    case YEARLY: {      //yearly
                         QDate start = calendarToDo->getStartDateTime().date();
                         while (start < calendar->selectedDate()) {
                             start = start.addYears(calendarToDo->getNumRepetition());
@@ -236,7 +240,7 @@ void Calendar::showSelectedDateTasks() {
                     addCalendarObjectWiget(i);
                 } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
                     switch (calendarToDo->getTypeRepetition()) {
-                        case 0: {   //daily
+                        case DAILY: {   //daily
                             QDate start = calendarToDo->getStartDateTime()->date();
                             while (start < calendar->selectedDate()) {
                                 start = start.addDays(calendarToDo->getNumRepetition());
@@ -247,7 +251,7 @@ void Calendar::showSelectedDateTasks() {
                             }
                             break;
                         }
-                        case 1: {      //weekly
+                        case WEEKLY: {      //weekly
                             QDate start = calendarToDo->getStartDateTime()->date();
                             while (start < calendar->selectedDate()) {
                                 start = start.addDays(7 * calendarToDo->getNumRepetition());
@@ -258,7 +262,7 @@ void Calendar::showSelectedDateTasks() {
                             }
                             break;
                         }
-                        case 2: {      //monthly
+                        case MONTHLY: {      //monthly
                             QDate start = calendarToDo->getStartDateTime()->date();
                             while (start < calendar->selectedDate()) {
                                 start = start.addMonths(calendarToDo->getNumRepetition());
@@ -269,7 +273,7 @@ void Calendar::showSelectedDateTasks() {
                             }
                             break;
                         }
-                        case 3: {      //yearly
+                        case YEARLY: {      //yearly
                             QDate start = calendarToDo->getStartDateTime()->date();
                             while (start < calendar->selectedDate()) {
                                 start = start.addYears(calendarToDo->getNumRepetition());
@@ -337,13 +341,13 @@ void Calendar::parseEvent() {
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
 
             if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(0);
+                calendarObject->setTypeRepetition(DAILY);
             } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(1);
+                calendarObject->setTypeRepetition(WEEKLY);
             } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(2);
+                calendarObject->setTypeRepetition(MONTHLY);
             } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(3);
+                calendarObject->setTypeRepetition(YEARLY);
             } else {
                 calendarObject->setTypeRepetition(-1);
             }
@@ -400,13 +404,13 @@ void Calendar::parseToDo() {
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
 
             if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(0);
+                calendarObject->setTypeRepetition(DAILY);
             } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(1);
+                calendarObject->setTypeRepetition(WEEKLY);
             } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(2);
+                calendarObject->setTypeRepetition(MONTHLY);
             } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(3);
+                calendarObject->setTypeRepetition(YEARLY);
             } else {
                 calendarObject->setTypeRepetition(-1);
             }
