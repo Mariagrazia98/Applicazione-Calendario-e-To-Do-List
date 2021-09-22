@@ -112,7 +112,7 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
 
-    void addCalendarObjectWiget(int i);
+    void addCalendarObjectWidget(CalendarObject *calendarObject);
 };
 
 #endif // CALENDAR_H

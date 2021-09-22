@@ -51,14 +51,13 @@ void CalendarObjectWidget::setupUI() {
 void CalendarObjectWidget::setupText() {
     QString text;
     text.append("Name: " + calendarObject->getName() + '\n');
-
     text.append("Description: " + calendarObject->getDescription() + '\n');
     text.append("Location: " + calendarObject->getLocation() + '\n');
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-    //QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // TODO: impostare in inglese ?
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
-        text.append("Start date and time: " + calendarEvent->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
+        text.append(
+                "Start date and time: " + calendarEvent->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
         CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
@@ -74,7 +73,8 @@ void CalendarObjectWidget::setupText() {
             }
             if (calendarToDo->getDueDateTime()) {
                 text.append(
-                        "Due date and time: " + calendarToDo->getDueDateTime()->toString("dddd, yyyy/MM/d hh:mm") + '\n');
+                        "Due date and time: " + calendarToDo->getDueDateTime()->toString("dddd, yyyy/MM/d hh:mm") +
+                        '\n');
             }
 
         }
@@ -124,7 +124,7 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
     QNetworkReply::NetworkError error = reply->error();
     const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
-        std::cout << error << "\n";
+        std::cerr << error << "\n";
         QMessageBox::warning(this, "Error", errorString);
     } else {
 

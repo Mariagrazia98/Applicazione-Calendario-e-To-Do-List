@@ -35,12 +35,13 @@ private slots:
     void taskDeleted(CalendarObject& obj);
 
 private:
+    void setupUI();
+    void setupText();
+    void setupButtons();
+
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
     QMetaObject::Connection connectionToFinish;
-
-    void setupUI();
-    void setupText();
 
     QHBoxLayout* displayLayout;
     QVBoxLayout* buttonsLayout;
@@ -50,7 +51,7 @@ private:
     QPushButton* removeButton;
     ConnectionManager* connectionManager;
 
-    void setupButtons();
+
 };
 
 #endif // CALENDAROBJECTWIDGET_H
