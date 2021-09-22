@@ -263,7 +263,7 @@ void Calendar::showSelectedDateTasks() {
                             while (start.date() < calendar->selectedDate()) {
                                 start = start.addDays(calendarToDo->getNumRepetition());
                                 if (start.date() == calendar->selectedDate()) {
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
+                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
@@ -352,7 +352,7 @@ void Calendar::parseEvent() {
         } else if (key == QLatin1String("DESCRIPTION")) {
             calendarObject->setDescription(value);
         } else if (key == QLatin1String("RRULE")) {
-            QString rrule = value;
+            const QString rrule = value;
 
             const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
             const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
