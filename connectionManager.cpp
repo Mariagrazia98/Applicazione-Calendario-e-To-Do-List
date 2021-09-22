@@ -6,11 +6,12 @@
 
 #include "connectionManager.h"
 
-ConnectionManager::ConnectionManager(QString username, QString password) :
+ConnectionManager::ConnectionManager(QString username, QString password, QString calendar) :
         networkAccessManager(new QNetworkAccessManager),
         username(username),
         password(password),
-        serverUrl(QUrl("http://localhost/progettopds/calendarserver.php/calendars/admin/default")) {
+        calendar(calendar) {
+    updateUrl();
     setup();
 }
 
@@ -39,6 +40,7 @@ void ConnectionManager::responseHandler(QNetworkReply *reply) {
 
 void ConnectionManager::setUsername(QString username) {
     this->username = username;
+    updateUrl();
 }
 
 void ConnectionManager::setPassword(QString password) {
@@ -82,7 +84,7 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", contentlength);
 
-    QNetworkReply* networkReply = networkAccessManager->put(request, buffer);
+    QNetworkReply *networkReply = networkAccessManager->put(request, buffer);
 
     if (networkReply) {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -94,5 +96,18 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
         //emit error("Invalid reply pointer when requesting URL.");
         std::cerr << "Invalid reply pointer when requesting URL\n";
     }
+}
+
+const QString &ConnectionManager::getCalendar() const {
+    return calendar;
+}
+
+void ConnectionManager::setCalendar(const QString &calendar) {
+    ConnectionManager::calendar = calendar;
+    updateUrl();
+}
+
+void ConnectionManager::updateUrl() {
+    serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
 }
 

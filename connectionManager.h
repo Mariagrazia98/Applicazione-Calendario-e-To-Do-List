@@ -20,7 +20,7 @@ class ConnectionManager : public QObject {
 Q_OBJECT
 public:
 
-    ConnectionManager(QString username = "", QString password = "");
+    ConnectionManager(QString username = "", QString password = "", QString calendar="default");
 
     void getCalendarRequest();
 
@@ -46,10 +46,18 @@ private:
     QNetworkAccessManager *networkAccessManager;
     QString username;
     QString password;
+    QString calendar;
+public:
+    const QString &getCalendar() const;
+
+    void setCalendar(const QString &calendar);
+
+private:
     QUrl serverUrl;
 
     void setup();
 
+    void updateUrl();
 };
 
 
