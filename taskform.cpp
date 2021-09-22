@@ -1,5 +1,6 @@
 #include "taskform.h"
 #include "ui_taskform.h"
+#include "calendartodo.h"
 
 
 #include <iostream>
@@ -13,10 +14,8 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
     ui->beginDateTime->setLocale(QLocale::English);
-    ui->beginDateTime->setDisplayFormat("dddd, yyyy/MM/d");
     ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
     ui->expireDateTime->setLocale(QLocale::English);
-    ui->expireDateTime->setDisplayFormat("dddd, yyyy/MM/d");
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
     if (calendarObject) {
@@ -32,8 +31,13 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
             ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
         } else {
+            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
             ui->comboBox->setCurrentIndex(1);
             ui->expireLabel->setText("To complete");
+            if(calendarToDo->getDueDateTime())
+            {
+                ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
+            }
         }
     }
 }
@@ -115,7 +119,7 @@ void TaskForm::on_buttonBox_accepted() {
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
-    std::cout << requestString.toStdString() << std::endl;
+    //std::cout << requestString.toStdString() << std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
@@ -141,11 +145,12 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
             //ui->expireDateTime->setEnabled(true);
+            ui->expireLabel->setText("Expire");
             //ui->beginDateTime->setEnabled(true);
             break;
         case 1:
             // task
-            //ui->expireDateTime->setEnabled(false);
+            ui->expireLabel->setText("Due");
             //ui->beginDateTime->setEnabled(false);
             break;
         default:
@@ -154,7 +159,10 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
 }
 
 void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    ui->expireDateTime->setDateTime(dateTime);
+    if(ui->expireDateTime->dateTime() < dateTime)
+    {
+        ui->expireDateTime->setDateTime(dateTime);
+    }
 }
 
 void TaskForm::closeEvent(QCloseEvent *event) {
