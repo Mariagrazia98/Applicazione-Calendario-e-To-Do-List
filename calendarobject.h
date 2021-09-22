@@ -41,24 +41,23 @@ public:
 
     void setCreationDateTime(const QDateTime &creationDateTime);
 
-private:
+    int getTypeRepetition() const;
 
+    void setTypeRepetition(int typeRepetition);
+
+    int getNumRepetition() const;
+
+    void setNumRepetition(int numRepetition);
+
+private:
     QString calendarName;
     QString name;
     QString location;
     QString description;
     QString UID;
     int numRepetition;
-    QString typeRepetition;
+    int typeRepetition;
     QDateTime creationDateTime;
-public:
-    int getNumRepetition() const;
-
-    void setNumRepetition(int numRepetition);
-
-    const QString &getTypeRepetition() const;
-
-    void setTypeRepetition(const QString &typeRepetition);
 
 };
 

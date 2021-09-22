@@ -69,13 +69,14 @@ int CalendarObject::getNumRepetition() const {
 
 void CalendarObject::setNumRepetition(int numRepetition) {
     CalendarObject::numRepetition = numRepetition;
+    std::cout<<numRepetition<<std::endl;
 }
 
-const QString &CalendarObject::getTypeRepetition() const {
+int CalendarObject::getTypeRepetition() const {
     return typeRepetition;
 }
 
-void CalendarObject::setTypeRepetition(const QString &typeRepetition) {
+void CalendarObject::setTypeRepetition(int typeRepetition) {
     CalendarObject::typeRepetition = typeRepetition;
 }
 

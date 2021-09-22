@@ -113,6 +113,7 @@ private:
     QMetaObject::Connection connectionToFinished;
 
 
+    void addCalendarObjectWiget(int i);
 };
 
 #endif // CALENDAR_H

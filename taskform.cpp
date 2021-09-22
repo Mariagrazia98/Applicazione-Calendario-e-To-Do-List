@@ -4,13 +4,6 @@
 
 #include <iostream>
 
-enum class typeRep{
-    day,
-    week,
-    month,
-    year
-};
-
 TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject) :
         QWidget(nullptr),
         connectionManager(connectionManager),
@@ -31,6 +24,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
+        ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
         //TODO: setCurrentIndex based on typeRepetitionn of calendarObject
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
@@ -69,38 +63,33 @@ void TaskForm::on_buttonBox_accepted() {
     }
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:" + objectType + "\r\n"
-                                                    "UID:" + UID + "\r\n"
-                                                                   "VERSION:2.0\r\n"
-                                                                   "DTSTAMP:" +
-                            QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
-                            "\r\n"
+                            "UID:" + UID + "\r\n"
+                            "VERSION:2.0\r\n"
+                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +"\r\n"
                             "SUMMARY:" + ui->name->text() + "\r\n"
-                                                            "DTSTART:" +
-                            ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-
-                                                                                        "LOCATION:" +
-                            ui->location->text() + "\r\n"
-                                                   "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
+                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
+                            "LOCATION:" + ui->location->text() + "\r\n"
+                            "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
-    if(ui->typeRepetition->currentIndex()!=-1 || ui->numRepetition->value()!=0){
+    if (ui->typeRepetition->currentIndex() != -1 && ui->numRepetition->value() != 0) {
         QString rrule = "RRULE:FREQ=";
-        switch (ui->typeRepetition->currentIndex()){
+        switch (ui->typeRepetition->currentIndex()) {
             case 0:
-                rrule+="DAILY";
+                rrule += "DAILY";
                 break;
             case 1:
-                rrule+="WEEKLY";
+                rrule += "WEEKLY";
                 break;
             case 2:
-                rrule+="MONTHLY";
+                rrule += "MONTHLY";
                 break;
             case 3:
-                rrule+="YEARLY";
+                rrule += "YEARLY";
                 break;
             default:
                 break;
         }
-        rrule+=";COUNT="+QString::number(ui->numRepetition->value())+ "\r\n";
+        rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
     }
     // TODO: campi opzionali
@@ -117,7 +106,6 @@ void TaskForm::on_buttonBox_accepted() {
         requestString.append("RRULE:" + rrule + "\r\n");
     }
 
-
     if (!exdate.isEmpty())
     {
         requestString.append("EXDATE:" + exdate + "\r\n");
@@ -127,7 +115,7 @@ void TaskForm::on_buttonBox_accepted() {
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
-    std::cout<<requestString.toStdString()<<std::endl;
+    std::cout << requestString.toStdString() << std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }

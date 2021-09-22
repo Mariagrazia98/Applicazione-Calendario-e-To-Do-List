@@ -14,7 +14,7 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
 
     setupCalendar();
 
-    QGridLayout * layout = new QGridLayout;
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -174,32 +174,126 @@ void Calendar::showSelectedDateTasks() {
         delete item;
     }
     for (int i = 0; i < calendarObjects.length(); i++) {
-        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
-        if (calendarEvent) {
-            if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
-                calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
-                CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
-                obj->setVisible(true);
-                obj->setEnabled(true);
-                taskViewLayout->addWidget(obj);
-                connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
-                connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+        CalendarEvent *calendarToDo = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
+        if (calendarToDo) {
+            if (calendarToDo->getStartDateTime().date() <= calendar->selectedDate() &&
+                calendarToDo->getEndDateTime().date() >= calendar->selectedDate()) {
+                addCalendarObjectWiget(i);
+
+            } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
+                switch (calendarToDo->getTypeRepetition()) {
+                    case 0: {   //daily
+                        QDate start = calendarToDo->getStartDateTime().date();
+                        while (start < calendar->selectedDate()) {
+                            start = start.addDays(calendarToDo->getNumRepetition());
+                            if (start == calendar->selectedDate()) {
+                                addCalendarObjectWiget(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case 1: {      //weekly
+                        QDate start = calendarToDo->getStartDateTime().date();
+                        while (start < calendar->selectedDate()) {
+                            start = start.addDays(7 * calendarToDo->getNumRepetition());
+                            if (start == calendar->selectedDate()) {
+                                addCalendarObjectWiget(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case 2: {      //monthly
+                        QDate start = calendarToDo->getStartDateTime().date();
+                        while (start < calendar->selectedDate()) {
+                            start = start.addMonths(calendarToDo->getNumRepetition());
+                            if (start == calendar->selectedDate()) {
+                                addCalendarObjectWiget(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                    case 3: {      //yearly
+                        QDate start = calendarToDo->getStartDateTime().date();
+                        while (start < calendar->selectedDate()) {
+                            start = start.addYears(calendarToDo->getNumRepetition());
+                            if (start == calendar->selectedDate()) {
+                                addCalendarObjectWiget(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
             }
         } else {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
             if (calendarToDo->getStartDateTime()->date() <= calendar->selectedDate()) {
                 if (!(calendarToDo->getDueDateTime() &&
                       calendarToDo->getDueDateTime()->date() < calendar->selectedDate())) {
-                    CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
-                    obj->setVisible(true);
-                    obj->setEnabled(true);
-                    taskViewLayout->addWidget(obj);
-                    connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
-                    connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+                    addCalendarObjectWiget(i);
+                } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
+                    switch (calendarToDo->getTypeRepetition()) {
+                        case 0: {   //daily
+                            QDate start = calendarToDo->getStartDateTime()->date();
+                            while (start < calendar->selectedDate()) {
+                                start = start.addDays(calendarToDo->getNumRepetition());
+                                if (start == calendar->selectedDate()) {
+                                    addCalendarObjectWiget(i);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        case 1: {      //weekly
+                            QDate start = calendarToDo->getStartDateTime()->date();
+                            while (start < calendar->selectedDate()) {
+                                start = start.addDays(7 * calendarToDo->getNumRepetition());
+                                if (start == calendar->selectedDate()) {
+                                    addCalendarObjectWiget(i);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        case 2: {      //monthly
+                            QDate start = calendarToDo->getStartDateTime()->date();
+                            while (start < calendar->selectedDate()) {
+                                start = start.addMonths(calendarToDo->getNumRepetition());
+                                if (start == calendar->selectedDate()) {
+                                    addCalendarObjectWiget(i);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                        case 3: {      //yearly
+                            QDate start = calendarToDo->getStartDateTime()->date();
+                            while (start < calendar->selectedDate()) {
+                                start = start.addYears(calendarToDo->getNumRepetition());
+                                if (start == calendar->selectedDate()) {
+                                    addCalendarObjectWiget(i);
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
             }
         }
     }
+}
+
+void Calendar::addCalendarObjectWiget(int i) {
+    CalendarObjectWidget *obj = new CalendarObjectWidget(this, *calendarObjects[i], connectionManager);
+    obj->setVisible(true);
+    obj->setEnabled(true);
+    taskViewLayout->addWidget(obj);
+    connect(obj, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+    connect(obj, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
 }
 
 
@@ -231,10 +325,35 @@ void Calendar::parseEvent() {
             calendarObject->setUID(value);
         } else if (key == QLatin1String("DESCRIPTION")) {
             calendarObject->setDescription(value);
+        } else if (key == QLatin1String("RRULE")) {
+            QString rrule = value;
+
+            const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
+            const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
+
+            const QString numRepString = rrule.mid(deliminatorPosition2 + 1, -1);
+            const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
+
+            const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
+
+            if (typeRepetition == "DAILY") {
+                calendarObject->setTypeRepetition(0);
+            } else if (typeRepetition == "WEEKLY") {
+                calendarObject->setTypeRepetition(1);
+            } else if (typeRepetition == "MONTHLY") {
+                calendarObject->setTypeRepetition(2);
+            } else if (typeRepetition == "YEARLY") {
+                calendarObject->setTypeRepetition(3);
+            } else {
+                calendarObject->setTypeRepetition(-1);
+            }
+
+            const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
+            const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
+            calendarObject->setNumRepetition(numRepetition);
         }
     }
 }
-
 
 void Calendar::parseToDo() {
     QString line;
@@ -269,6 +388,32 @@ void Calendar::parseToDo() {
         } else if (key == QLatin1String("COMPLETED")) {
             dynamic_cast<CalendarToDo *>(calendarObject)->setCompletedDateTime(
                     getDateTimeFromString(value).toLocalTime());
+        } else if (key == QLatin1String("RRULE")) {
+            QString rrule = value;
+
+            const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
+            const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
+
+            const QString numRepString = rrule.mid(deliminatorPosition2 + 1, -1);
+            const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
+
+            const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
+
+            if (typeRepetition == "DAILY") {
+                calendarObject->setTypeRepetition(0);
+            } else if (typeRepetition == "WEEKLY") {
+                calendarObject->setTypeRepetition(1);
+            } else if (typeRepetition == "MONTHLY") {
+                calendarObject->setTypeRepetition(2);
+            } else if (typeRepetition == "YEARLY") {
+                calendarObject->setTypeRepetition(3);
+            } else {
+                calendarObject->setTypeRepetition(-1);
+            }
+
+            const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
+            const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
+            calendarObject->setNumRepetition(numRepetition);
         }
     }
 }
