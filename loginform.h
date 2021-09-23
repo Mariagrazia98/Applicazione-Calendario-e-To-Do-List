@@ -5,6 +5,12 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QAuthenticator>
+#include <QBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QGroupBox>
+#include <QDialogButtonBox>
 #include "connectionManager.h"
 
 namespace Ui {
@@ -23,13 +29,25 @@ public:
 
 private slots:
 
-    void on_loginButton_clicked();
+    void onLoginButtonClicked();
 
     void responseHandler(QNetworkReply *reply);
 
 private:
     Ui::LoginForm *ui;
     ConnectionManager *connectionManager;
+
+    QGroupBox *groupBox;
+    QGridLayout *layout;
+    QFormLayout *formLayout;
+
+    QLabel *userLabel;
+    QLineEdit *user;
+    QLabel *passwordLabel;
+    QLineEdit *password;
+    QLabel *calendarLabel;
+    QLineEdit *calendar;
+    QDialogButtonBox* dialogButtonBox;
 
     QMetaObject::Connection connection;
 };
