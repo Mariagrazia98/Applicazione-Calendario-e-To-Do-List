@@ -24,9 +24,6 @@ public:
 
     CalendarToDo(const CalendarToDo &other);
 
-    unsigned int getPriority() const;
-
-    void setPriority(unsigned int priority);
 
     const std::optional<QDateTime> &getStartDateTime() const;
 
@@ -44,9 +41,10 @@ public:
 
     void setStatus(ToDoStatus status);
 
+
 private:
     std::optional<QDateTime> completedDateTime;
-    unsigned int priority; // [0-9]
+
     ToDoStatus status;
 
     std::optional<QDateTime> startDateTime;

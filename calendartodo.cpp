@@ -11,8 +11,7 @@ CalendarToDo::CalendarToDo() {
 
 CalendarToDo::CalendarToDo(const CalendarToDo &other) :
         CalendarObject(other),
-        status(other.status),
-        priority(other.priority) {
+        status(other.status) {
     if (other.completedDateTime) {
         completedDateTime = *other.completedDateTime;
     } else {
@@ -30,19 +29,7 @@ CalendarToDo::CalendarToDo(const CalendarToDo &other) :
     }
 }
 
-unsigned int CalendarToDo::getPriority() const {
-    return priority;
-}
 
-void CalendarToDo::setPriority(unsigned int priority) {
-    if (priority < 0) {
-        this->priority = 0;
-    } else if (priority > 9) {
-        this->priority = 9;
-    } else {
-        this->priority = priority;
-    }
-}
 
 const std::optional<QDateTime> &CalendarToDo::getStartDateTime() const {
     return startDateTime;

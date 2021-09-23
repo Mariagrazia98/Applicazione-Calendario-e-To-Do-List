@@ -53,6 +53,10 @@ public:
 
     void setNumRepetition(int numRepetition);
 
+    unsigned int getPriority() const;
+
+    void setPriority(unsigned int priority);
+
 private:
     QString calendarName;
     QString name;
@@ -62,6 +66,7 @@ private:
     int numRepetition;
     int typeRepetition;
     QDateTime creationDateTime;
+    unsigned int priority; // [0-9]
 
 };
 

@@ -1,10 +1,10 @@
 #include "calendar.h"
 #include "ui_calendar.h"
 
-#define DAILY 0
-#define WEEKLY 1
-#define MONTHLY 2
-#define YEARLY 3
+#define DAILY 1
+#define WEEKLY 2
+#define MONTHLY 3
+#define YEARLY 4
 
 Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         QWidget(parent),
@@ -166,6 +166,11 @@ void Calendar::parseCalendar(QString calendar) {
             parseToDo();
         }
     }
+
+    std::sort(calendarObjects.begin(), calendarObjects.end(), [](CalendarObject *a, CalendarObject *b) {
+        return a->getPriority() > b->getPriority();
+    });
+
     stream->seek(0);
 
     showSelectedDateTasks();
@@ -263,7 +268,8 @@ void Calendar::showSelectedDateTasks() {
                             while (start.date() < calendar->selectedDate()) {
                                 start = start.addDays(calendarToDo->getNumRepetition());
                                 if (start.date() == calendar->selectedDate()) {
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo); // TODO: usare smart ptrs?
+                                    CalendarToDo *calendarToDo_ = new CalendarToDo(
+                                            *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
@@ -347,6 +353,8 @@ void Calendar::parseEvent() {
             calendarObject->setName(value);
         } else if (key == QLatin1String("LOCATION")) {
             calendarObject->setLocation(value);
+        } else if (key == QLatin1String("PRIORITY")) {
+            calendarObject->setPriority(value.toInt());
         } else if (key == QLatin1String("UID")) {
             calendarObject->setUID(value);
         } else if (key == QLatin1String("DESCRIPTION")) {
@@ -410,7 +418,7 @@ void Calendar::parseToDo() {
         } else if (key == QLatin1String("DESCRIPTION")) {
             calendarObject->setDescription(value);
         } else if (key == QLatin1String("PRIORITY")) {
-            dynamic_cast<CalendarToDo *>(calendarObject)->setPriority(value.toInt());
+            calendarObject->setPriority(value.toInt());
         } else if (key == QLatin1String("COMPLETED")) {
             dynamic_cast<CalendarToDo *>(calendarObject)->setCompletedDateTime(
                     getDateTimeFromString(value).toLocalTime());

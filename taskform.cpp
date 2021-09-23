@@ -2,6 +2,10 @@
 #include "ui_taskform.h"
 #include "calendartodo.h"
 
+#define DAILY 1
+#define WEEKLY 2
+#define MONTHLY 3
+#define YEARLY 4
 
 #include <iostream>
 
@@ -18,6 +22,9 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
     ui->expireDateTime->setLocale(QLocale::English);
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
+    ui->prioritySpinBox->setVisible(false);
+    ui->priorityLabel->setVisible(false);
+    /* MODIFY */
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
@@ -34,6 +41,10 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
             ui->comboBox->setCurrentIndex(1);
             ui->expireLabel->setText("To complete");
+            ui->prioritySpinBox->setVisible(true);
+            ui->priorityLabel->setVisible(true);
+            ui->prioritySpinBox->setValue(calendarToDo->getPriority());
+            ui->horizontalSpacer->changeSize(0,0,QSizePolicy::Fixed);
             if(calendarToDo->getDueDateTime())
             {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
@@ -75,19 +86,19 @@ void TaskForm::on_buttonBox_accepted() {
                             "LOCATION:" + ui->location->text() + "\r\n"
                             "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
-    if (ui->typeRepetition->currentIndex() != -1 && ui->numRepetition->value() != 0) {
+    if (ui->typeRepetition->currentIndex() > 0 && ui->numRepetition->value() != 0) {
         QString rrule = "RRULE:FREQ=";
         switch (ui->typeRepetition->currentIndex()) {
-            case 0:
+            case DAILY:
                 rrule += "DAILY";
                 break;
-            case 1:
+            case WEEKLY:
                 rrule += "WEEKLY";
                 break;
-            case 2:
+            case MONTHLY:
                 rrule += "MONTHLY";
                 break;
-            case 3:
+            case YEARLY:
                 rrule += "YEARLY";
                 break;
             default:
@@ -99,9 +110,10 @@ void TaskForm::on_buttonBox_accepted() {
     // TODO: campi opzionali
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
-        requestString.append("PRIORITY:0\r\n");
+        requestString.append("PRIORITY:"+QString::number(ui->prioritySpinBox->value())+ "\r\n");
         requestString.append("STATUS:IN-PROCESS\r\n");
     }
     /*
@@ -116,6 +128,8 @@ void TaskForm::on_buttonBox_accepted() {
     }
      */
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
+
+    //TODO validare il form
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
@@ -144,14 +158,18 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
 void TaskForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
-            //ui->expireDateTime->setEnabled(true);
+        /* EVENT */
             ui->expireLabel->setText("Expire");
-            //ui->beginDateTime->setEnabled(true);
+            ui->prioritySpinBox->setVisible(false);
+            ui->priorityLabel->setVisible(false);
+            ui->horizontalSpacer->changeSize(40,20,QSizePolicy::Expanding);
             break;
         case 1:
-            // task
+            /* TODO */
             ui->expireLabel->setText("Due");
-            //ui->beginDateTime->setEnabled(false);
+            ui->prioritySpinBox->setVisible(true);
+            ui->priorityLabel->setVisible(true);
+            ui->horizontalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);
             break;
         default:
             break;

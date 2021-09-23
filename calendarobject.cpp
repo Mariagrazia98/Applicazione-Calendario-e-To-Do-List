@@ -17,7 +17,8 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         description(other.description),
         creationDateTime(other.creationDateTime),
         typeRepetition(other.typeRepetition),
-        numRepetition(other.numRepetition) {
+        numRepetition(other.numRepetition),
+        priority(other.priority){
 
 }
 
@@ -96,6 +97,18 @@ void CalendarObject::setTypeRepetition(int typeRepetition) {
     CalendarObject::typeRepetition = typeRepetition;
 }
 
+unsigned int CalendarObject::getPriority() const {
+    return priority;
+}
 
+void CalendarObject::setPriority(unsigned int priority) {
+    if (priority < 0) {
+        this->priority = 0;
+    } else if (priority > 9) {
+        this->priority = 9;
+    } else {
+        this->priority = priority;
+    }
+}
 
 
