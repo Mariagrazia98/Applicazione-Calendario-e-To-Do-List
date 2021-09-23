@@ -86,7 +86,6 @@ int CalendarObject::getNumRepetition() const {
 
 void CalendarObject::setNumRepetition(int numRepetition) {
     CalendarObject::numRepetition = numRepetition;
-    std::cout << numRepetition << std::endl;
 }
 
 int CalendarObject::getTypeRepetition() const {
