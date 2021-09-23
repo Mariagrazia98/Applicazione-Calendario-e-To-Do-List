@@ -8,6 +8,7 @@
 #include "calendarobject.h"
 
 #include <QObject>
+#include <optional>
 
 enum class ToDoStatus {
     COMPLETED,

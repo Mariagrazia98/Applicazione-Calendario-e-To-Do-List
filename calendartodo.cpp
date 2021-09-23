@@ -14,13 +14,19 @@ CalendarToDo::CalendarToDo(const CalendarToDo &other) :
         status(other.status),
         priority(other.priority) {
     if (other.completedDateTime) {
-        *completedDateTime = *other.completedDateTime;
+        completedDateTime = *other.completedDateTime;
+    } else {
+        completedDateTime = std::nullopt;
     }
     if (other.startDateTime) {
-        *startDateTime = *other.startDateTime;
+        startDateTime = *other.startDateTime;
+    } else {
+        startDateTime = std::nullopt;
     }
     if (other.dueDateTime) {
-        *dueDateTime = *other.dueDateTime;
+        dueDateTime = *other.dueDateTime;
+    } else {
+        dueDateTime = std::nullopt;
     }
 }
 
