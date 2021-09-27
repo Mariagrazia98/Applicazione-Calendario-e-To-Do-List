@@ -15,6 +15,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
+    setFixedSize(440,380);
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
     ui->beginDateTime->setLocale(QLocale::English);
