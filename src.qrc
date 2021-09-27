@@ -2,9 +2,7 @@
     <qresource prefix="/">
         <file>resources/edit.png</file>
         <file>resources/garbage.png</file>
-        <file>QTheme/Diffnes.qss</file>
-        <file>QTheme/SpyBot.qss</file>
-        <file>QTheme/Darkeum.qss</file>
-        <file>QTheme/Fibers.qss</file>
+        <file>resources/list.png</file>
+        <file>QTheme/Toolery.qss</file>
     </qresource>
 </RCC>

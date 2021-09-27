@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
 
     //Set the app style sheet
     /*
-    QFile styleSheetStyle(":/QTheme/Fibers.qss");
+    QFile styleSheetStyle(":/QTheme/Toolery.qss");
     if (styleSheetStyle.exists()) {
         bool flag = styleSheetStyle.open(QFile::ReadOnly | QFile::Text);
         if (flag) {
@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
     } else {
         std::cerr << "Could not open stylesheet file\n";
     }*/
+
+    a.setWindowIcon(QIcon(":/resources/list.png"));
 
     ConnectionManager connectionManager;
     LoginForm loginForm(nullptr, &connectionManager);
