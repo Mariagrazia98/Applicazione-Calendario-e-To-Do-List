@@ -32,7 +32,7 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
 
     setMinimumHeight(480);
 
-    setWindowTitle(tr("Calendar Widget"));
+    setWindowTitle(tr("Calendar Application"));
 }
 
 Calendar::~Calendar() {
@@ -159,7 +159,9 @@ void Calendar::onDateTextChanged() {
 void Calendar::parseCalendar(QString calendar) {
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
+
     while (stream->readLineInto(&line)) {
+
         if (line.contains("BEGIN:VEVENT")) {
             parseEvent();
         } else if (line.contains("BEGIN:VTODO")) {
@@ -335,6 +337,7 @@ void Calendar::addCalendarObjectWidget(CalendarObject *calendarObject) {
 
 void Calendar::parseEvent() {
     QString line;
+
     CalendarObject *calendarObject = new CalendarEvent();
     while (stream->readLineInto(&line)) {
         if (line.contains(QByteArray("END:VEVENT"))) {
@@ -344,7 +347,10 @@ void Calendar::parseEvent() {
             return;
         }
         const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
+
+
         const QString key = line.mid(0, deliminatorPosition);
+
         QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
         if (key.startsWith(QLatin1String("DTSTAMP"))) {
             calendarObject->setCreationDateTime(
@@ -363,6 +369,10 @@ void Calendar::parseEvent() {
             calendarObject->setUID(value);
         } else if (key == QLatin1String("DESCRIPTION")) {
             calendarObject->setDescription(value);
+        } else if (deliminatorPosition == -1) {
+            QString description = calendarObject->getDescription();
+            description.append(value);
+            calendarObject->setDescription(description);
         } else if (key == QLatin1String("RRULE")) {
             const QString rrule = value;
 
