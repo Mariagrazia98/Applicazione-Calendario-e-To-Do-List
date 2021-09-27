@@ -3,6 +3,11 @@
 
 #include <iostream>
 
+#define DAILY 1
+#define WEEKLY 2
+#define MONTHLY 3
+#define YEARLY 4
+
 CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
                                            ConnectionManager *connectionManager) :
         QWidget(parent),
@@ -51,8 +56,12 @@ void CalendarObjectWidget::setupUI() {
 void CalendarObjectWidget::setupText() {
     QString text;
     text.append("Name: " + calendarObject->getName() + '\n');
-    text.append("Description: " + calendarObject->getDescription() + '\n');
-    text.append("Location: " + calendarObject->getLocation() + '\n');
+    if (!calendarObject->getLocation().isEmpty()) {
+        text.append("Location: " + calendarObject->getLocation() + '\n');
+    }
+    if (!calendarObject->getDescription().isEmpty()) {
+        text.append("Description: " + calendarObject->getDescription() + '\n');
+    }
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
@@ -149,7 +158,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                             "UID:" + calendarObject->getUID() + "\r\n"
                                                                 "VERSION:2.0\r\n"
                                                                 "DTSTAMP:" +
-                            QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +
+                            calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
                             "SUMMARY:" + calendarObject->getName() + "\r\n"
                                                                      "DTSTART:" +
@@ -167,7 +176,34 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     } else {
         requestString.append("STATUS:IN-PROCESS\r\n");
     }
-    requestString.append("PRIORITY:0\r\n");
+
+    if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
+        QString rrule = "RRULE:FREQ=";
+        switch (calendarObject->getTypeRepetition()) {
+            case DAILY:
+                rrule += "DAILY";
+                break;
+            case WEEKLY:
+                rrule += "WEEKLY";
+                break;
+            case MONTHLY:
+                rrule += "MONTHLY";
+                break;
+            case YEARLY:
+                rrule += "YEARLY";
+                break;
+            default:
+                break;
+        }
+        rrule += ";COUNT=" + QString::number(calendarObject->getNumRepetition()) + "\r\n";
+        requestString.append(rrule);
+    }
+
+    if (calendarToDo->getDueDateTime()) {
+        requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+    }
+
+    requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 

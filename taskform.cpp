@@ -44,9 +44,8 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
-            ui->horizontalSpacer->changeSize(0,0,QSizePolicy::Fixed);
-            if(calendarToDo->getDueDateTime())
-            {
+            ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
+            if (calendarToDo->getDueDateTime()) {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             }
         }
@@ -76,15 +75,30 @@ void TaskForm::on_buttonBox_accepted() {
     } else {
         objectType = "VTODO";
     }
+
+    if (ui->name->text().isEmpty()) {
+        std::cerr << "Insert a valid name\n";
+        QMessageBox::warning(this, "Error", "Insert a valid name");
+        return;
+    }
+    if (ui->expireDateTime->dateTime() < ui->beginDateTime->dateTime()) {
+        std::cerr << "Insert a valid start and end date\n";
+        QMessageBox::warning(this, "Error", "Insert a valid start and end date");
+        return;
+    }
+
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:" + objectType + "\r\n"
-                            "UID:" + UID + "\r\n"
-                            "VERSION:2.0\r\n"
-                            "DTSTAMP:" + QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") +"\r\n"
-                            "SUMMARY:" + ui->name->text() + "\r\n"
+                                                    "UID:" + UID + "\r\n"
+                                                                   "VERSION:2.0\r\n"
+                                                                   "DTSTAMP:" +
+                            QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                                                                                        "SUMMARY:" + ui->name->text() +
+                            "\r\n"
                             "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-                            "LOCATION:" + ui->location->text() + "\r\n"
-                            "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
+                                                                                                     "LOCATION:" +
+                            ui->location->text() + "\r\n"
+                                                   "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
     if (ui->typeRepetition->currentIndex() > 0 && ui->numRepetition->value() != 0) {
         QString rrule = "RRULE:FREQ=";
@@ -111,9 +125,10 @@ void TaskForm::on_buttonBox_accepted() {
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
+
     } else {
         requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
-        requestString.append("PRIORITY:"+QString::number(ui->prioritySpinBox->value())+ "\r\n");
+        requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         requestString.append("STATUS:IN-PROCESS\r\n");
     }
     /*
@@ -129,7 +144,6 @@ void TaskForm::on_buttonBox_accepted() {
      */
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
-    //TODO validare il form
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
                                  &TaskForm::handleUploadFinished);
@@ -158,18 +172,18 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
 void TaskForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
-        /* EVENT */
+            /* EVENT */
             ui->expireLabel->setText("Expire");
             ui->prioritySpinBox->setVisible(false);
             ui->priorityLabel->setVisible(false);
-            ui->horizontalSpacer->changeSize(40,20,QSizePolicy::Expanding);
+            ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
             break;
         case 1:
             /* TODO */
             ui->expireLabel->setText("Due");
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
-            ui->horizontalSpacer->changeSize(0,0,QSizePolicy::Fixed, QSizePolicy::Fixed);
+            ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
             break;
         default:
             break;
@@ -177,8 +191,7 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
 }
 
 void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    if(ui->expireDateTime->dateTime() < dateTime)
-    {
+    if (ui->expireDateTime->dateTime() < dateTime) {
         ui->expireDateTime->setDateTime(dateTime);
     }
 }

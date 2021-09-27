@@ -30,7 +30,6 @@ CalendarToDo::CalendarToDo(const CalendarToDo &other) :
 }
 
 
-
 const std::optional<QDateTime> &CalendarToDo::getStartDateTime() const {
     return startDateTime;
 }
@@ -61,7 +60,7 @@ std::optional<QDateTime> &CalendarToDo::getCompletedDateTime() {
     return completedDateTime;
 }
 
-void CalendarToDo::setCompletedDateTime(const QDateTime &completedDateTime) {
+void CalendarToDo::setCompletedDateTime(const std::optional<QDateTime> &completedDateTime) {
     CalendarToDo::completedDateTime = completedDateTime;
 }
 

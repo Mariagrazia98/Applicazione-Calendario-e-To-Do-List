@@ -271,6 +271,7 @@ void Calendar::showSelectedDateTasks() {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(
                                             *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
+                                    calendarToDo_->setCompletedDateTime(std::nullopt);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -283,6 +284,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
+                                    calendarToDo_->setCompletedDateTime(std::nullopt);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -295,6 +297,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
+                                    calendarToDo_->setCompletedDateTime(std::nullopt);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -307,6 +310,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
+                                    calendarToDo_->setCompletedDateTime(std::nullopt);
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
