@@ -23,6 +23,7 @@ LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
     calendar->setText("default");
     formLayout->addRow(userLabel, user);
     formLayout->addRow(passwordLabel, password);
+    password->setEchoMode(QLineEdit::Password);
     formLayout->addRow(calendarLabel, calendar);
     formLayout->addWidget(dialogButtonBox);
 
