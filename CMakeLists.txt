@@ -13,6 +13,8 @@ set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
 set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 #set(CMAKE_PREFIX_PATH {PROJECT_NAME}/cmake)
 
+
+
 add_executable(${PROJECT_NAME} main.cpp
         loginform.h loginform.cpp loginform.ui
     calendar.h calendar.cpp calendar.ui
@@ -20,7 +22,7 @@ add_executable(${PROJECT_NAME} main.cpp
     calendarobject.cpp calendarobject.h
     calendarevent.cpp calendarevent.h
     calendarobjectwidget.h calendarobjectwidget.cpp calendarobjectwidget.ui
-    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h)
+    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h )
 
 add_executable(${name} WIN32 ${source_files})
 
