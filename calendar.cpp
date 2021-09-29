@@ -516,6 +516,8 @@ void Calendar::finished(QNetworkReply *reply) {
 
         parseCalendar(answerString);
     }
+
+
 }
 
 void Calendar::getCalendarRequest() {
@@ -528,8 +530,20 @@ void Calendar::setupConnection() {
     getCalendarRequest();
 }
 
+void Calendar::setupTimer() {
+    QTimer* timer = new QTimer(this);
+    std::cout << "connection to timer\n";
+    connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
+    timer->start(10000);
+}
+
 void Calendar::onTaskDeleted(CalendarObject &obj) {
     setupConnection();
+}
+
+void Calendar::onTimeout() {
+    std::cout << "timeout\n";
+    connectionManager->getctag();
 }
 
 

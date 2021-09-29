@@ -21,6 +21,7 @@
 #include <QPushButton>
 #include <QDebug>
 #include <QScrollArea>
+#include <QTimer>
 
 #include <iostream>
 
@@ -49,6 +50,8 @@ public:
 
     void getCalendarRequest();
 
+    void setupTimer();
+
 public slots:
 
     void parseCalendar(QString calendar);
@@ -72,6 +75,8 @@ private slots:
     void onTaskModified();
 
     void onTaskDeleted(CalendarObject &obj);
+
+    void onTimeout();
 
 private:
     void setupCalendar();
@@ -112,7 +117,11 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
 
+
+
     void addCalendarObjectWidget(CalendarObject *calendarObject);
+
+
 };
 
 #endif // CALENDAR_H

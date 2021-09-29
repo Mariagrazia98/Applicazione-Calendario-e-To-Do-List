@@ -10,7 +10,8 @@ ConnectionManager::ConnectionManager(QString username, QString password, QString
         networkAccessManager(new QNetworkAccessManager),
         username(username),
         password(password),
-        calendar(calendar) {
+        calendar(calendar),
+        ctag(-1) {
     updateUrl();
     setup();
 }
@@ -33,7 +34,7 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 }
 
 void ConnectionManager::responseHandler(QNetworkReply *reply) {
-
+    networkReply = nullptr;
     emit(finished(reply));
 
 }
@@ -56,9 +57,9 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", 0);
 
-    QNetworkReply *reply = networkAccessManager->deleteResource(request);
+    networkReply = networkAccessManager->deleteResource(request);
 
-    if (!reply) {
+    if (!networkReply) {
         std::cerr << "something went wrong" << std::endl;
     } else {
 
@@ -84,7 +85,7 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     request.setRawHeader("Content-Length", contentlength);
 
-    QNetworkReply *networkReply = networkAccessManager->put(request, buffer);
+    networkReply = networkAccessManager->put(request, buffer);
 
     if (networkReply) {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -109,5 +110,85 @@ void ConnectionManager::setCalendar(const QString &calendar) {
 
 void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
+}
+
+void ConnectionManager::getctag() {
+    std::cout << "getctag\n";
+    if (networkReply != nullptr) {
+        QByteArray answer = networkReply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        std::cout << "getctag aborted\n";
+        return;
+    }
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+
+    QString requestString =
+            "<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">\r\n"
+            " <d:prop>\r\n"
+            "    <d:displayname />\r\n"
+            "    <cs:getctag />\r\n"
+            "  </d:prop>\r\n"
+            "</d:propfind>";
+
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QString authorization = "Basic ";
+    authorization.append(
+            (username + ":" + password).toUtf8().toBase64());
+
+    QNetworkRequest request;
+    request.setUrl(serverUrl);
+    request.setRawHeader("User-Agent", "CalendarClient_CalDAV");
+    request.setRawHeader("Authorization", authorization.toUtf8());
+    request.setRawHeader("Depth", "0");
+    request.setRawHeader("Prefer", "return-minimal");
+    request.setRawHeader("Content-Type", "text/xml; charset=utf-8");
+    request.setRawHeader("Content-Length", contentlength);
+
+    QSslConfiguration conf = request.sslConfiguration();
+    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    request.setSslConfiguration(conf);
+
+    networkReply = networkAccessManager->sendCustomRequest(request, QByteArray("PROPFIND"), buffer);
+
+    if (networkReply) {
+
+        connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+                                      &ConnectionManager::checkctag);
+
+    } else {
+        std::cerr << "ERROR: Invalid reply pointer when requesting sync token.";
+    }
+}
+
+void ConnectionManager::checkctag(QNetworkReply *reply) {
+    disconnect(connectionToGetCtag);
+    if(reply != nullptr){
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        std::cout << answerString.toStdString() << "\n\n";
+
+        QNetworkReply::NetworkError error = reply->error();
+        const QString &errorString = reply->errorString();
+        if (error == QNetworkReply::NoError) {
+            const int startPosition = answerString.indexOf("<cs:getctag>");
+            const int endPosition = answerString.indexOf("</cs:getctag>");
+            QString ctagString = answerString.mid(startPosition, endPosition - startPosition);
+            const int startctag = ctagString.lastIndexOf('/');
+            ctagString = ctagString.mid(startctag + 1, -1);
+            std::cout << "ctag: " << ctagString.toStdString() << "\n";
+            ctag = ctagString.toInt();
+        } else {
+            std::cerr << "checkctag: "<< errorString.toStdString() << '\n';
+        }
+    }
+
 }
 

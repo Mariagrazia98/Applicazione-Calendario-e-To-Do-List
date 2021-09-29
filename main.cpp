@@ -31,6 +31,7 @@ int main(int argc, char *argv[]) {
     if (loginForm.exec() == QDialog::Accepted) {
 
         calendar.setupConnection();
+        calendar.setupTimer();
         calendar.show();
     }
     return QApplication::exec();
