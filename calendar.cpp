@@ -532,7 +532,6 @@ void Calendar::setupConnection() {
 
 void Calendar::setupTimer() {
     QTimer* timer = new QTimer(this);
-    std::cout << "connection to timer\n";
     connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
     timer->start(10000);
 }
@@ -542,7 +541,6 @@ void Calendar::onTaskDeleted(CalendarObject &obj) {
 }
 
 void Calendar::onTimeout() {
-    std::cout << "timeout\n";
     connectionManager->getctag();
 }
 

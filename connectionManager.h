@@ -56,7 +56,7 @@ private:
     QString username;
     QString password;
     QString calendar;
-    QNetworkReply* networkReply;
+    QNetworkRequest* networkRequest;
     QUrl serverUrl;
 
     QMetaObject::Connection connectionToGetCtag;

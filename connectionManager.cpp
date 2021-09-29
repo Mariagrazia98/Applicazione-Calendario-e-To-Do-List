@@ -11,6 +11,7 @@ ConnectionManager::ConnectionManager(QString username, QString password, QString
         username(username),
         password(password),
         calendar(calendar),
+        networkRequest(nullptr),
         ctag(-1) {
     updateUrl();
     setup();
@@ -23,9 +24,11 @@ void ConnectionManager::setup() {
 }
 
 void ConnectionManager::getCalendarRequest() {
-    QNetworkRequest request;
-    request.setUrl(QUrl(serverUrl.toString() + "?export"));
-    networkAccessManager->get(request);
+    if (networkRequest == nullptr) {
+        networkRequest = new QNetworkRequest();
+    }
+    networkRequest->setUrl(QUrl(serverUrl.toString() + "?export"));
+    networkAccessManager->get(*networkRequest);
 }
 
 void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
@@ -34,7 +37,7 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 }
 
 void ConnectionManager::responseHandler(QNetworkReply *reply) {
-    networkReply = nullptr;
+    networkRequest = nullptr;
     emit(finished(reply));
 
 }
@@ -52,12 +55,14 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     if (UID.isEmpty()) {
         return;
     }
-    QNetworkRequest request;
-    request.setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
-    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
-    request.setRawHeader("Content-Length", 0);
+    if (networkRequest == nullptr) {
+        networkRequest = new QNetworkRequest();
+    }
+    networkRequest->setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
+    networkRequest->setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest->setRawHeader("Content-Length", 0);
 
-    networkReply = networkAccessManager->deleteResource(request);
+    QNetworkReply *networkReply = networkAccessManager->deleteResource(*networkRequest);
 
     if (!networkReply) {
         std::cerr << "something went wrong" << std::endl;
@@ -78,14 +83,17 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     QByteArray contentlength;
     contentlength.append(buffersize);
 
-    QNetworkRequest request;
+    if (networkRequest == nullptr) {
+        networkRequest = new QNetworkRequest();
+    }
+
     QString filename = UID + ".ics";
-    request.setUrl(QUrl(serverUrl.toString() + '/' + filename));
+    networkRequest->setUrl(QUrl(serverUrl.toString() + '/' + filename));
 
-    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
-    request.setRawHeader("Content-Length", contentlength);
+    networkRequest->setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest->setRawHeader("Content-Length", contentlength);
 
-    networkReply = networkAccessManager->put(request, buffer);
+    QNetworkReply *networkReply = networkAccessManager->put(*networkRequest, buffer);
 
     if (networkReply) {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -113,11 +121,8 @@ void ConnectionManager::updateUrl() {
 }
 
 void ConnectionManager::getctag() {
-    std::cout << "getctag\n";
-    if (networkReply != nullptr) {
-        QByteArray answer = networkReply->readAll();
-        QString answerString = QString::fromUtf8(answer);
-        std::cout << "getctag aborted\n";
+
+    if (networkRequest != nullptr) {
         return;
     }
     QBuffer *buffer = new QBuffer();
@@ -143,20 +148,23 @@ void ConnectionManager::getctag() {
     authorization.append(
             (username + ":" + password).toUtf8().toBase64());
 
-    QNetworkRequest request;
-    request.setUrl(serverUrl);
-    request.setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    request.setRawHeader("Authorization", authorization.toUtf8());
-    request.setRawHeader("Depth", "0");
-    request.setRawHeader("Prefer", "return-minimal");
-    request.setRawHeader("Content-Type", "text/xml; charset=utf-8");
-    request.setRawHeader("Content-Length", contentlength);
+    if (!networkRequest) {
+        networkRequest = new QNetworkRequest;
+    }
+    networkRequest->setUrl(serverUrl);
+    networkRequest->setRawHeader("User-Agent", "CalendarClient_CalDAV");
+    networkRequest->setRawHeader("Authorization", authorization.toUtf8());
+    networkRequest->setRawHeader("Depth", "0");
+    networkRequest->setRawHeader("Prefer", "return-minimal");
+    networkRequest->setRawHeader("Content-Type", "text/xml; charset=utf-8");
+    networkRequest->setRawHeader("Content-Length", contentlength);
 
-    QSslConfiguration conf = request.sslConfiguration();
+    QSslConfiguration conf = networkRequest->sslConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    request.setSslConfiguration(conf);
+    networkRequest->setSslConfiguration(conf);
 
-    networkReply = networkAccessManager->sendCustomRequest(request, QByteArray("PROPFIND"), buffer);
+    QNetworkReply *networkReply = networkAccessManager->sendCustomRequest(*networkRequest, QByteArray("PROPFIND"),
+                                                                          buffer);
 
     if (networkReply) {
 
@@ -170,10 +178,10 @@ void ConnectionManager::getctag() {
 
 void ConnectionManager::checkctag(QNetworkReply *reply) {
     disconnect(connectionToGetCtag);
-    if(reply != nullptr){
+    if (reply != nullptr) {
         QByteArray answer = reply->readAll();
         QString answerString = QString::fromUtf8(answer);
-        std::cout << answerString.toStdString() << "\n\n";
+
 
         QNetworkReply::NetworkError error = reply->error();
         const QString &errorString = reply->errorString();
@@ -183,10 +191,14 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
             QString ctagString = answerString.mid(startPosition, endPosition - startPosition);
             const int startctag = ctagString.lastIndexOf('/');
             ctagString = ctagString.mid(startctag + 1, -1);
-            std::cout << "ctag: " << ctagString.toStdString() << "\n";
-            ctag = ctagString.toInt();
+
+            if(ctag!=ctagString.toInt()){ //something is changed
+                ctag = ctagString.toInt();
+
+            }
+
         } else {
-            std::cerr << "checkctag: "<< errorString.toStdString() << '\n';
+            std::cerr << "checkctag: " << errorString.toStdString() << '\n';
         }
     }
 
