@@ -76,8 +76,6 @@ private slots:
 
     void onTaskDeleted(CalendarObject &obj);
 
-    void onTimeout();
-
 private:
     void setupCalendar();
 
