@@ -11,6 +11,7 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+#include <QByteArray>
 #include "connectionManager.h"
 
 namespace Ui {
@@ -33,6 +34,8 @@ private slots:
 
     void responseHandler(QNetworkReply *reply);
 
+    void onErrorOccurred(QNetworkReply::NetworkError code);
+
 private:
     Ui::LoginForm *ui;
     ConnectionManager *connectionManager;
@@ -50,6 +53,8 @@ private:
     QDialogButtonBox* dialogButtonBox;
 
     QMetaObject::Connection connection;
+
+    QNetworkAccessManager* networkAccessManager;
 };
 
 #endif // LOGINFORM_H

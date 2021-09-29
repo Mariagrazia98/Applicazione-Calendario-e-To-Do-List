@@ -21,12 +21,6 @@ void ConnectionManager::setup() {
             SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
 }
 
-void ConnectionManager::getCalendarRequest() {
-    QNetworkRequest request;
-    request.setUrl(QUrl(serverUrl.toString() + "?export"));
-    networkAccessManager->get(request);
-}
-
 void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
     authenticator->setUser(username);
     authenticator->setPassword(password);
@@ -109,5 +103,17 @@ void ConnectionManager::setCalendar(const QString &calendar) {
 
 void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
+}
+
+const QUrl &ConnectionManager::getServerUrl() const {
+    return serverUrl;
+}
+
+const QString &ConnectionManager::getUsername() const {
+    return username;
+}
+
+const QString &ConnectionManager::getPassword() const {
+    return password;
 }
 

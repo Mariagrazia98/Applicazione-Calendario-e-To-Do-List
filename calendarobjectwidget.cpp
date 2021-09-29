@@ -19,6 +19,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &cale
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
         connectionManager(connectionManager),
+        networkAccessManager(new QNetworkAccessManager),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
     setupUI();
@@ -207,9 +208,34 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QNetworkRequest request;
+    QString filename = calendarObject->getUID() + ".ics";
+    request.setUrl(QUrl(connectionManager->getServerUrl().toString() + '/' + filename));
+
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    request.setRawHeader("Content-Length", contentlength);
+
+    connectionToFinish = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
                                  &CalendarObjectWidget::finished);
-    connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+
+    connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, connectionManager,
+            &ConnectionManager::authenticationRequired);
+
+    QNetworkReply *networkReply = networkAccessManager->put(request, buffer);
+
+    if (!networkReply) {
+        std::cerr << "Invalid reply pointer when requesting URL\n";
+    }
 }
 
 

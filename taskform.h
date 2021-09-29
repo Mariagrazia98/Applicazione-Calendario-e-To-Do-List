@@ -53,6 +53,8 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinish;
 
+    QNetworkAccessManager* networkAccessManager;
+
     CalendarObject *calendarObject;
 
     void closeEvent(QCloseEvent *event) override;

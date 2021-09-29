@@ -15,14 +15,13 @@
 #include <QMessageBox>
 
 #include <iostream>
+#include <QNetworkReply>
 
 class ConnectionManager : public QObject {
 Q_OBJECT
 public:
 
-    ConnectionManager(QString username = "", QString password = "", QString calendar="default");
-
-    void getCalendarRequest();
+    ConnectionManager(QString username = "", QString password = "", QString calendar = "default");
 
     void deleteCalendarObject(const QString &UID);
 
@@ -32,11 +31,13 @@ public:
 
     void addOrUpdateCalendarObject(const QString &request, const QString &UID);
 
+public slots:
+
+    void authenticationRequired(QNetworkReply *, QAuthenticator *);
+
 private slots:
 
     void responseHandler(QNetworkReply *);
-
-    void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
 signals:
 
@@ -45,6 +46,12 @@ signals:
 private:
     QNetworkAccessManager *networkAccessManager;
     QString username;
+public:
+    const QString &getUsername() const;
+
+    const QString &getPassword() const;
+
+private:
     QString password;
     QString calendar;
 public:
@@ -54,6 +61,10 @@ public:
 
 private:
     QUrl serverUrl;
+public:
+    const QUrl &getServerUrl() const;
+
+private:
 
     void setup();
 

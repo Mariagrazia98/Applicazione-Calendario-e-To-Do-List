@@ -11,7 +11,8 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
         ui(new Ui::Calendar),
         dateString(new QTextBrowser),
         connectionManager(connectionManager),
-        stream(new QTextStream()) {
+        stream(new QTextStream()),
+        networkAccessManager(new QNetworkAccessManager){
     ui->setupUi(this);
 
     createCalendarGroupBox();
@@ -513,18 +514,21 @@ void Calendar::finished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         calendarObjects.clear();
-
         parseCalendar(answerString);
     }
 }
 
 void Calendar::getCalendarRequest() {
-    connectionManager->getCalendarRequest();
+    QNetworkRequest request;
+    request.setUrl(QUrl(connectionManager->getServerUrl().toString()+"?export"));
+    networkAccessManager->get(request);
 }
 
 void Calendar::setupConnection() {
-    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::finished, this,
+    connectionToFinished = QObject::connect(networkAccessManager, &QNetworkAccessManager::finished, this,
                                             &Calendar::finished); //Connect
+    connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, connectionManager,
+            &ConnectionManager::authenticationRequired);
     getCalendarRequest();
 }
 

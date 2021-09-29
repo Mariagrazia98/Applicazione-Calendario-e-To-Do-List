@@ -88,6 +88,8 @@ private:
 
     void parseToDo();
 
+    void addCalendarObjectWidget(CalendarObject *calendarObject);
+
     Ui::Calendar *ui;
 
     QGroupBox *calendarGroupBox; // calendar group box (left)
@@ -112,7 +114,9 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
 
-    void addCalendarObjectWidget(CalendarObject *calendarObject);
+    QNetworkAccessManager* networkAccessManager;
+
+
 };
 
 #endif // CALENDAR_H

@@ -13,9 +13,10 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         QWidget(nullptr),
         connectionManager(connectionManager),
         calendarObject(calendarObject),
+        networkAccessManager(new QNetworkAccessManager),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
-    setFixedSize(440,380);
+    setFixedSize(440, 380);
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
     ui->beginDateTime->setLocale(QLocale::English);
@@ -146,10 +147,34 @@ void TaskForm::on_buttonBox_accepted() {
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QNetworkRequest request;
+    QString filename = calendarObject->getUID() + ".ics";
+    request.setUrl(QUrl(connectionManager->getServerUrl().toString() + '/' + filename));
+
+    request.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    request.setRawHeader("Content-Length", contentlength);
+
+    connectionToFinish = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
                                  &TaskForm::handleUploadFinished);
-    //std::cout << requestString.toStdString() << std::endl;
-    connectionManager->addOrUpdateCalendarObject(requestString, UID);
+
+    connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, connectionManager,
+            &ConnectionManager::authenticationRequired);
+
+    QNetworkReply *networkReply = networkAccessManager->put(request, buffer);
+
+    if (!networkReply) {
+        std::cerr << "Invalid reply pointer when requesting URL\n";
+    }
 
 }
 

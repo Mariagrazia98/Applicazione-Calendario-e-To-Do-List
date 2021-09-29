@@ -51,6 +51,7 @@ private:
     QPushButton* removeButton;
     ConnectionManager* connectionManager;
 
+    QNetworkAccessManager* networkAccessManager;
 
 };
 

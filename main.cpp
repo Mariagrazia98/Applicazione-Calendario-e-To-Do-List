@@ -29,7 +29,6 @@ int main(int argc, char *argv[]) {
     LoginForm loginForm(nullptr, &connectionManager);
     Calendar calendar(nullptr, &connectionManager);
     if (loginForm.exec() == QDialog::Accepted) {
-
         calendar.setupConnection();
         calendar.show();
     }
