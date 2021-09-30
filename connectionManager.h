@@ -39,6 +39,8 @@ public:
 
     void setCalendar(const QString &calendar);
 
+    void tryLogin();
+
 private slots:
 
     void responseHandler(QNetworkReply *);
@@ -47,16 +49,18 @@ private slots:
 
     void checkctag(QNetworkReply *reply);
 
-signals:
+    void onLoginRequestFinished(QNetworkReply *reply);
 
-    void finished(QNetworkReply *reply);
+signals:
+    void onFinished(QNetworkReply *reply);
+
+    void loggedin(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager *networkAccessManager;
     QString username;
     QString password;
     QString calendar;
-    QNetworkRequest* networkRequest;
     QUrl serverUrl;
 
     QMetaObject::Connection connectionToGetCtag;
@@ -67,6 +71,11 @@ private:
 
     void updateUrl();
 
+    void getUpdatedTasks();
+
+    void parseAndUpdatectag(const QString& answerString);
+
+    void makectagRequest();
 
 };
 

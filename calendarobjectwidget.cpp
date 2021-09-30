@@ -207,7 +207,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::finished, this,
+    connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::finished);
     connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }

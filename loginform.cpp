@@ -43,8 +43,8 @@ void LoginForm::onLoginButtonClicked() {
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
     connectionManager->setCalendar(calendar->text());
-    connectionManager->getCalendarRequest();
-    connection = connect(connectionManager, &ConnectionManager::finished, this, &LoginForm::responseHandler);
+    connectionManager->tryLogin();
+    connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 }
 
 void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
@@ -60,7 +60,6 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
-        //QMessageBox::information(this, "Login", "Username and password is correct");
         accept();
         this->close();
     }

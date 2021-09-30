@@ -513,11 +513,8 @@ void Calendar::finished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         calendarObjects.clear();
-
         parseCalendar(answerString);
     }
-
-
 }
 
 void Calendar::getCalendarRequest() {
@@ -525,13 +522,13 @@ void Calendar::getCalendarRequest() {
 }
 
 void Calendar::setupConnection() {
-    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::finished, this,
+    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::onFinished, this,
                                             &Calendar::finished); //Connect
     getCalendarRequest();
 }
 
 void Calendar::setupTimer() {
-    QTimer* timer = new QTimer(this);
+    QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
     timer->start(10000);
 }

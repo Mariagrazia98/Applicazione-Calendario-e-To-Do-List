@@ -11,24 +11,22 @@ ConnectionManager::ConnectionManager(QString username, QString password, QString
         username(username),
         password(password),
         calendar(calendar),
-        networkRequest(nullptr),
         ctag(-1) {
     updateUrl();
     setup();
 }
 
 void ConnectionManager::setup() {
-    connect(networkAccessManager, SIGNAL(finished(QNetworkReply * )), this, SLOT(responseHandler(QNetworkReply * )));
-    connect(networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply * , QAuthenticator * )), this,
-            SLOT(authenticationRequired(QNetworkReply * , QAuthenticator * )));
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::responseHandler);
+    connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, this,
+            &ConnectionManager::authenticationRequired);
 }
 
 void ConnectionManager::getCalendarRequest() {
-    if (networkRequest == nullptr) {
-        networkRequest = new QNetworkRequest();
-    }
-    networkRequest->setUrl(QUrl(serverUrl.toString() + "?export"));
-    networkAccessManager->get(*networkRequest);
+    QNetworkRequest networkRequest;
+
+    networkRequest.setUrl(QUrl(serverUrl.toString() + "?export"));
+    networkAccessManager->get(networkRequest);
 }
 
 void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
@@ -37,9 +35,7 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 }
 
 void ConnectionManager::responseHandler(QNetworkReply *reply) {
-    networkRequest = nullptr;
-    emit(finished(reply));
-
+    emit(onFinished(reply));
 }
 
 void ConnectionManager::setUsername(QString username) {
@@ -55,14 +51,13 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     if (UID.isEmpty()) {
         return;
     }
-    if (networkRequest == nullptr) {
-        networkRequest = new QNetworkRequest();
-    }
-    networkRequest->setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
-    networkRequest->setRawHeader("Content-Type", "text/calendar; charset=utf-8");
-    networkRequest->setRawHeader("Content-Length", 0);
 
-    QNetworkReply *networkReply = networkAccessManager->deleteResource(*networkRequest);
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
+    networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest.setRawHeader("Content-Length", 0);
+
+    QNetworkReply *networkReply = networkAccessManager->deleteResource(networkRequest);
 
     if (!networkReply) {
         std::cerr << "something went wrong" << std::endl;
@@ -83,17 +78,15 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     QByteArray contentlength;
     contentlength.append(buffersize);
 
-    if (networkRequest == nullptr) {
-        networkRequest = new QNetworkRequest();
-    }
+    QNetworkRequest networkRequest;
 
     QString filename = UID + ".ics";
-    networkRequest->setUrl(QUrl(serverUrl.toString() + '/' + filename));
+    networkRequest.setUrl(QUrl(serverUrl.toString() + '/' + filename));
 
-    networkRequest->setRawHeader("Content-Type", "text/calendar; charset=utf-8");
-    networkRequest->setRawHeader("Content-Length", contentlength);
+    networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest.setRawHeader("Content-Length", contentlength);
 
-    QNetworkReply *networkReply = networkAccessManager->put(*networkRequest, buffer);
+    QNetworkReply *networkReply = networkAccessManager->put(networkRequest, buffer);
 
     if (networkReply) {
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
@@ -102,7 +95,6 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
         //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
     } else {
         //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
-        //emit error("Invalid reply pointer when requesting URL.");
         std::cerr << "Invalid reply pointer when requesting URL\n";
     }
 }
@@ -121,10 +113,50 @@ void ConnectionManager::updateUrl() {
 }
 
 void ConnectionManager::getctag() {
+    makectagRequest();
+    connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+                                  &ConnectionManager::checkctag);
+}
 
-    if (networkRequest != nullptr) {
-        return;
+void ConnectionManager::checkctag(QNetworkReply *reply) {
+    disconnect(connectionToGetCtag);
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        const QString &errorString = reply->errorString();
+        if (error == QNetworkReply::NoError) {
+            parseAndUpdatectag(answerString);
+        } else {
+            std::cerr << "checkctag: " << errorString.toStdString() << '\n';
+        }
     }
+}
+
+
+void ConnectionManager::tryLogin() {
+    makectagRequest();
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::onLoginRequestFinished);
+}
+
+void ConnectionManager::getUpdatedTasks() {
+
+}
+
+void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
+    const int startPosition = answerString.indexOf("<cs:getctag>");
+    const int endPosition = answerString.indexOf("</cs:getctag>");
+    QString ctagString = answerString.mid(startPosition, endPosition - startPosition);
+    const int startctag = ctagString.lastIndexOf('/');
+    ctagString = ctagString.mid(startctag + 1, -1);
+    int new_ctag = ctagString.toInt();
+    if (ctag != new_ctag && new_ctag > 0) { //something is changed
+        ctag = new_ctag;
+        std::cout << "new ctag: " << new_ctag << '\n';
+    }
+}
+
+void ConnectionManager::makectagRequest() {
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -148,59 +180,33 @@ void ConnectionManager::getctag() {
     authorization.append(
             (username + ":" + password).toUtf8().toBase64());
 
-    if (!networkRequest) {
-        networkRequest = new QNetworkRequest;
-    }
-    networkRequest->setUrl(serverUrl);
-    networkRequest->setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    networkRequest->setRawHeader("Authorization", authorization.toUtf8());
-    networkRequest->setRawHeader("Depth", "0");
-    networkRequest->setRawHeader("Prefer", "return-minimal");
-    networkRequest->setRawHeader("Content-Type", "text/xml; charset=utf-8");
-    networkRequest->setRawHeader("Content-Length", contentlength);
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(serverUrl);
+    networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
+    networkRequest.setRawHeader("Authorization", authorization.toUtf8());
+    networkRequest.setRawHeader("Depth", "0");
+    networkRequest.setRawHeader("Prefer", "return-minimal");
+    networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
+    networkRequest.setRawHeader("Content-Length", contentlength);
 
-    QSslConfiguration conf = networkRequest->sslConfiguration();
+    QSslConfiguration conf = networkRequest.sslConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
-    networkRequest->setSslConfiguration(conf);
+    networkRequest.setSslConfiguration(conf);
 
-    QNetworkReply *networkReply = networkAccessManager->sendCustomRequest(*networkRequest, QByteArray("PROPFIND"),
+    QNetworkReply *networkReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"),
                                                                           buffer);
-
-    if (networkReply) {
-
-        connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
-                                      &ConnectionManager::checkctag);
-
-    } else {
-        std::cerr << "ERROR: Invalid reply pointer when requesting sync token.";
-    }
 }
 
-void ConnectionManager::checkctag(QNetworkReply *reply) {
-    disconnect(connectionToGetCtag);
-    if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
-
-
-        QNetworkReply::NetworkError error = reply->error();
-        const QString &errorString = reply->errorString();
-        if (error == QNetworkReply::NoError) {
-            const int startPosition = answerString.indexOf("<cs:getctag>");
-            const int endPosition = answerString.indexOf("</cs:getctag>");
-            QString ctagString = answerString.mid(startPosition, endPosition - startPosition);
-            const int startctag = ctagString.lastIndexOf('/');
-            ctagString = ctagString.mid(startctag + 1, -1);
-
-            if(ctag!=ctagString.toInt()){ //something is changed
-                ctag = ctagString.toInt();
-
-            }
-
-        } else {
-            std::cerr << "checkctag: " << errorString.toStdString() << '\n';
-        }
+void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
+    QByteArray answer = reply->readAll();
+    QString answerString = QString::fromUtf8(answer);
+    QNetworkReply::NetworkError error = reply->error();
+    const QString &errorString = reply->errorString();
+    if (error == QNetworkReply::NoError) {
+        parseAndUpdatectag(answerString);
+        emit(loggedin(reply));
+    } else {
+        std::cerr << "checkctag: " << errorString.toStdString() << '\n';
     }
-
 }
 
