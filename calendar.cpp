@@ -532,13 +532,16 @@ void Calendar::setupConnection() {
 
 void Calendar::setupTimer() {
     QTimer* timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, connectionManager, &ConnectionManager::checkChanges);
-    timer->start(3000);
+    connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
+    timer->start(10000);
 }
 
 void Calendar::onTaskDeleted(CalendarObject &obj) {
     setupConnection();
 }
 
+void Calendar::onTimeout() {
+    connectionManager->getctag();
+}
 
 

@@ -33,12 +33,11 @@ public:
 
     void addOrUpdateCalendarObject(const QString &request, const QString &UID);
 
+    void getctag();
 
     const QString &getCalendar() const;
 
     void setCalendar(const QString &calendar);
-
-    void checkChanges();
 
 private slots:
 
@@ -48,22 +47,19 @@ private slots:
 
     void checkctag(QNetworkReply *reply);
 
-    void getCalendarObjectUIDUpdated(QNetworkReply* reply);
-
 signals:
 
     void finished(QNetworkReply *reply);
+
 private:
     QNetworkAccessManager *networkAccessManager;
     QString username;
     QString password;
     QString calendar;
     QNetworkRequest* networkRequest;
-
     QUrl serverUrl;
 
     QMetaObject::Connection connectionToGetCtag;
-    QMetaObject::Connection connectionToGetEtag;
 
     int ctag;
 
@@ -71,7 +67,7 @@ private:
 
     void updateUrl();
 
-    void makeCustomRequest(QString requestString, const QString& method);
+
 };
 
 
