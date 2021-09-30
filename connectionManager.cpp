@@ -120,7 +120,7 @@ void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
 }
 
-void ConnectionManager::makeCustomRequest(QString requestString, const QString &method) {
+void ConnectionManager::getctag() {
 
     if (networkRequest != nullptr) {
         return;
@@ -128,6 +128,14 @@ void ConnectionManager::makeCustomRequest(QString requestString, const QString &
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
+
+    QString requestString =
+            "<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">\r\n"
+            " <d:prop>\r\n"
+            "    <d:displayname />\r\n"
+            "    <cs:getctag />\r\n"
+            "  </d:prop>\r\n"
+            "</d:propfind>";
 
     int buffersize = buffer->write(requestString.toUtf8());
     buffer->seek(0);
@@ -146,18 +154,26 @@ void ConnectionManager::makeCustomRequest(QString requestString, const QString &
     networkRequest->setUrl(serverUrl);
     networkRequest->setRawHeader("User-Agent", "CalendarClient_CalDAV");
     networkRequest->setRawHeader("Authorization", authorization.toUtf8());
-    networkRequest->setRawHeader("Depth", "1");
+    networkRequest->setRawHeader("Depth", "0");
     networkRequest->setRawHeader("Prefer", "return-minimal");
     networkRequest->setRawHeader("Content-Type", "text/xml; charset=utf-8");
     networkRequest->setRawHeader("Content-Length", contentlength);
-
 
     QSslConfiguration conf = networkRequest->sslConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
     networkRequest->setSslConfiguration(conf);
 
-    networkAccessManager->sendCustomRequest(*networkRequest, QByteArray(method.toUtf8()),
-                                            buffer);
+    QNetworkReply *networkReply = networkAccessManager->sendCustomRequest(*networkRequest, QByteArray("PROPFIND"),
+                                                                          buffer);
+
+    if (networkReply) {
+
+        connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+                                      &ConnectionManager::checkctag);
+
+    } else {
+        std::cerr << "ERROR: Invalid reply pointer when requesting sync token.";
+    }
 }
 
 void ConnectionManager::checkctag(QNetworkReply *reply) {
@@ -165,7 +181,8 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
     if (reply != nullptr) {
         QByteArray answer = reply->readAll();
         QString answerString = QString::fromUtf8(answer);
-       
+
+
         QNetworkReply::NetworkError error = reply->error();
         const QString &errorString = reply->errorString();
         if (error == QNetworkReply::NoError) {
@@ -175,60 +192,9 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
             const int startctag = ctagString.lastIndexOf('/');
             ctagString = ctagString.mid(startctag + 1, -1);
 
-            if (ctag != ctagString.toInt()) { //something is changed
+            if(ctag!=ctagString.toInt()){ //something is changed
                 ctag = ctagString.toInt();
-                std::cout << "New ctag: " << ctag << '\n';
-                // get ctag with etag request
-                // connect to parser
 
-                if (networkRequest != nullptr) {
-                    return;
-                }
-                QBuffer *buffer = new QBuffer();
-
-                buffer->open(QIODevice::ReadWrite);
-
-                QString requestString =
-                        "<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\n"
-                        " <d:prop>\n"
-                        "    <d:getetag />\n"
-                        "  </d:prop>\n"
-                        "<c:filter>\n"
-                        "<c:comp-filter name=\"VCALENDAR\"/>\n"
-                        "</c:filter>\n"
-                        "</c:calendar-query>";
-
-                int buffersize = buffer->write(requestString.toUtf8());
-                buffer->seek(0);
-                buffer->size();
-
-                QByteArray contentlength;
-                contentlength.append(buffersize);
-
-                QString authorization = "Basic ";
-                authorization.append(
-                        (username + ":" + password).toUtf8().toBase64());
-
-                if (!networkRequest) {
-                    networkRequest = new QNetworkRequest;
-                }
-                networkRequest->setUrl(serverUrl);
-                networkRequest->setRawHeader("User-Agent", "CalendarClient_CalDAV");
-                networkRequest->setRawHeader("Authorization", authorization.toUtf8());
-                networkRequest->setRawHeader("Depth", "1");
-                networkRequest->setRawHeader("Prefer", "return-minimal");
-                networkRequest->setRawHeader("Content-Type", "text/xml; charset=utf-8");
-                networkRequest->setRawHeader("Content-Length", contentlength);
-
-
-                QSslConfiguration conf = networkRequest->sslConfiguration();
-                conf.setPeerVerifyMode(QSslSocket::VerifyNone);
-                networkRequest->setSslConfiguration(conf);
-
-                networkAccessManager->sendCustomRequest(*networkRequest, QByteArray("REPORT"), buffer);
-
-                connectionToGetEtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
-                                              &ConnectionManager::getCalendarObjectUIDUpdated);
             }
 
         } else {
@@ -238,37 +204,3 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
 
 }
 
-void ConnectionManager::checkChanges() {
-    QString requestString =
-            "<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">\r\n"
-            " <d:prop>\r\n"
-            "    <d:displayname />\r\n"
-            "    <cs:getctag />\r\n"
-            "    <d:sync-token />\r\n "
-            "  </d:prop>\r\n"
-            "</d:propfind>";
-    makeCustomRequest(requestString, "PROPFIND");
-    connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
-                                  &ConnectionManager::checkctag);
-
-    //get ctag with ctag request
-    // connect to ctag parser
-}
-
-void ConnectionManager::getCalendarObjectUIDUpdated(QNetworkReply *reply) {
-    disconnect(connectionToGetEtag);
-    if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
-        QNetworkReply::NetworkError error = reply->error();
-        const QString &errorString = reply->errorString();
-
-        std::cout << answerString.toStdString() << '\n';
-
-        if (error == QNetworkReply::NoError) {
-            std::cout << "get Calendar Object UID Updated: \n" << answerString.toStdString() << "\n\n";
-        } else {
-            std::cerr << errorString.toStdString() << '\n';
-        }
-    }
-}
