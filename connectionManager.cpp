@@ -128,6 +128,7 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
         if (error == QNetworkReply::NoError) {
             parseAndUpdatectag(answerString);
         } else {
+            // errore qui
             std::cerr << "checkctag: " << errorString.toStdString() << '\n';
         }
     }
@@ -136,7 +137,7 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
 
 void ConnectionManager::tryLogin() {
     makectagRequest();
-    connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::onLoginRequestFinished);
+    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::onLoginRequestFinished);
 }
 
 void ConnectionManager::getUpdatedTasks() {
@@ -153,6 +154,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     if (ctag != new_ctag && new_ctag > 0) { //something is changed
         ctag = new_ctag;
         std::cout << "new ctag: " << new_ctag << '\n';
+        getCalendarRequest();
     }
 }
 
@@ -198,6 +200,7 @@ void ConnectionManager::makectagRequest() {
 }
 
 void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
+    disconnect(connectionToLogin);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();

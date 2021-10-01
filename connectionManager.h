@@ -64,6 +64,7 @@ private:
     QUrl serverUrl;
 
     QMetaObject::Connection connectionToGetCtag;
+    QMetaObject::Connection connectionToLogin;
 
     int ctag;
 
