@@ -157,8 +157,8 @@ void Calendar::onDateTextChanged() {
 }
 
 void Calendar::parseCalendar(QString calendar) {
-    std::cout << "parseCalendar" << std::endl;
-    std::cout << "--------------------------" << std::endl;
+    std::cout << "[Calendar] parseCalendar" << std::endl;
+    //std::cout << "--------------------------" << std::endl;
 
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
@@ -334,9 +334,10 @@ void Calendar::addCalendarObjectWidget(CalendarObject *calendarObject) {
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
-    connectionModify = connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
-                               &Calendar::onTaskModified);
-    connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+    connectionToModify = connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
+                                 &Calendar::onTaskModified);
+    connectionToTaskDeleted = connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this,
+                                      &Calendar::onTaskDeleted);
 }
 
 void Calendar::parseEvent() {
@@ -498,9 +499,9 @@ void Calendar::onTaskFormClosed() {
 }
 
 void Calendar::onTaskModified() {
-    disconnect(connectionModify);
-    std::cout << "onTaskModified" << std::endl;
-    setupConnection();
+    disconnect(connectionToModify);
+    std::cout << "[Calendar] onTaskModified" << std::endl;
+    getCalendarRequest();
 }
 
 void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
@@ -508,18 +509,23 @@ void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
 }
 
 void Calendar::finished(QNetworkReply *reply) {
-    std::cout << "finished" << std::endl;
-    disconnect(connectionToFinished); //DISCONNECT
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
+    std::cout << "[Calendar] finished" << std::endl;
+    if (reply) {
+        //disconnect(connectionToFinished); //DISCONNECT
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
 
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error != QNetworkReply::NoError) {
-        QMessageBox::warning(this, "Error", errorString);
+        QNetworkReply::NetworkError error = reply->error();
+        const QString &errorString = reply->errorString();
+        if (error != QNetworkReply::NoError) {
+            QMessageBox::warning(this, "Error", errorString);
+        } else {
+            calendarObjects.clear();
+            parseCalendar(answerString);
+        }
+        reply->deleteLater();
     } else {
-        calendarObjects.clear();
-        parseCalendar(answerString);
+        std::cout << "null reply\n";
     }
 }
 
@@ -528,26 +534,28 @@ void Calendar::getCalendarRequest() {
 }
 
 void Calendar::setupConnection() {
-    std::cout << "setupConnection" << std::endl;
-    disconnect(connectionCtag);
-    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::onFinished, this,
-                                            &Calendar::finished); //Connect
+    std::cout << "[Calendar] setupConnection" << std::endl;
+    QObject::connect(connectionManager, &ConnectionManager::calendarReady, this,
+                     &Calendar::finished); //Connect
     getCalendarRequest();
 }
 
 void Calendar::setupTimer() {
     QTimer *timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
+    QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
+                     &Calendar::getCalendarRequest); //Connect
     timer->start(10000);
 }
 
 void Calendar::onTaskDeleted(CalendarObject &obj) {
-    setupConnection();
+    disconnect(connectionToTaskDeleted);
+    getCalendarRequest();
 }
 
 void Calendar::onTimeout() {
-    connectionCtag = QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
-                                      &Calendar::setupConnection); //Connect
+    std::cout << "[Calendar] Timeout\n";
+
     connectionManager->getctag();
 }
 

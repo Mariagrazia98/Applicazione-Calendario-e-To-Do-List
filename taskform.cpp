@@ -146,7 +146,7 @@ void TaskForm::on_buttonBox_accepted() {
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
+    connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     //std::cout << requestString.toStdString() << std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
@@ -154,7 +154,7 @@ void TaskForm::on_buttonBox_accepted() {
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
-    std::cout<<"handleUploadFinished"<<std::endl;
+    std::cout<<"[TaskForm] handleUploadFinished"<<std::endl;
     disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
@@ -182,7 +182,7 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
             ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
             break;
         case 1:
-            /* TODO */
+            /* TASK */
             ui->expireLabel->setText("Due");
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);

@@ -115,11 +115,12 @@ void CalendarObjectWidget::setupButtons() {
 void CalendarObjectWidget::onModifyButtonClicked() {
     TaskForm *taskForm = new TaskForm(connectionManager, calendarObject);
     taskForm->show();
-    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
+    connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this,
+                                         &CalendarObjectWidget::onTaskModified);
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
-    connectionToFinish = connect(connectionManager, SIGNAL(onFinished(QNetworkReply * )), this,
+    connectionToFinish = connect(connectionManager, SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(finished(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
 }
@@ -134,13 +135,13 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
         std::cerr << error << "\n";
         QMessageBox::warning(this, "Error", errorString);
     } else {
-
         emit(taskDeleted(*calendarObject));
     }
 }
 
 void CalendarObjectWidget::onTaskModified() {
-    std::cout<<"Task Modified\n";
+    std::cout << "Task Modified\n";
+    disconnect(connectionToObjectModified);
     emit(taskModified());
 }
 
@@ -210,5 +211,3 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                                  &CalendarObjectWidget::finished);
     connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }
-
-

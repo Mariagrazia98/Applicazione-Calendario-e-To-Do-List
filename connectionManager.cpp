@@ -18,7 +18,7 @@ ConnectionManager::ConnectionManager(QString username, QString password, QString
 }
 
 void ConnectionManager::setup() {
-    connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::responseHandler);
+    //connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::responseHandler);
     connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, this,
             &ConnectionManager::authenticationRequired);
 }
@@ -27,17 +27,23 @@ void ConnectionManager::getCalendarRequest() {
     QNetworkRequest networkRequest;
 
     networkRequest.setUrl(QUrl(serverUrl.toString() + "?export"));
-    networkAccessManager->get(networkRequest);
+    getCalendarReply = networkAccessManager->get(networkRequest);
+    if (getCalendarReply) {
+        connect(getCalendarReply, &QNetworkReply::finished, this, &ConnectionManager::onGetCalendarRequestFinished);
+    }
 }
+
+void ConnectionManager::onGetCalendarRequestFinished() {
+    if (getCalendarReply) {
+        std::cout << "[ConnectionManager] Calendar Ready\n";
+        emit(calendarReady(getCalendarReply));
+    }
+}
+
 
 void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator) {
     authenticator->setUser(username);
     authenticator->setPassword(password);
-}
-
-void ConnectionManager::responseHandler(QNetworkReply *reply) {
-    std::cout << "responseHandler" << std::endl;
-    emit(onFinished(reply));
 }
 
 void ConnectionManager::setUsername(QString username) {
@@ -59,14 +65,19 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", 0);
 
-    QNetworkReply *networkReply = networkAccessManager->deleteResource(networkRequest);
+    deleteResourceNetworkReply = networkAccessManager->deleteResource(networkRequest);
+    connect(deleteResourceNetworkReply, &QNetworkReply::finished, this, &ConnectionManager::onObjectDeleted);
 
-    if (!networkReply) {
-        std::cerr << "something went wrong" << std::endl;
+    if (!deleteResourceNetworkReply) {
+        std::cerr << "[ConnectionManager] deleteCalendarObject went wrong" << std::endl;
     } else {
 
         QMessageBox::information(nullptr, "ToDo", "Task deleted successfully");
     }
+}
+
+void ConnectionManager::onObjectDeleted() {
+    emit(objectDeleted(deleteResourceNetworkReply));
 }
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
@@ -88,9 +99,10 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", contentlength);
 
-    QNetworkReply *networkReply = networkAccessManager->put(networkRequest, buffer);
+    addOrUpdateCalendarObjectNetworkReply = networkAccessManager->put(networkRequest, buffer);
 
-    if (networkReply) {
+    if (addOrUpdateCalendarObjectNetworkReply) {
+        connect(addOrUpdateCalendarObjectNetworkReply, &QNetworkReply::finished, this, &ConnectionManager::onInsertOrUpdateCalendarObject);
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
                 this, SLOT(handleUploadHTTPError())); */
 
@@ -98,6 +110,14 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     } else {
         //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
         std::cerr << "Invalid reply pointer when requesting URL\n";
+    }
+}
+
+void ConnectionManager::onInsertOrUpdateCalendarObject()
+{
+    if(addOrUpdateCalendarObjectNetworkReply)
+    {
+        emit(insertOrUpdatedCalendarObject(addOrUpdateCalendarObjectNetworkReply));
     }
 }
 
@@ -162,6 +182,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 }
 
 void ConnectionManager::makectagRequest() {
+    std::cout << "[ConnectionManager] makectagRequest\n";
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -188,7 +209,7 @@ void ConnectionManager::makectagRequest() {
     QNetworkRequest networkRequest;
     networkRequest.setUrl(serverUrl);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    networkRequest.setRawHeader("Authorization", authorization.toUtf8());
+    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
     networkRequest.setRawHeader("Depth", "0");
     networkRequest.setRawHeader("Prefer", "return-minimal");
     networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
@@ -204,6 +225,7 @@ void ConnectionManager::makectagRequest() {
 
 void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
     disconnect(connectionToLogin);
+    std::cout << "[ConnectionManager] OnLoginRequestFInished\n";
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();
@@ -215,4 +237,6 @@ void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
         std::cerr << "onLoginRequestFinished: " << errorString.toStdString() << '\n';
     }
 }
+
+
 

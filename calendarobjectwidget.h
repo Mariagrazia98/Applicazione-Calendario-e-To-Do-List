@@ -42,6 +42,7 @@ private:
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
     QMetaObject::Connection connectionToFinish;
+    QMetaObject::Connection connectionToObjectModified;
 
     QHBoxLayout* displayLayout;
     QVBoxLayout* buttonsLayout;

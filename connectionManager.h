@@ -21,7 +21,7 @@ class ConnectionManager : public QObject {
 Q_OBJECT
 public:
 
-    ConnectionManager(QString username = "", QString password = "", QString calendar="default");
+    ConnectionManager(QString username = "", QString password = "", QString calendar = "default");
 
     void getCalendarRequest();
 
@@ -43,7 +43,7 @@ public:
 
 private slots:
 
-    void responseHandler(QNetworkReply *);
+    void onGetCalendarRequestFinished();
 
     void authenticationRequired(QNetworkReply *, QAuthenticator *);
 
@@ -51,12 +51,24 @@ private slots:
 
     void onLoginRequestFinished(QNetworkReply *reply);
 
+    void onObjectDeleted();
+
+    void onInsertOrUpdateCalendarObject();
+
 signals:
+
     void onFinished(QNetworkReply *reply);
+
+    void calendarReady(QNetworkReply *reply);
+
+    void objectDeleted(QNetworkReply* reply);
 
     void loggedin(QNetworkReply *reply);
 
     void ctagChanged();
+
+    void insertOrUpdatedCalendarObject(QNetworkReply *reply);
+
 private:
     QNetworkAccessManager *networkAccessManager;
     QString username;
@@ -67,6 +79,11 @@ private:
     QMetaObject::Connection connectionToGetCtag;
     QMetaObject::Connection connectionToLogin;
 
+    QNetworkReply *getCalendarReply;
+    QNetworkReply *deleteResourceNetworkReply;
+    QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
+
+
     int ctag;
 
     void setup();
@@ -75,7 +92,7 @@ private:
 
     void getUpdatedTasks();
 
-    void parseAndUpdatectag(const QString& answerString);
+    void parseAndUpdatectag(const QString &answerString);
 
     void makectagRequest();
 

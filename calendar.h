@@ -117,7 +117,8 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
     QMetaObject::Connection connectionCtag;
-    QMetaObject::Connection connectionModify;
+    QMetaObject::Connection connectionToModify;
+    QMetaObject::Connection connectionToTaskDeleted;
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
