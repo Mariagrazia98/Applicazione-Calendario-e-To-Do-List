@@ -157,6 +157,9 @@ void Calendar::onDateTextChanged() {
 }
 
 void Calendar::parseCalendar(QString calendar) {
+    std::cout<<"parseCalendar"<<std::endl;
+    std::cout<<"--------------------------"<<std::endl;
+
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
 
@@ -331,7 +334,7 @@ void Calendar::addCalendarObjectWidget(CalendarObject *calendarObject) {
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
-    connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
+    connectionModify = connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this, &Calendar::onTaskModified);
     connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
 }
 
@@ -494,6 +497,8 @@ void Calendar::onTaskFormClosed() {
 }
 
 void Calendar::onTaskModified() {
+    disconnect(connectionModify);
+    std::cout<<"onTaskModified"<<std::endl;
     setupConnection();
 }
 
@@ -502,8 +507,8 @@ void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
 }
 
 void Calendar::finished(QNetworkReply *reply) {
+    std::cout<<"finished"<<std::endl;
     disconnect(connectionToFinished); //DISCONNECT
-
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
 
@@ -522,6 +527,8 @@ void Calendar::getCalendarRequest() {
 }
 
 void Calendar::setupConnection() {
+    std::cout<<"setupConnection"<<std::endl;
+    disconnect(connectionCtag);
     connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::onFinished, this,
                                             &Calendar::finished); //Connect
     getCalendarRequest();
@@ -538,6 +545,8 @@ void Calendar::onTaskDeleted(CalendarObject &obj) {
 }
 
 void Calendar::onTimeout() {
+    connectionCtag = QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
+                                            &Calendar::setupConnection); //Connect
     connectionManager->getctag();
 }
 

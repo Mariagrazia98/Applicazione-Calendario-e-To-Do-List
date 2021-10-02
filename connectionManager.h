@@ -56,6 +56,7 @@ signals:
 
     void loggedin(QNetworkReply *reply);
 
+    void ctagChanged();
 private:
     QNetworkAccessManager *networkAccessManager;
     QString username;

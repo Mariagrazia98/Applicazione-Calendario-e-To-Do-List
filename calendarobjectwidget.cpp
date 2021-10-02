@@ -116,12 +116,10 @@ void CalendarObjectWidget::onModifyButtonClicked() {
     TaskForm *taskForm = new TaskForm(connectionManager, calendarObject);
     taskForm->show();
     connect(taskForm, &TaskForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
-    //emit(taskModified(*calendarObject));
-
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
-    connectionToFinish = connect(connectionManager, SIGNAL(finished(QNetworkReply * )), this,
+    connectionToFinish = connect(connectionManager, SIGNAL(onFinished(QNetworkReply * )), this,
                                  SLOT(finished(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
 }
@@ -142,6 +140,7 @@ void CalendarObjectWidget::finished(QNetworkReply *reply) {
 }
 
 void CalendarObjectWidget::onTaskModified() {
+    std::cout<<"Task Modified\n";
     emit(taskModified());
 }
 

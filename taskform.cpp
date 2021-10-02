@@ -154,6 +154,7 @@ void TaskForm::on_buttonBox_accepted() {
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
+    std::cout<<"handleUploadFinished"<<std::endl;
     disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
@@ -164,6 +165,7 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
         std::cerr << answerString.toStdString() << '\n';
     } else {
+        std::cout<<"handle upload finished ELSE"<<std::endl;
         emit(taskUploaded());
         close();
     }
