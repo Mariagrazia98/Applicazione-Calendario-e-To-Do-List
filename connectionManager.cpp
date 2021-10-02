@@ -36,7 +36,7 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 }
 
 void ConnectionManager::responseHandler(QNetworkReply *reply) {
-    std::cout<<"responseHandler"<<std::endl;
+    std::cout << "responseHandler" << std::endl;
     emit(onFinished(reply));
 }
 
@@ -139,7 +139,8 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
 
 void ConnectionManager::tryLogin() {
     makectagRequest();
-    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::onLoginRequestFinished);
+    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+                                &ConnectionManager::onLoginRequestFinished);
 }
 
 void ConnectionManager::getUpdatedTasks() {
@@ -153,10 +154,9 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     const int startctag = ctagString.lastIndexOf('/');
     ctagString = ctagString.mid(startctag + 1, -1);
     int new_ctag = ctagString.toInt();
-    emit(ctagChanged());
     if (ctag != new_ctag && new_ctag > 0) { //something is changed
         ctag = new_ctag;
-        // emit(ctagChanged()); (da cancellare da sopra)
+        emit(ctagChanged());
         std::cout << "new ctag: " << new_ctag << '\n';
     }
 }
@@ -212,7 +212,7 @@ void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
         parseAndUpdatectag(answerString);
         emit(loggedin(reply));
     } else {
-        std::cerr << "checkctag: " << errorString.toStdString() << '\n';
+        std::cerr << "onLoginRequestFinished: " << errorString.toStdString() << '\n';
     }
 }
 
