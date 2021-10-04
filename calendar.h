@@ -1,128 +1,30 @@
-#ifndef CALENDAR_H
-#define CALENDAR_H
+//
+// Created by manue on 04/10/2021.
+//
 
-#include <QWidget>
-#include <QDateTime>
-#include <QTextBrowser>
-#include <QCalendarWidget>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QDateEdit>
-#include <QGridLayout>
-#include <QGroupBox>
-#include <QLabel>
-#include <QLocale>
-#include <QTextCharFormat>
-#include <QMessageBox>
-#include <QTextBrowser>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
-#include <QAuthenticator>
-#include <QPushButton>
-#include <QDebug>
-#include <QScrollArea>
-#include <QTimer>
+#ifndef APPLICAZIONE_CALENDARIO_E_TO_DO_LIST_ALL_IN_ONE_CALENDAR_H
+#define APPLICAZIONE_CALENDARIO_E_TO_DO_LIST_ALL_IN_ONE_CALENDAR_H
 
-#include <iostream>
 
-#include "taskForm.h"
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
-#include "calendarobjectwidget.h"
-#include "connectionManager.h"
+#include <QObject>
 
-namespace Ui {
-    class Calendar;
-}
-
-class Calendar : public QWidget {
+struct Calendar : public QObject {
 Q_OBJECT
-
 public:
-    explicit Calendar(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    Calendar(const QString &href, const QString &name, const int ctag);
 
-    ~Calendar();
+    const QString &getHref() const;
 
-    void setupConnection();
+    const QString &getName() const;
 
-    void setConnectionManager(ConnectionManager *connectionManager);
-
-    void getCalendarRequest();
-
-    void setupTimer();
-
-public slots:
-
-    void parseCalendar(QString calendar);
-
-    void finished(QNetworkReply *reply);
-
-private slots:
-
-    void selectedDateChanged();
-
-    void reformatCalendarPage();
-
-    void onDateTextChanged();
-
-    void addTaskButtonClicked();
-
-    void parseEvent();
-
-    void onTaskFormClosed();
-
-    void onTaskModified();
-
-    void onTaskDeleted(CalendarObject &obj);
-
-    void onTimeout();
+    int getCtag() const;
 
 private:
-    void setupCalendar();
-
-    void setupWeek();
-
-    void createCalendarGroupBox();
-
-    void showSelectedDateTasks();
-
-    QComboBox *createColorComboBox();
-
-    QDateTime getDateTimeFromString(const QString &string);
-
-    void parseToDo();
-
-    Ui::Calendar *ui;
-
-    QGroupBox *calendarGroupBox; // calendar group box (left)
-    QGridLayout *calendarLayout;
-    QCalendarWidget *calendar;
-
-    QGroupBox *tasksGroupBox; // tasks group box (right)
-    QVBoxLayout *tasksLayout;
-
-    QDateEdit *currentDateEdit;
-    QTextBrowser *dateString;
-
-    QPushButton *addTaskButton;
-
-    QTextStream *stream;
-    QList<CalendarObject *> calendarObjects;
-
-    QWidget *taskScrollWidget;
-    QScrollArea *scrollArea;
-    QVBoxLayout *taskViewLayout;
-
-    ConnectionManager *connectionManager;
-    QMetaObject::Connection connectionToFinished;
-    QMetaObject::Connection connectionCtag;
-    QMetaObject::Connection connectionToModify;
-    QMetaObject::Connection connectionToTaskDeleted;
-
-    void addCalendarObjectWidget(CalendarObject *calendarObject);
-
+    QString href;
+    QString name;
+    int ctag;
 
 };
 
-#endif // CALENDAR_H
+
+#endif //APPLICAZIONE_CALENDARIO_E_TO_DO_LIST_ALL_IN_ONE_CALENDAR_H
