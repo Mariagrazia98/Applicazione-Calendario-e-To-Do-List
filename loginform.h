@@ -12,6 +12,7 @@
 #include <QGroupBox>
 #include <QDialogButtonBox>
 #include "connectionManager.h"
+#include "calendarchoicedialog.h"
 
 namespace Ui {
     class LoginForm;

@@ -14,7 +14,7 @@ LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
         user(new QLineEdit),
         passwordLabel(new QLabel("Password")),
         password(new QLineEdit),
-        calendarLabel(new QLabel("Calendar")),
+        calendarLabel(new QLabel("CalendarWidget")),
         calendar(new QLineEdit),
         dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)),
         ui(new Ui::LoginForm) {
@@ -43,8 +43,13 @@ void LoginForm::onLoginButtonClicked() {
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
     connectionManager->setCalendar(calendar->text());
-    connectionManager->tryLogin();
+    CalendarChoiceDialog* calendarChoiceDialog = new CalendarChoiceDialog(this, connectionManager);
+    connect(connectionManager, &ConnectionManager::calendars, calendarChoiceDialog,&CalendarChoiceDialog::setupUI);
+    connectionManager->getCalendarList();
+    calendarChoiceDialog->show();
+    //connectionManager->tryLogin();
     connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
+
 }
 
 void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {

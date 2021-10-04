@@ -18,6 +18,8 @@
 
 #include <iostream>
 
+#include "calendar.h"
+
 class ConnectionManager : public QObject {
 Q_OBJECT
 public:
@@ -71,6 +73,8 @@ signals:
     void ctagChanged();
 
     void insertOrUpdatedCalendarObject(QNetworkReply *reply);
+
+    void calendars(QList<Calendar*> calendarsList);
 
 private:
     QNetworkAccessManager *networkAccessManager;

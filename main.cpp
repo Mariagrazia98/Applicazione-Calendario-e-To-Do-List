@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include "loginform.h"
-#include "calendar.h"
+#include "calendarwidget.h"
 
 
 int main(int argc, char *argv[]) {
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     ConnectionManager connectionManager;
     LoginForm loginForm(nullptr, &connectionManager);
-    Calendar calendar(nullptr, &connectionManager);
+    CalendarWidget calendar(nullptr, &connectionManager);
     if (loginForm.exec() == QDialog::Accepted) {
 
         calendar.setupConnection();

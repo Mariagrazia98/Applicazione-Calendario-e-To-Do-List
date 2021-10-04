@@ -17,12 +17,12 @@ set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 
 add_executable(${PROJECT_NAME} main.cpp
         loginform.h loginform.cpp loginform.ui
-    calendar.h calendar.cpp calendar.ui
+        calendarwidget.h calendarwidget.cpp calendar.ui
     taskform.h taskform.cpp taskform.ui
     calendarobject.cpp calendarobject.h
     calendarevent.cpp calendarevent.h
     calendarobjectwidget.h calendarobjectwidget.cpp calendarobjectwidget.ui
-    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h utils.h calendarchoicedialog.cpp calendarchoicedialog.h calendarchoicedialog.ui)
+    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h utils.h calendarchoicedialog.cpp calendarchoicedialog.h calendarchoicedialog.ui calendar.cpp calendar.h)
 
 #add_executable(${name} WIN32 ${source_files})
 

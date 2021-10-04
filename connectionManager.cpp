@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "connectionManager.h"
-#include "calendar.h"
+#include "calendarwidget.h"
 
 ConnectionManager::ConnectionManager(QString username, QString password, QString calendar) :
         networkAccessManager(new QNetworkAccessManager),
@@ -35,7 +35,7 @@ void ConnectionManager::getCalendarRequest() {
 
 void ConnectionManager::onGetCalendarRequestFinished() {
     if (getCalendarReply) {
-        std::cout << "[ConnectionManager] Calendar Ready\n";
+        std::cout << "[ConnectionManager] CalendarWidget Ready\n";
         emit(calendarReady(getCalendarReply));
     }
 }
@@ -62,7 +62,7 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
 
     QNetworkRequest networkRequest;
     networkRequest.setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
-    networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest.setRawHeader("Content-Type", "text/Calendar; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", 0);
 
     deleteResourceNetworkReply = networkAccessManager->deleteResource(networkRequest);
@@ -96,7 +96,7 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     QString filename = UID + ".ics";
     networkRequest.setUrl(QUrl(serverUrl.toString() + '/' + filename));
 
-    networkRequest.setRawHeader("Content-Type", "text/calendar; charset=utf-8");
+    networkRequest.setRawHeader("Content-Type", "text/Calendar; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", contentlength);
 
     addOrUpdateCalendarObjectNetworkReply = networkAccessManager->put(networkRequest, buffer);
@@ -248,7 +248,7 @@ void ConnectionManager::getCalendarList() {
             "       <d:resourcetype />\n"
             "       <d:displayname />\n"
             "       <cs:getctag />\r\n"
-            //"       <c:supported-calendar-component-set />"
+            //"       <c:supported-Calendar-component-set />"
             "   </d:prop>\r\n"
             "</d:propfind>";
 
@@ -291,9 +291,10 @@ void ConnectionManager::printCalendarsList() {
         answerString = answerString.mid(startPosition, -1);
         QDomDocument document;
         document.setContent(answerString);
-        std::cout << "document: " << document.toString().toStdString() << '\n\n';
+        std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
         //std::cout << response.size() << " nodes\n";
+        QList<Calendar *> calendarsList;
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
             //std::cout << "node: " << node.toElement().text().toStdString() << '\n';
@@ -301,6 +302,11 @@ void ConnectionManager::printCalendarsList() {
             const QString hrefString = href.text();
             if (!href.isNull()) {
                 std::cout << "href: " << hrefString.toStdString() << '\n';
+                const int startPosition = hrefString.indexOf(username + '/');
+                const int endPosition = hrefString.lastIndexOf('/');
+                QString name = hrefString.mid(startPosition + username.length() + 1,
+                                              endPosition - (startPosition + username.length() + 1));
+                std::cout << "name: " << name.toStdString() << '\n';
                 QDomNode propstat = node.firstChildElement("d:propstat");
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
@@ -308,13 +314,19 @@ void ConnectionManager::printCalendarsList() {
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
                             std::cout << "ctag: " << ctag.text().toStdString() << '\n';
+                            const int startPosition = ctag.text().lastIndexOf("sync/");
+                            QString ctagString = ctag.text().mid(startPosition + 5, -1);
+                            //std::cout << "ctagString: " << ctagString.toStdString() << '\n';
+                            Calendar *calendar = new Calendar(hrefString, name, ctagString.toInt());
+                            calendarsList.append(calendar);
                         }
                     }
                 }
             }
-
+            //std::cout << '\n';
         }
-        std::cout << "finished parsing\n";
+        // finished parsing
+        emit(calendars(calendarsList));
     } else {
         std::cerr << "printCalendarsList: " << errorString.toStdString() << '\n';
     }
