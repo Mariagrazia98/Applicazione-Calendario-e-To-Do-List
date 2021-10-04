@@ -102,7 +102,8 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     addOrUpdateCalendarObjectNetworkReply = networkAccessManager->put(networkRequest, buffer);
 
     if (addOrUpdateCalendarObjectNetworkReply) {
-        connect(addOrUpdateCalendarObjectNetworkReply, &QNetworkReply::finished, this, &ConnectionManager::onInsertOrUpdateCalendarObject);
+        connect(addOrUpdateCalendarObjectNetworkReply, &QNetworkReply::finished, this,
+                &ConnectionManager::onInsertOrUpdateCalendarObject);
         /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
                 this, SLOT(handleUploadHTTPError())); */
 
@@ -113,10 +114,8 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     }
 }
 
-void ConnectionManager::onInsertOrUpdateCalendarObject()
-{
-    if(addOrUpdateCalendarObjectNetworkReply)
-    {
+void ConnectionManager::onInsertOrUpdateCalendarObject() {
+    if (addOrUpdateCalendarObjectNetworkReply) {
         emit(insertOrUpdatedCalendarObject(addOrUpdateCalendarObjectNetworkReply));
     }
 }
@@ -141,7 +140,7 @@ void ConnectionManager::getctag() {
 }
 
 void ConnectionManager::checkctag(QNetworkReply *reply) {
-    disconnect(connectionToGetCtag);
+    disconnect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::checkctag);
     if (reply != nullptr) {
         QByteArray answer = reply->readAll();
         QString answerString = QString::fromUtf8(answer);
@@ -235,6 +234,89 @@ void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
         emit(loggedin(reply));
     } else {
         std::cerr << "onLoginRequestFinished: " << errorString.toStdString() << '\n';
+    }
+}
+
+void ConnectionManager::getCalendarList() {
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+
+    QString requestString =
+            "<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\r\n"
+            "   <d:prop>\r\n"
+            "       <d:resourcetype />\n"
+            "       <d:displayname />\n"
+            "       <cs:getctag />\r\n"
+            //"       <c:supported-calendar-component-set />"
+            "   </d:prop>\r\n"
+            "</d:propfind>";
+
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QString authorization = "Basic ";
+    authorization.append((username + ":" + password).toUtf8().toBase64());
+
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/');
+    networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
+    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
+    networkRequest.setRawHeader("Depth", "1");
+    networkRequest.setRawHeader("Prefer", "return-minimal");
+    networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
+    networkRequest.setRawHeader("Content-Length", contentlength);
+
+    QSslConfiguration conf = networkRequest.sslConfiguration();
+    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    networkRequest.setSslConfiguration(conf);
+
+    getCalendarsListReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"),
+                                                                    buffer);
+    connect(getCalendarsListReply, &QNetworkReply::finished, this, &ConnectionManager::printCalendarsList);
+}
+
+void ConnectionManager::printCalendarsList() {
+    QByteArray answer = getCalendarsListReply->readAll();
+    QString answerString = QString::fromUtf8(answer);
+    QNetworkReply::NetworkError error = getCalendarsListReply->error();
+    const QString &errorString = getCalendarsListReply->errorString();
+    if (error == QNetworkReply::NoError) {
+        //std::cout << answerString.toStdString() << "\n\n";
+        const int startPosition = answerString.indexOf("<?xml version=\"1.0\"?>");
+        answerString = answerString.mid(startPosition, -1);
+        QDomDocument document;
+        document.setContent(answerString);
+        std::cout << "document: " << document.toString().toStdString() << '\n\n';
+        QDomNodeList response = document.elementsByTagName("d:response");
+        //std::cout << response.size() << " nodes\n";
+        for (int i = 1; i < response.size(); i++) { // first element is not useful
+            QDomNode node = response.item(i);
+            //std::cout << "node: " << node.toElement().text().toStdString() << '\n';
+            QDomElement href = node.firstChildElement("d:href");
+            const QString hrefString = href.text();
+            if (!href.isNull()) {
+                std::cout << "href: " << hrefString.toStdString() << '\n';
+                QDomNode propstat = node.firstChildElement("d:propstat");
+                if (!propstat.isNull()) {
+                    QDomNode prop = propstat.firstChildElement("d:prop");
+                    if (!prop.isNull()) {
+                        QDomElement ctag = prop.firstChildElement("cs:getctag");
+                        if (!ctag.isNull()) {
+                            std::cout << "ctag: " << ctag.text().toStdString() << '\n';
+                        }
+                    }
+                }
+            }
+
+        }
+        std::cout << "finished parsing\n";
+    } else {
+        std::cerr << "printCalendarsList: " << errorString.toStdString() << '\n';
     }
 }
 

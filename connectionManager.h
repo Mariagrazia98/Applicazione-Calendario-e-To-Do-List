@@ -14,6 +14,7 @@
 #include <QBuffer>
 #include <QMessageBox>
 #include <QNetworkReply>
+#include <QDomDocument>
 
 #include <iostream>
 
@@ -40,6 +41,8 @@ public:
     void setCalendar(const QString &calendar);
 
     void tryLogin();
+
+    void getCalendarList();
 
 private slots:
 
@@ -82,6 +85,7 @@ private:
     QNetworkReply *getCalendarReply;
     QNetworkReply *deleteResourceNetworkReply;
     QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
+    QNetworkReply *getCalendarsListReply;
 
 
     int ctag;
@@ -96,6 +100,8 @@ private:
 
     void makectagRequest();
 
+
+    void printCalendarsList();
 };
 
 
