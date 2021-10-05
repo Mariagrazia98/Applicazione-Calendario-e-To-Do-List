@@ -46,8 +46,6 @@ private:
     QLineEdit *user;
     QLabel *passwordLabel;
     QLineEdit *password;
-    QLabel *calendarLabel;
-    QLineEdit *calendar;
     QDialogButtonBox* dialogButtonBox;
 
     QMetaObject::Connection connection;
