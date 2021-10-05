@@ -66,7 +66,7 @@ signals:
 
     void calendarReady(QNetworkReply *reply);
 
-    void objectDeleted(QNetworkReply* reply);
+    void objectDeleted(QNetworkReply *reply);
 
     void loggedin(QNetworkReply *reply);
 
@@ -74,7 +74,7 @@ signals:
 
     void insertOrUpdatedCalendarObject(QNetworkReply *reply);
 
-    void calendars(QList<Calendar*> calendarsList);
+    void calendars(QList<Calendar *> calendarsList);
 
 private:
     QNetworkAccessManager *networkAccessManager;

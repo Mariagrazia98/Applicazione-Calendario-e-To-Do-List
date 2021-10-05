@@ -10,6 +10,7 @@
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QButtonGroup>
 #include "connectionManager.h"
 
 QT_BEGIN_NAMESPACE
@@ -29,13 +30,14 @@ public:
 public slots:
 
     void setupUI(QList<Calendar *> calendarsList);
-
+    void onGroupButtonClicked(QAbstractButton* button);
 private:
     Ui::CalendarChoiceDialog *ui;
 
     ConnectionManager *connectionManager;
 
     QVBoxLayout *buttonsLayout;
+    QButtonGroup* groupButton;
     QGridLayout *layout;
 };
 

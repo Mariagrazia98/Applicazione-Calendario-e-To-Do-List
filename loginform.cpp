@@ -39,11 +39,10 @@ LoginForm::~LoginForm() {
 void LoginForm::onLoginButtonClicked() {
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
-    CalendarChoiceDialog* calendarChoiceDialog = new CalendarChoiceDialog(this, connectionManager);
-    connect(connectionManager, &ConnectionManager::calendars, calendarChoiceDialog,&CalendarChoiceDialog::setupUI);
+    CalendarChoiceDialog *calendarChoiceDialog = new CalendarChoiceDialog(this, connectionManager);
+    connect(connectionManager, &ConnectionManager::calendars, calendarChoiceDialog, &CalendarChoiceDialog::setupUI);
     connectionManager->getCalendarList();
     calendarChoiceDialog->show();
-    //connectionManager->tryLogin();
     connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 
 }

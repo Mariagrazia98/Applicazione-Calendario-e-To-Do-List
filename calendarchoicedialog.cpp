@@ -13,7 +13,8 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *c
         connectionManager(connectionManager),
         ui(new Ui::CalendarChoiceDialog),
         layout(new QGridLayout),
-        buttonsLayout(new QVBoxLayout) {
+        buttonsLayout(new QVBoxLayout),
+        groupButton(new QButtonGroup) {
     ui->setupUi(this);
 
 }
@@ -31,11 +32,18 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
         Calendar *calendar = calendarsList[i];
         if (calendar) {
             QPushButton *button = new QPushButton(calendar->getName(), this);
+            groupButton->addButton(button);
             buttonsLayout->addWidget(button, 0, Qt::AlignCenter);
         } else {
             std::cerr << "[CalendarChoiceDialog] null Calendar\n";
         }
     }
+    connect(groupButton, SIGNAL(buttonPressed(QAbstractButton * )),
+            this, SLOT(onGroupButtonClicked(QAbstractButton * )));
     setLayout(buttonsLayout);
 }
 
+void CalendarChoiceDialog::onGroupButtonClicked(QAbstractButton *button) {
+    connectionManager->setCalendar(button->text());
+    connectionManager->tryLogin();
+}

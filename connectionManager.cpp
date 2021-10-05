@@ -149,7 +149,7 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
         if (error == QNetworkReply::NoError) {
             parseAndUpdatectag(answerString);
         } else {
-            // errore qui
+            /*TODO errore qui */
             std::cerr << "checkctag: " << errorString.toStdString() << '\n';
         }
     }
