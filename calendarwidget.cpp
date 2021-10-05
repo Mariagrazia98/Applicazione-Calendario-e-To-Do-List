@@ -32,7 +32,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
 
     setMinimumHeight(480);
 
-    setWindowTitle(tr("CalendarWidget Application"));
+    setWindowTitle(tr("Calendar Application"));
 }
 
 CalendarWidget::~CalendarWidget() {
@@ -129,7 +129,7 @@ void CalendarWidget::reformatCalendarPage() {
 void CalendarWidget::createCalendarGroupBox() {
     calendarGroupBox = new QGroupBox(tr("CalendarWidget"));
 
-    calendar = new QCalendarWidget;
+    calendar = new QCalendarWidget();
     calendar->setLocale(QLocale::English);
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 12, 31));
@@ -535,6 +535,7 @@ void CalendarWidget::getCalendarRequest() {
 
 void CalendarWidget::setupConnection() {
     std::cout << "[CalendarWidget] setupConnection" << std::endl;
+    calendarGroupBox->setTitle(connectionManager->getCalendar());
     QObject::connect(connectionManager, &ConnectionManager::calendarReady, this,
                      &CalendarWidget::finished); //Connect
     getCalendarRequest();

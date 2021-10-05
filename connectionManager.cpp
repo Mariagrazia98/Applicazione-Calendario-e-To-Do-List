@@ -291,7 +291,7 @@ void ConnectionManager::printCalendarsList() {
         answerString = answerString.mid(startPosition, -1);
         QDomDocument document;
         document.setContent(answerString);
-        std::cout << "document: " << document.toString().toStdString() << "\n\n";
+        //std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
         //std::cout << response.size() << " nodes\n";
         QList<Calendar *> calendarsList;
@@ -301,19 +301,19 @@ void ConnectionManager::printCalendarsList() {
             QDomElement href = node.firstChildElement("d:href");
             const QString hrefString = href.text();
             if (!href.isNull()) {
-                std::cout << "href: " << hrefString.toStdString() << '\n';
+                //std::cout << "href: " << hrefString.toStdString() << '\n';
                 const int startPosition = hrefString.indexOf(username + '/');
                 const int endPosition = hrefString.lastIndexOf('/');
                 QString name = hrefString.mid(startPosition + username.length() + 1,
                                               endPosition - (startPosition + username.length() + 1));
-                std::cout << "name: " << name.toStdString() << '\n';
+               //std::cout << "name: " << name.toStdString() << '\n';
                 QDomNode propstat = node.firstChildElement("d:propstat");
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
                     if (!prop.isNull()) {
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
-                            std::cout << "ctag: " << ctag.text().toStdString() << '\n';
+                            //std::cout << "ctag: " << ctag.text().toStdString() << '\n';
                             const int startPosition = ctag.text().lastIndexOf("sync/");
                             QString ctagString = ctag.text().mid(startPosition + 5, -1);
                             //std::cout << "ctagString: " << ctagString.toStdString() << '\n';
