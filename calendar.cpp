@@ -20,3 +20,15 @@ const QString &Calendar::getName() const {
 int Calendar::getCtag() const {
     return ctag;
 }
+
+void Calendar::setHref(const QString &href) {
+    Calendar::href = href;
+}
+
+void Calendar::setName(const QString &name) {
+    Calendar::name = name;
+}
+
+void Calendar::setCtag(int ctag) {
+    Calendar::ctag = ctag;
+}
