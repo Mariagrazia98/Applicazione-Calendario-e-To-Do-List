@@ -6,6 +6,7 @@
 
 #include "calendarchoicedialog.h"
 #include "ui_CalendarChoiceDialog.h"
+#include "calendarwidget.h"
 
 
 CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *connectionManager) :
@@ -28,10 +29,11 @@ void CalendarChoiceDialog::setConnectionManager(ConnectionManager *connectionMan
 }
 
 void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
+    this->calendarsList = calendarsList;
     for (int i = 0; i < calendarsList.length(); ++i) {
         Calendar *calendar = calendarsList[i];
         if (calendar) {
-            QPushButton *button = new QPushButton(calendar->getName(), this);
+            QPushButton * button = new QPushButton(calendar->getName(), this);
             groupButton->addButton(button);
             buttonsLayout->addWidget(button, 0, Qt::AlignCenter);
         } else {
@@ -44,6 +46,12 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
 }
 
 void CalendarChoiceDialog::onGroupButtonClicked(QAbstractButton *button) {
-    connectionManager->setCalendar(button->text());
-    connectionManager->tryLogin();
+    QString buttonText = button->text();
+    for (int i = 0; i < calendarsList.length(); ++i) {
+        if (calendarsList[i]->getName() == buttonText) {
+            connectionManager->setCalendar(calendarsList[i]);
+            break;
+        }
+    }
+    this->accept();
 }

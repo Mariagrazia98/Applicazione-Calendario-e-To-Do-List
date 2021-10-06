@@ -39,29 +39,25 @@ LoginForm::~LoginForm() {
 void LoginForm::onLoginButtonClicked() {
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
-    CalendarChoiceDialog *calendarChoiceDialog = new CalendarChoiceDialog(this, connectionManager);
-    connect(connectionManager, &ConnectionManager::calendars, calendarChoiceDialog, &CalendarChoiceDialog::setupUI);
     connectionManager->getCalendarList();
-    calendarChoiceDialog->show();
     connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
-
 }
 
 void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
     this->connectionManager = connectionManager;
 }
 
+
 void LoginForm::responseHandler(QNetworkReply *reply) {
+    disconnect(connection);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
-    disconnect(connection);
     QNetworkReply::NetworkError error = reply->error();
     const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         accept();
-        this->close();
     }
 }
 

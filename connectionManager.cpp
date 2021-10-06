@@ -7,12 +7,11 @@
 #include "connectionManager.h"
 #include "calendarwidget.h"
 
-ConnectionManager::ConnectionManager(QString username, QString password, QString calendar) :
+ConnectionManager::ConnectionManager(QString username, QString password) :
         networkAccessManager(new QNetworkAccessManager),
         username(username),
         password(password),
-        calendar(calendar),
-        ctag(-1) {
+        calendar(new Calendar) {
     updateUrl();
     setup();
 }
@@ -81,7 +80,7 @@ void ConnectionManager::onObjectDeleted() {
 }
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     int buffersize = buffer->write(requestString.toUtf8());
@@ -120,17 +119,18 @@ void ConnectionManager::onInsertOrUpdateCalendarObject() {
     }
 }
 
-const QString &ConnectionManager::getCalendar() const {
-    return calendar;
+const QString &ConnectionManager::getCalendarName() const {
+    return calendar->getName();
 }
 
-void ConnectionManager::setCalendar(const QString &calendar) {
-    ConnectionManager::calendar = calendar;
+void ConnectionManager::setCalendarName(const QString &calendarName) {
+    calendar->setName(calendarName);
     updateUrl();
 }
 
 void ConnectionManager::updateUrl() {
-    serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
+    serverUrl = QUrl(
+            "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar->getName());
 }
 
 void ConnectionManager::getctag() {
@@ -155,12 +155,13 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
     }
 }
 
-
+/*
 void ConnectionManager::tryLogin() {
     makectagRequest();
     connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
                                 &ConnectionManager::onLoginRequestFinished);
 }
+ */
 
 void ConnectionManager::getUpdatedTasks() {
 
@@ -173,8 +174,8 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     const int startctag = ctagString.lastIndexOf('/');
     ctagString = ctagString.mid(startctag + 1, -1);
     int new_ctag = ctagString.toInt();
-    if (ctag != new_ctag && new_ctag > 0) { //something is changed
-        ctag = new_ctag;
+    if (calendar->getCtag() != new_ctag && new_ctag > 0) { //something is changed
+        calendar->setCtag(new_ctag);
         emit(ctagChanged());
         std::cout << "new ctag: " << new_ctag << '\n';
     }
@@ -182,7 +183,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 
 void ConnectionManager::makectagRequest() {
     std::cout << "[ConnectionManager] makectagRequest\n";
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -218,10 +219,11 @@ void ConnectionManager::makectagRequest() {
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
     networkRequest.setSslConfiguration(conf);
 
-    QNetworkReply *networkReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"),
-                                                                          buffer);
+    QNetworkReply * networkReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"),
+                                                                           buffer);
 }
 
+/*
 void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
     disconnect(connectionToLogin);
     std::cout << "[ConnectionManager] OnLoginRequestFInished\n";
@@ -236,9 +238,10 @@ void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
         std::cerr << "onLoginRequestFinished: " << errorString.toStdString() << '\n';
     }
 }
+*/
 
 void ConnectionManager::getCalendarList() {
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -294,7 +297,7 @@ void ConnectionManager::printCalendarsList() {
         //std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
         //std::cout << response.size() << " nodes\n";
-        QList<Calendar *> calendarsList;
+        QList < Calendar * > calendarsList;
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
             //std::cout << "node: " << node.toElement().text().toStdString() << '\n';
@@ -306,7 +309,7 @@ void ConnectionManager::printCalendarsList() {
                 const int endPosition = hrefString.lastIndexOf('/');
                 QString name = hrefString.mid(startPosition + username.length() + 1,
                                               endPosition - (startPosition + username.length() + 1));
-               //std::cout << "name: " << name.toStdString() << '\n';
+                //std::cout << "name: " << name.toStdString() << '\n';
                 QDomNode propstat = node.firstChildElement("d:propstat");
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
@@ -330,6 +333,12 @@ void ConnectionManager::printCalendarsList() {
     } else {
         std::cerr << "printCalendarsList: " << errorString.toStdString() << '\n';
     }
+    emit(loggedin(getCalendarsListReply));
+}
+
+void ConnectionManager::setCalendar(Calendar *calendar) {
+    this->calendar = calendar;
+    updateUrl();
 }
 
 

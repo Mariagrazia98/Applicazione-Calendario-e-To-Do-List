@@ -535,7 +535,7 @@ void CalendarWidget::getCalendarRequest() {
 
 void CalendarWidget::setupConnection() {
     std::cout << "[CalendarWidget] setupConnection" << std::endl;
-    calendarGroupBox->setTitle(connectionManager->getCalendar());
+    calendarGroupBox->setTitle(connectionManager->getCalendarName());
     QObject::connect(connectionManager, &ConnectionManager::calendarReady, this,
                      &CalendarWidget::finished); //Connect
     getCalendarRequest();

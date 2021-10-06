@@ -39,6 +39,8 @@ private:
     QVBoxLayout *buttonsLayout;
     QButtonGroup* groupButton;
     QGridLayout *layout;
+
+    QList<Calendar *> calendarsList;
 };
 
 
