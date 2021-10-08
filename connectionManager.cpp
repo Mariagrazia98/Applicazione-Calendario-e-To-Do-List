@@ -70,7 +70,6 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     if (!deleteResourceNetworkReply) {
         std::cerr << "[ConnectionManager] deleteCalendarObject went wrong" << std::endl;
     } else {
-
         QMessageBox::information(nullptr, "ToDo", "Task deleted successfully");
     }
 }
@@ -300,33 +299,28 @@ void ConnectionManager::printCalendarsList() {
         QList < Calendar * > calendarsList;
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
-            //std::cout << "node: " << node.toElement().text().toStdString() << '\n';
             QDomElement href = node.firstChildElement("d:href");
             const QString hrefString = href.text();
             if (!href.isNull()) {
-                //std::cout << "href: " << hrefString.toStdString() << '\n';
                 const int startPosition = hrefString.indexOf(username + '/');
                 const int endPosition = hrefString.lastIndexOf('/');
                 QString name = hrefString.mid(startPosition + username.length() + 1,
                                               endPosition - (startPosition + username.length() + 1));
-                //std::cout << "name: " << name.toStdString() << '\n';
                 QDomNode propstat = node.firstChildElement("d:propstat");
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
                     if (!prop.isNull()) {
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
-                            //std::cout << "ctag: " << ctag.text().toStdString() << '\n';
                             const int startPosition = ctag.text().lastIndexOf("sync/");
                             QString ctagString = ctag.text().mid(startPosition + 5, -1);
-                            //std::cout << "ctagString: " << ctagString.toStdString() << '\n';
                             Calendar *calendar = new Calendar(hrefString, name, ctagString.toInt());
                             calendarsList.append(calendar);
                         }
                     }
                 }
             }
-            //std::cout << '\n';
+
         }
         // finished parsing
         emit(calendars(calendarsList));

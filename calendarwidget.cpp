@@ -11,7 +11,8 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
         ui(new Ui::CalendarWidget),
         dateString(new QTextBrowser),
         connectionManager(connectionManager),
-        stream(new QTextStream()) {
+        stream(new QTextStream()),
+        timerInterval(10000) {
     ui->setupUi(this);
 
     createCalendarGroupBox();
@@ -27,7 +28,6 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
 
     layout->setRowMinimumHeight(0, calendar->sizeHint().height());
     layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
-    layout->setRowMinimumHeight(0, calendar->sizeHint().height());
     layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);
 
     setMinimumHeight(480);
@@ -501,7 +501,9 @@ void CalendarWidget::onTaskFormClosed() {
 void CalendarWidget::onTaskModified() {
     disconnect(connectionToModify);
     std::cout << "[CalendarWidget] onTaskModified" << std::endl;
-    getCalendarRequest();
+    //getCalendarRequest();
+    timer->stop();
+    connectionManager->getctag();
 }
 
 void CalendarWidget::setConnectionManager(ConnectionManager *connectionManager) {
@@ -527,6 +529,7 @@ void CalendarWidget::finished(QNetworkReply *reply) {
     } else {
         std::cout << "null reply\n";
     }
+    timer->start(timerInterval);
 }
 
 void CalendarWidget::getCalendarRequest() {
@@ -542,21 +545,22 @@ void CalendarWidget::setupConnection() {
 }
 
 void CalendarWidget::setupTimer() {
-    QTimer *timer = new QTimer(this);
+    timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &CalendarWidget::onTimeout);
     QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
                      &CalendarWidget::getCalendarRequest); //Connect
-    timer->start(10000);
+    timer->start(timerInterval);
 }
 
 void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
     disconnect(connectionToTaskDeleted);
-    getCalendarRequest();
+    //getCalendarRequest();
+    timer->stop();
+    connectionManager->getctag();
 }
 
 void CalendarWidget::onTimeout() {
     std::cout << "[CalendarWidget] Timeout\n";
-
     connectionManager->getctag();
 }
 

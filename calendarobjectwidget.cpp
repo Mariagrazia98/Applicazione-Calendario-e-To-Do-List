@@ -44,7 +44,7 @@ void CalendarObjectWidget::setupUI() {
         }
         checkBox->setVisible(true);
         displayLayout->addWidget(checkBox);
-        connect(checkBox, &QCheckBox::toggled, this, &CalendarObjectWidget::onCheckBoxToggled);
+        connect(checkBox, &QCheckBox::stateChanged, this, &CalendarObjectWidget::onCheckBoxToggled);
     }
 
     setupText();

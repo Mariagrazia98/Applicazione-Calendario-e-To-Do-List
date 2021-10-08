@@ -120,6 +120,9 @@ private:
     QMetaObject::Connection connectionToModify;
     QMetaObject::Connection connectionToTaskDeleted;
 
+    QTimer *timer;
+    const unsigned int timerInterval;
+
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
 

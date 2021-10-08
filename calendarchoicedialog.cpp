@@ -42,6 +42,12 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
     }
     connect(groupButton, SIGNAL(buttonPressed(QAbstractButton * )),
             this, SLOT(onGroupButtonClicked(QAbstractButton * )));
+
+    buttonsLayout->addSpacing(30);
+
+    this->adjustSize();
+    this->setMinimumSize(400,300);
+
     setLayout(buttonsLayout);
 }
 
