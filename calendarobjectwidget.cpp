@@ -31,7 +31,7 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 void CalendarObjectWidget::setupUI() {
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-    //checkBox->setMinimumSize(50,50);
+    checkBox->adjustSize();
     if (calendarEvent) {
         checkBox->setVisible(false);
         displayLayout->addSpacing(17);
@@ -89,7 +89,6 @@ void CalendarObjectWidget::setupText() {
         }
     }
     textBrowser->setText(text);
-    //textBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }
 
 
