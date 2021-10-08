@@ -276,7 +276,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(
                                             *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -289,7 +289,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -302,7 +302,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -315,7 +315,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -334,9 +334,9 @@ void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
-    connectionToModify = connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
+    connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
                                  &CalendarWidget::onTaskModified);
-    connectionToTaskDeleted = connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this,
+    connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this,
                                       &CalendarWidget::onTaskDeleted);
 }
 
@@ -499,7 +499,6 @@ void CalendarWidget::onTaskFormClosed() {
 }
 
 void CalendarWidget::onTaskModified() {
-    disconnect(connectionToModify);
     std::cout << "[CalendarWidget] onTaskModified" << std::endl;
     //getCalendarRequest();
     timer->stop();
@@ -553,8 +552,8 @@ void CalendarWidget::setupTimer() {
 }
 
 void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
-    disconnect(connectionToTaskDeleted);
     //getCalendarRequest();
+    std::cout << "task deleted/n";
     timer->stop();
     connectionManager->getctag();
 }

@@ -15,7 +15,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
-    setFixedSize(440,380);
+    setFixedSize(440, 380);
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
     ui->beginDateTime->setLocale(QLocale::English);
@@ -46,6 +46,12 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
+            if (calendarToDo->getStartDateTime()) {
+                ui->beginDateTime->setDateTime(*calendarToDo->getStartDateTime());
+            } else {
+                ui->beginDateTime->setDateTime(calendarToDo->getCreationDateTime());
+            }
+            ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             if (calendarToDo->getDueDateTime()) {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             }
@@ -126,12 +132,21 @@ void TaskForm::on_buttonBox_accepted() {
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
-
     } else {
         requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
-        requestString.append("STATUS:IN-PROCESS\r\n");
+        if (calendarObject) {
+            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+            if (calendarToDo->getCompletedDateTime()) {
+                requestString.append(
+                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+                requestString.append("STATUS:COMPLETED\r\n");
+            }
+        } else {
+            requestString.append("STATUS:IN-PROCESS\r\n");
+        }
     }
+
     /*
      if (!rrule.isEmpty())
     {
@@ -148,13 +163,12 @@ void TaskForm::on_buttonBox_accepted() {
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
-    //std::cout << requestString.toStdString() << std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
-    std::cout<<"[TaskForm] handleUploadFinished"<<std::endl;
+    std::cout << "[TaskForm] handleUploadFinished" << std::endl;
     disconnect(connectionToFinish);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
@@ -165,7 +179,7 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
         QMessageBox::warning(this, "Error", errorString);
         std::cerr << answerString.toStdString() << '\n';
     } else {
-        std::cout<<"handle upload finished ELSE"<<std::endl;
+        std::cout << "handle upload finished ELSE" << std::endl;
         emit(taskUploaded());
         close();
     }
