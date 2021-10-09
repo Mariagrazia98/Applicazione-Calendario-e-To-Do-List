@@ -33,6 +33,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
     setMinimumHeight(480);
 
     setWindowTitle(tr("Calendar Application"));
+
 }
 
 CalendarWidget::~CalendarWidget() {
@@ -129,11 +130,8 @@ void CalendarWidget::reformatCalendarPage() {
 void CalendarWidget::createCalendarGroupBox() {
     calendarGroupBox = new QGroupBox(tr("CalendarWidget"));
 
-    calendar = new QCalendarWidget();
-    calendar->setLocale(QLocale::English);
-    calendar->setMinimumDate(QDate(2000, 1, 1));
-    calendar->setMaximumDate(QDate(2121, 12, 31));
-    calendar->setGridVisible(true);
+    calendar = new CustomCalendarWidget();
+
 
     connect(calendar, &QCalendarWidget::currentPageChanged,
             this, &CalendarWidget::reformatCalendarPage);
@@ -174,6 +172,8 @@ void CalendarWidget::parseCalendar(QString calendar) {
     });
 
     stream->seek(0);
+
+    this->calendar->setCalendarObjects(calendarObjects);
 
     showSelectedDateTasks();
 }

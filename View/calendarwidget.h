@@ -31,6 +31,7 @@
 #include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
 #include "../Controller/connectionManager.h"
+#include "CustomCalendarWidget.h"
 
 namespace Ui {
     class CalendarWidget;
@@ -97,7 +98,7 @@ private:
 
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
-    QCalendarWidget *calendar;
+    CustomCalendarWidget *calendar;
 
     QGroupBox *tasksGroupBox; // tasks group box (right)
     QVBoxLayout *tasksLayout;
