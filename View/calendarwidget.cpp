@@ -1,24 +1,25 @@
-#include "calendar.h"
-#include "ui_calendar.h"
+#include "calendarwidget.h"
+#include "ui_calendarwidget.h"
 
 #define DAILY 1
 #define WEEKLY 2
 #define MONTHLY 3
 #define YEARLY 4
 
-Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
+CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionManager) :
         QWidget(parent),
-        ui(new Ui::Calendar),
+        ui(new Ui::CalendarWidget),
         dateString(new QTextBrowser),
         connectionManager(connectionManager),
-        stream(new QTextStream()) {
+        stream(new QTextStream()),
+        timerInterval(10000) {
     ui->setupUi(this);
 
     createCalendarGroupBox();
 
     setupCalendar();
 
-    QGridLayout *layout = new QGridLayout;
+    QGridLayout * layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -27,7 +28,6 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
 
     layout->setRowMinimumHeight(0, calendar->sizeHint().height());
     layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
-    layout->setRowMinimumHeight(0, calendar->sizeHint().height());
     layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);
 
     setMinimumHeight(480);
@@ -35,12 +35,12 @@ Calendar::Calendar(QWidget *parent, ConnectionManager *connectionManager) :
     setWindowTitle(tr("Calendar Application"));
 }
 
-Calendar::~Calendar() {
+CalendarWidget::~CalendarWidget() {
     delete ui;
 }
 
-void Calendar::setupCalendar() {
-    // Calendar setup
+void CalendarWidget::setupCalendar() {
+    // CalendarWidget setup
     calendar->setFirstDayOfWeek(Qt::DayOfWeek(1));
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 31, 12));
@@ -52,7 +52,7 @@ void Calendar::setupCalendar() {
 
     setupWeek();
     connect(calendar, &QCalendarWidget::selectionChanged,
-            this, &Calendar::selectedDateChanged);
+            this, &CalendarWidget::selectedDateChanged);
     tasksGroupBox = new QGroupBox(tr("Tasks"));
 
     tasksLayout = new QVBoxLayout;
@@ -83,11 +83,11 @@ void Calendar::setupCalendar() {
     addTaskButton = new QPushButton(tr("&Add"));
     addTaskButton->setEnabled(true);
     addTaskButton->setToolTip(tr("Add new task"));
-    connect(addTaskButton, &QPushButton::clicked, this, &Calendar::addTaskButtonClicked);
+    connect(addTaskButton, &QPushButton::clicked, this, &CalendarWidget::addTaskButtonClicked);
     tasksLayout->addWidget(addTaskButton);
 }
 
-void Calendar::selectedDateChanged() {
+void CalendarWidget::selectedDateChanged() {
     if (currentDateEdit->date() != calendar->selectedDate()) {
         currentDateEdit->setDate(calendar->selectedDate());
         QDate date = currentDateEdit->date();
@@ -99,7 +99,7 @@ void Calendar::selectedDateChanged() {
     }
 }
 
-void Calendar::setupWeek() {
+void CalendarWidget::setupWeek() {
     QTextCharFormat format;
 
     format.setForeground(Qt::black);
@@ -113,7 +113,7 @@ void Calendar::setupWeek() {
     calendar->setWeekdayTextFormat(Qt::Sunday, format);
 }
 
-void Calendar::reformatCalendarPage() {
+void CalendarWidget::reformatCalendarPage() {
     QTextCharFormat mayFirstFormat;
     const QDate mayFirst(calendar->yearShown(), 5, 1);
 
@@ -126,24 +126,24 @@ void Calendar::reformatCalendarPage() {
     calendar->setDateTextFormat(mayFirst, mayFirstFormat);
 }
 
-void Calendar::createCalendarGroupBox() {
-    calendarGroupBox = new QGroupBox(tr("Calendar"));
+void CalendarWidget::createCalendarGroupBox() {
+    calendarGroupBox = new QGroupBox(tr("CalendarWidget"));
 
-    calendar = new QCalendarWidget;
+    calendar = new QCalendarWidget();
     calendar->setLocale(QLocale::English);
     calendar->setMinimumDate(QDate(2000, 1, 1));
     calendar->setMaximumDate(QDate(2121, 12, 31));
     calendar->setGridVisible(true);
 
     connect(calendar, &QCalendarWidget::currentPageChanged,
-            this, &Calendar::reformatCalendarPage);
+            this, &CalendarWidget::reformatCalendarPage);
 
     calendarLayout = new QGridLayout;
     calendarLayout->addWidget(calendar);
     calendarGroupBox->setLayout(calendarLayout);
 }
 
-QComboBox *Calendar::createColorComboBox() {
+QComboBox *CalendarWidget::createColorComboBox() {
     QComboBox *comboBox = new QComboBox;
     comboBox->addItem(tr("Red"), QColor(Qt::red));
     comboBox->addItem(tr("Blue"), QColor(Qt::blue));
@@ -152,14 +152,11 @@ QComboBox *Calendar::createColorComboBox() {
     return comboBox;
 }
 
-void Calendar::onDateTextChanged() {
+void CalendarWidget::onDateTextChanged() {
 
 }
 
-void Calendar::parseCalendar(QString calendar) {
-    std::cout << "parseCalendar" << std::endl;
-    std::cout << "--------------------------" << std::endl;
-
+void CalendarWidget::parseCalendar(QString calendar) {
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
 
@@ -181,7 +178,7 @@ void Calendar::parseCalendar(QString calendar) {
     showSelectedDateTasks();
 }
 
-void Calendar::showSelectedDateTasks() {
+void CalendarWidget::showSelectedDateTasks() {
     QLayoutItem *item;
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -276,7 +273,7 @@ void Calendar::showSelectedDateTasks() {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(
                                             *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -289,7 +286,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -302,7 +299,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -315,7 +312,7 @@ void Calendar::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(std::nullopt);
+                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -329,17 +326,18 @@ void Calendar::showSelectedDateTasks() {
     }
 }
 
-void Calendar::addCalendarObjectWidget(CalendarObject *calendarObject) {
+void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
     CalendarObjectWidget *calendarObjectWidget = new CalendarObjectWidget(this, *calendarObject, connectionManager);
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
-    connectionModify = connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
-                               &Calendar::onTaskModified);
-    connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this, &Calendar::onTaskDeleted);
+    connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
+            &CalendarWidget::onTaskModified);
+    connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this,
+            &CalendarWidget::onTaskDeleted);
 }
 
-void Calendar::parseEvent() {
+void CalendarWidget::parseEvent() {
     QString line;
 
     CalendarObject *calendarObject = new CalendarEvent();
@@ -407,7 +405,7 @@ void Calendar::parseEvent() {
     }
 }
 
-void Calendar::parseToDo() {
+void CalendarWidget::parseToDo() {
     QString line;
     CalendarObject *calendarObject = new CalendarToDo();
     while (stream->readLineInto(&line)) {
@@ -470,16 +468,16 @@ void Calendar::parseToDo() {
     }
 }
 
-
-void Calendar::addTaskButtonClicked() {
+void CalendarWidget::addTaskButtonClicked() {
     addTaskButton->setEnabled(false);
     TaskForm *taskForm = new TaskForm(connectionManager);
+    taskForm->setDate(currentDateEdit->date());
     taskForm->show();
-    connect(taskForm, &TaskForm::closing, this, &Calendar::onTaskFormClosed);
-    connect(taskForm, &TaskForm::taskUploaded, this, &Calendar::onTaskModified);
+    connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
+    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);
 }
 
-QDateTime Calendar::getDateTimeFromString(const QString &string) {
+QDateTime CalendarWidget::getDateTimeFromString(const QString &string) {
     QDateTime dateTime = QDateTime::fromString(string, "yyyyMMdd'T'hhmmss'Z'");
     if (!dateTime.isValid())
         dateTime = QDateTime::fromString(string, "yyyyMMdd'T'hhmmss");
@@ -488,66 +486,71 @@ QDateTime Calendar::getDateTimeFromString(const QString &string) {
     if (!dateTime.isValid())
         dateTime = QDateTime::fromString(string, "yyyyMMdd");
     if (!dateTime.isValid())
-        std::cerr << "Calendar" << ": " << "could not parse" << string.toStdString() << '\n';
+        std::cerr << "CalendarWidget" << ": " << "could not parse" << string.toStdString() << '\n';
     return dateTime;
 }
 
-void Calendar::onTaskFormClosed() {
+void CalendarWidget::onTaskFormClosed() {
     addTaskButton->setEnabled(true);
     // TODO: aggiornare widgets se ce n'è bisogno
 }
 
-void Calendar::onTaskModified() {
-    disconnect(connectionModify);
-    std::cout << "onTaskModified" << std::endl;
-    setupConnection();
+void CalendarWidget::onTaskModified() {
+    timer->stop();
+    connectionManager->getctag();
 }
 
-void Calendar::setConnectionManager(ConnectionManager *connectionManager) {
-    Calendar::connectionManager = connectionManager;
+void CalendarWidget::setConnectionManager(ConnectionManager *connectionManager) {
+    CalendarWidget::connectionManager = connectionManager;
 }
 
-void Calendar::finished(QNetworkReply *reply) {
-    std::cout << "finished" << std::endl;
-    disconnect(connectionToFinished); //DISCONNECT
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
-
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error != QNetworkReply::NoError) {
-        QMessageBox::warning(this, "Error", errorString);
+void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        if (error == QNetworkReply::NoError) {
+            calendarObjects.clear();
+            parseCalendar(answerString);
+        } else {
+            // error
+            const QString &errorString = reply->errorString();
+            std::cerr << errorString.toStdString() << '\n';
+            QMessageBox::warning(this, "Error", "Could not get selected calendar");
+        }
+        reply->deleteLater();
     } else {
-        calendarObjects.clear();
-        parseCalendar(answerString);
+        //std::cerr << "null reply\n";
+        QMessageBox::warning(this, "Error", "Something went wrong");
     }
+    timer->start(timerInterval);
 }
 
-void Calendar::getCalendarRequest() {
+void CalendarWidget::getCalendarRequest() {
     connectionManager->getCalendarRequest();
 }
 
-void Calendar::setupConnection() {
-    std::cout << "setupConnection" << std::endl;
-    disconnect(connectionCtag);
-    connectionToFinished = QObject::connect(connectionManager, &ConnectionManager::onFinished, this,
-                                            &Calendar::finished); //Connect
+void CalendarWidget::setupConnection() {
+    calendarGroupBox->setTitle(connectionManager->getCalendarName());
+    QObject::connect(connectionManager, &ConnectionManager::calendarReady, this,
+                     &CalendarWidget::onCalendarReady); //Connect
     getCalendarRequest();
 }
 
-void Calendar::setupTimer() {
-    QTimer *timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &Calendar::onTimeout);
-    timer->start(10000);
+void CalendarWidget::setupTimer() {
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &CalendarWidget::onTimeout);
+    QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
+                     &CalendarWidget::getCalendarRequest); //Connect
+    timer->start(timerInterval);
 }
 
-void Calendar::onTaskDeleted(CalendarObject &obj) {
-    setupConnection();
+void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
+    timer->stop();
+    connectionManager->getctag();
 }
 
-void Calendar::onTimeout() {
-    connectionCtag = QObject::connect(connectionManager, &ConnectionManager::ctagChanged, this,
-                                      &Calendar::setupConnection); //Connect
+void CalendarWidget::onTimeout() {
     connectionManager->getctag();
 }
 

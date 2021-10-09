@@ -7,9 +7,9 @@
 #include <QCheckBox>
 #include <QTextBrowser>
 
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 #include "taskform.h"
 
 namespace Ui {
@@ -28,7 +28,7 @@ private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
     void onCheckBoxToggled(bool checked);
-    void finished(QNetworkReply* reply);
+    void manageResponse(QNetworkReply* reply);
     void onTaskModified();
     signals:
     void taskModified();
@@ -42,6 +42,7 @@ private:
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
     QMetaObject::Connection connectionToFinish;
+    QMetaObject::Connection connectionToObjectModified;
 
     QHBoxLayout* displayLayout;
     QVBoxLayout* buttonsLayout;

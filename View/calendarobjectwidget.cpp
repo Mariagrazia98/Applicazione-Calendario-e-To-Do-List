@@ -31,7 +31,7 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 void CalendarObjectWidget::setupUI() {
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-    //checkBox->setMinimumSize(50,50);
+    checkBox->adjustSize();
     if (calendarEvent) {
         checkBox->setVisible(false);
         displayLayout->addSpacing(17);
@@ -44,7 +44,7 @@ void CalendarObjectWidget::setupUI() {
         }
         checkBox->setVisible(true);
         displayLayout->addWidget(checkBox);
-        connect(checkBox, &QCheckBox::toggled, this, &CalendarObjectWidget::onCheckBoxToggled);
+        connect(checkBox, &QCheckBox::stateChanged, this, &CalendarObjectWidget::onCheckBoxToggled);
     }
 
     setupText();
@@ -89,7 +89,6 @@ void CalendarObjectWidget::setupText() {
         }
     }
     textBrowser->setText(text);
-    //textBrowser->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 }
 
 
@@ -115,32 +114,38 @@ void CalendarObjectWidget::setupButtons() {
 void CalendarObjectWidget::onModifyButtonClicked() {
     TaskForm *taskForm = new TaskForm(connectionManager, calendarObject);
     taskForm->show();
-    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
+    connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this,
+                                         &CalendarObjectWidget::onTaskModified);
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
-    connectionToFinish = connect(connectionManager, SIGNAL(onFinished(QNetworkReply * )), this,
-                                 SLOT(finished(QNetworkReply * )));
+    connectionToFinish = connect(connectionManager, SIGNAL(objectDeleted(QNetworkReply * )), this,
+                                 SLOT(manageResponse(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());
 }
 
-void CalendarObjectWidget::finished(QNetworkReply *reply) {
+void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
     disconnect(connectionToFinish);
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error != QNetworkReply::NoError) {
-        std::cerr << error << "\n";
-        QMessageBox::warning(this, "Error", errorString);
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        if (error == QNetworkReply::NoError) {
+            emit(taskDeleted(*calendarObject));
+        } else {
+            const QString &errorString = reply->errorString();
+            std::cerr << error << "\n";
+            QMessageBox::warning(this, "Error", errorString);
+        }
     } else {
-
-        emit(taskDeleted(*calendarObject));
+        // reply is null
+        QMessageBox::warning(this, "Error", "Something went wrong");
     }
+
 }
 
 void CalendarObjectWidget::onTaskModified() {
-    std::cout<<"Task Modified\n";
+    disconnect(connectionToObjectModified);
     emit(taskModified());
 }
 
@@ -207,8 +212,6 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
-                                 &CalendarObjectWidget::finished);
+                                 &CalendarObjectWidget::manageResponse);
     connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }
-
-

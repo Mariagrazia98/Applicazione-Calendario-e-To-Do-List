@@ -1,6 +1,6 @@
 #include "taskform.h"
 #include "ui_taskform.h"
-#include "calendartodo.h"
+#include "../Model/calendartodo.h"
 
 #define DAILY 1
 #define WEEKLY 2
@@ -15,16 +15,16 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
-    setFixedSize(440,380);
-    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
-    ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
-    ui->beginDateTime->setLocale(QLocale::English);
-    ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
-    ui->expireDateTime->setLocale(QLocale::English);
+    setFixedSize(440, 380);
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
     ui->prioritySpinBox->setVisible(false);
     ui->priorityLabel->setVisible(false);
+
+    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
+    ui->beginDateTime->setLocale(locale);
+    ui->expireDateTime->setLocale(locale);
+
     /* MODIFY */
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
@@ -46,10 +46,20 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
+            if (calendarToDo->getStartDateTime()) {
+                ui->beginDateTime->setDateTime(*calendarToDo->getStartDateTime());
+            } else {
+                ui->beginDateTime->setDateTime(calendarToDo->getCreationDateTime());
+            }
+            ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             if (calendarToDo->getDueDateTime()) {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             }
         }
+    } else {
+        QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
+        ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
+        ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
     }
 }
 
@@ -126,12 +136,21 @@ void TaskForm::on_buttonBox_accepted() {
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
-
     } else {
         requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
-        requestString.append("STATUS:IN-PROCESS\r\n");
+        if (calendarObject) {
+            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+            if (calendarToDo->getCompletedDateTime()) {
+                requestString.append(
+                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+                requestString.append("STATUS:COMPLETED\r\n");
+            }
+        } else {
+            requestString.append("STATUS:IN-PROCESS\r\n");
+        }
     }
+
     /*
      if (!rrule.isEmpty())
     {
@@ -146,28 +165,30 @@ void TaskForm::on_buttonBox_accepted() {
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
+    connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
-    //std::cout << requestString.toStdString() << std::endl;
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
-    std::cout<<"handleUploadFinished"<<std::endl;
     disconnect(connectionToFinish);
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
-
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error != QNetworkReply::NoError) {
-        QMessageBox::warning(this, "Error", errorString);
-        std::cerr << answerString.toStdString() << '\n';
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        if (error == QNetworkReply::NoError) {
+            emit(taskUploaded());
+            close();
+        } else {
+            //const QString &errorString = reply->errorString();
+            std::cerr << error << '\n';
+            QMessageBox::warning(this, "Error", "Could not create or modify selected object");
+        }
+        reply->deleteLater();
     } else {
-        std::cout<<"handle upload finished ELSE"<<std::endl;
-        emit(taskUploaded());
-        close();
+        // null reply
+        QMessageBox::warning(this, "Error", "Something went wrong");
     }
 
 }
@@ -182,7 +203,7 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
             ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
             break;
         case 1:
-            /* TODO */
+            /* TASK */
             ui->expireLabel->setText("Due");
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
@@ -201,4 +222,9 @@ void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
 
 void TaskForm::closeEvent(QCloseEvent *event) {
     emit(closing());
+}
+
+void TaskForm::setDate(const QDate &date) {
+    ui->beginDateTime->setDate(date);
+    ui->expireDateTime->setDate(date);
 }

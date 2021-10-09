@@ -11,11 +11,17 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QDialogButtonBox>
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
+#include "calendarchoicedialog.h"
 
 namespace Ui {
     class LoginForm;
 }
+
+/**
+ *  @brief Form to log in the calendarName server
+ *
+ */
 
 class LoginForm : public QDialog {
 Q_OBJECT
@@ -25,12 +31,17 @@ public:
 
     ~LoginForm();
 
+    /// @brief set the ConnectionManager
     void setConnectionManager(ConnectionManager *connectionManager);
 
 private slots:
 
+    /// @brief buttonClicked callback
     void onLoginButtonClicked();
 
+    /** @brief checks the login reply
+     * @details if the reply has no errors, accept and close the widget
+     */
     void responseHandler(QNetworkReply *reply);
 
 private:
@@ -45,8 +56,6 @@ private:
     QLineEdit *user;
     QLabel *passwordLabel;
     QLineEdit *password;
-    QLabel *calendarLabel;
-    QLineEdit *calendar;
     QDialogButtonBox* dialogButtonBox;
 
     QMetaObject::Connection connection;

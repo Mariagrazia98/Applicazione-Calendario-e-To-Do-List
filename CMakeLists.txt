@@ -7,8 +7,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(QT_VERSION 6)
-set(REQUIRED_LIBS Core Gui Widgets Network )
-set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network)
+set(REQUIRED_LIBS Core Gui Widgets Network Xml)
+set(REQUIRED_LIBS_QUALIFIED Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Network Qt6::Xml)
 
 set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 #set(CMAKE_PREFIX_PATH {PROJECT_NAME}/cmake)
@@ -16,13 +16,13 @@ set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 
 
 add_executable(${PROJECT_NAME} main.cpp
-        loginform.h loginform.cpp loginform.ui
-    calendar.h calendar.cpp calendar.ui
-    taskform.h taskform.cpp taskform.ui
-    calendarobject.cpp calendarobject.h
-    calendarevent.cpp calendarevent.h
-    calendarobjectwidget.h calendarobjectwidget.cpp calendarobjectwidget.ui
-    src.qrc connectionManager.cpp connectionManager.h calendartodo.cpp calendartodo.h )
+        View/loginform.h View/loginform.cpp View/loginform.ui
+        View/calendarwidget.h View/calendarwidget.cpp View/calendarwidget.ui
+        View/taskform.h View/taskform.cpp View/taskform.ui
+        Model/calendarobject.cpp Model/calendarobject.h
+        Model/calendarevent.cpp Model/calendarevent.h
+        View/calendarobjectwidget.h View/calendarobjectwidget.cpp View/calendarobjectwidget.ui
+    src.qrc Controller/connectionManager.cpp Controller/connectionManager.h Model/calendartodo.cpp Model/calendartodo.h View/calendarchoicedialog.cpp View/calendarchoicedialog.h View/calendarchoicedialog.ui Model/calendar.cpp Model/calendar.h)
 
 add_executable(${name} WIN32 ${source_files})
 

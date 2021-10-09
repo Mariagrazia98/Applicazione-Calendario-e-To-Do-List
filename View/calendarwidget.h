@@ -25,24 +25,24 @@
 
 #include <iostream>
 
-#include "taskForm.h"
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
+#include "taskform.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
 
 namespace Ui {
-    class Calendar;
+    class CalendarWidget;
 }
 
-class Calendar : public QWidget {
+class CalendarWidget : public QWidget {
 Q_OBJECT
 
 public:
-    explicit Calendar(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    explicit CalendarWidget(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
 
-    ~Calendar();
+    ~CalendarWidget();
 
     void setupConnection();
 
@@ -56,7 +56,7 @@ public slots:
 
     void parseCalendar(QString calendar);
 
-    void finished(QNetworkReply *reply);
+    void onCalendarReady(QNetworkReply *reply);
 
 private slots:
 
@@ -93,9 +93,9 @@ private:
 
     void parseToDo();
 
-    Ui::Calendar *ui;
+    Ui::CalendarWidget *ui;
 
-    QGroupBox *calendarGroupBox; // calendar group box (left)
+    QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
     QCalendarWidget *calendar;
 
@@ -117,10 +117,13 @@ private:
     ConnectionManager *connectionManager;
     QMetaObject::Connection connectionToFinished;
     QMetaObject::Connection connectionCtag;
-    QMetaObject::Connection connectionModify;
+    QMetaObject::Connection connectionToModify;
+    QMetaObject::Connection connectionToTaskDeleted;
+
+    QTimer *timer;
+    const unsigned int timerInterval;
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
-
 
 };
 

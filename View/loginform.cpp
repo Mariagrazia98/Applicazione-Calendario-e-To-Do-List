@@ -14,17 +14,14 @@ LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
         user(new QLineEdit),
         passwordLabel(new QLabel("Password")),
         password(new QLineEdit),
-        calendarLabel(new QLabel("Calendar")),
-        calendar(new QLineEdit),
+
         dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)),
         ui(new Ui::LoginForm) {
     ui->setupUi(this);
 
-    calendar->setText("default");
     formLayout->addRow(userLabel, user);
     formLayout->addRow(passwordLabel, password);
     password->setEchoMode(QLineEdit::Password);
-    formLayout->addRow(calendarLabel, calendar);
     formLayout->addWidget(dialogButtonBox);
 
     groupBox->setLayout(formLayout);
@@ -40,10 +37,10 @@ LoginForm::~LoginForm() {
 }
 
 void LoginForm::onLoginButtonClicked() {
+    dialogButtonBox->setDisabled(true);
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
-    connectionManager->setCalendar(calendar->text());
-    connectionManager->tryLogin();
+    connectionManager->getCalendarList();
     connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 }
 
@@ -51,17 +48,18 @@ void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
     this->connectionManager = connectionManager;
 }
 
+
 void LoginForm::responseHandler(QNetworkReply *reply) {
+    disconnect(connection);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
-    disconnect(connection);
     QNetworkReply::NetworkError error = reply->error();
     const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
         QMessageBox::warning(this, "Error", errorString);
     } else {
         accept();
-        this->close();
     }
+    dialogButtonBox->setDisabled(false);
 }
 
