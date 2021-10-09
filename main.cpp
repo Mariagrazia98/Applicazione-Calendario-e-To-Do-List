@@ -4,10 +4,10 @@
 #include <QWidget>
 
 #include <iostream>
-#include "loginform.h"
-#include "calendarwidget.h"
-#include "connectionManager.h"
-#include "calendarchoicedialog.h"
+#include "View/loginform.h"
+#include "View/calendarwidget.h"
+#include "Controller/connectionManager.h"
+#include "View/calendarchoicedialog.h"
 
 
 int main(int argc, char *argv[]) {

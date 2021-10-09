@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "connectionManager.h"
-#include "calendarwidget.h"
+#include "../View/calendarwidget.h"
 
 ConnectionManager::ConnectionManager(QString username, QString password) :
         networkAccessManager(new QNetworkAccessManager),

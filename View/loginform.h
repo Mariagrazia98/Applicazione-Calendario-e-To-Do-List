@@ -11,7 +11,7 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QDialogButtonBox>
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
 #include "calendarchoicedialog.h"
 
 namespace Ui {

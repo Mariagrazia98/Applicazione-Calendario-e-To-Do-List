@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-#include "calendar.h"
+#include "../Model/calendar.h"
 
 class ConnectionManager : public QObject {
 Q_OBJECT

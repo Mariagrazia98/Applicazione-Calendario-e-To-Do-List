@@ -13,9 +13,9 @@
 #include <QNetworkReply>
 #include <QAuthenticator>
 
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "connectionManager.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Controller/connectionManager.h"
 
 namespace Ui {
     class TaskForm;

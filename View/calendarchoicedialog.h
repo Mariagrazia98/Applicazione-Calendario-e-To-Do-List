@@ -11,7 +11,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class CalendarChoiceDialog; }

@@ -25,12 +25,12 @@
 
 #include <iostream>
 
-#include "taskForm.h"
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
+#include "taskform.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
 
 namespace Ui {
     class CalendarWidget;

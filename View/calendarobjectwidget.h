@@ -7,9 +7,9 @@
 #include <QCheckBox>
 #include <QTextBrowser>
 
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 #include "taskform.h"
 
 namespace Ui {

@@ -1,5 +1,5 @@
 #include "calendarwidget.h"
-#include "ui_calendar.h"
+#include "ui_calendarwidget.h"
 
 #define DAILY 1
 #define WEEKLY 2
