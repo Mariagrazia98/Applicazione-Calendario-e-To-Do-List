@@ -468,10 +468,10 @@ void CalendarWidget::parseToDo() {
     }
 }
 
-
 void CalendarWidget::addTaskButtonClicked() {
     addTaskButton->setEnabled(false);
     TaskForm *taskForm = new TaskForm(connectionManager);
+    taskForm->setDate(currentDateEdit->date());
     taskForm->show();
     connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
     connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);

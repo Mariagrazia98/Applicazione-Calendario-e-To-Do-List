@@ -16,15 +16,15 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
     setFixedSize(440, 380);
-    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
-    ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
-    ui->beginDateTime->setLocale(QLocale::English);
-    ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
-    ui->expireDateTime->setLocale(QLocale::English);
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
     ui->prioritySpinBox->setVisible(false);
     ui->priorityLabel->setVisible(false);
+
+    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
+    ui->beginDateTime->setLocale(locale);
+    ui->expireDateTime->setLocale(locale);
+
     /* MODIFY */
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
@@ -56,6 +56,10 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             }
         }
+    } else {
+        QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
+        ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
+        ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
     }
 }
 
@@ -218,4 +222,9 @@ void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
 
 void TaskForm::closeEvent(QCloseEvent *event) {
     emit(closing());
+}
+
+void TaskForm::setDate(const QDate &date) {
+    ui->beginDateTime->setDate(date);
+    ui->expireDateTime->setDate(date);
 }

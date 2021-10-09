@@ -29,6 +29,8 @@ public:
 
     ~TaskForm();
 
+    void setDate(const QDate &date);
+
 private
     slots:
 

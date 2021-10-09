@@ -125,7 +125,6 @@ private:
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
-
 };
 
 #endif // CALENDAR_H
