@@ -37,6 +37,7 @@ LoginForm::~LoginForm() {
 }
 
 void LoginForm::onLoginButtonClicked() {
+    dialogButtonBox->setDisabled(true);
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
     connectionManager->getCalendarList();
@@ -59,5 +60,6 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
     } else {
         accept();
     }
+    dialogButtonBox->setDisabled(false);
 }
 
