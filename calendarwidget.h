@@ -56,7 +56,7 @@ public slots:
 
     void parseCalendar(QString calendar);
 
-    void finished(QNetworkReply *reply);
+    void onCalendarReady(QNetworkReply *reply);
 
 private slots:
 

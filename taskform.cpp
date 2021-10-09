@@ -168,20 +168,23 @@ void TaskForm::on_buttonBox_accepted() {
 }
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
-    std::cout << "[TaskForm] handleUploadFinished" << std::endl;
     disconnect(connectionToFinish);
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
-
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error != QNetworkReply::NoError) {
-        QMessageBox::warning(this, "Error", errorString);
-        std::cerr << answerString.toStdString() << '\n';
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        if (error == QNetworkReply::NoError) {
+            emit(taskUploaded());
+            close();
+        } else {
+            //const QString &errorString = reply->errorString();
+            std::cerr << error << '\n';
+            QMessageBox::warning(this, "Error", "Could not create or modify selected object");
+        }
+        reply->deleteLater();
     } else {
-        std::cout << "handle upload finished ELSE" << std::endl;
-        emit(taskUploaded());
-        close();
+        // null reply
+        QMessageBox::warning(this, "Error", "Something went wrong");
     }
 
 }

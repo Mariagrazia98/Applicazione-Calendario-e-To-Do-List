@@ -19,7 +19,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
 
     setupCalendar();
 
-    QGridLayout *layout = new QGridLayout;
+    QGridLayout * layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -157,9 +157,6 @@ void CalendarWidget::onDateTextChanged() {
 }
 
 void CalendarWidget::parseCalendar(QString calendar) {
-    std::cout << "[CalendarWidget] parseCalendar" << std::endl;
-    //std::cout << "--------------------------" << std::endl;
-
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
     QString line;
 
@@ -335,9 +332,9 @@ void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
     connect(calendarObjectWidget, &CalendarObjectWidget::taskModified, this,
-                                 &CalendarWidget::onTaskModified);
+            &CalendarWidget::onTaskModified);
     connect(calendarObjectWidget, &CalendarObjectWidget::taskDeleted, this,
-                                      &CalendarWidget::onTaskDeleted);
+            &CalendarWidget::onTaskDeleted);
 }
 
 void CalendarWidget::parseEvent() {
@@ -499,8 +496,6 @@ void CalendarWidget::onTaskFormClosed() {
 }
 
 void CalendarWidget::onTaskModified() {
-    std::cout << "[CalendarWidget] onTaskModified" << std::endl;
-    //getCalendarRequest();
     timer->stop();
     connectionManager->getctag();
 }
@@ -509,24 +504,24 @@ void CalendarWidget::setConnectionManager(ConnectionManager *connectionManager) 
     CalendarWidget::connectionManager = connectionManager;
 }
 
-void CalendarWidget::finished(QNetworkReply *reply) {
-    std::cout << "[CalendarWidget] finished" << std::endl;
-    if (reply) {
-        //disconnect(connectionToFinished); //DISCONNECT
+void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
+    if (reply != nullptr) {
         QByteArray answer = reply->readAll();
         QString answerString = QString::fromUtf8(answer);
-
         QNetworkReply::NetworkError error = reply->error();
-        const QString &errorString = reply->errorString();
-        if (error != QNetworkReply::NoError) {
-            QMessageBox::warning(this, "Error", errorString);
-        } else {
+        if (error == QNetworkReply::NoError) {
             calendarObjects.clear();
             parseCalendar(answerString);
+        } else {
+            // error
+            const QString &errorString = reply->errorString();
+            std::cerr << errorString.toStdString() << '\n';
+            QMessageBox::warning(this, "Error", "Could not get selected calendar");
         }
         reply->deleteLater();
     } else {
-        std::cout << "null reply\n";
+        //std::cerr << "null reply\n";
+        QMessageBox::warning(this, "Error", "Something went wrong");
     }
     timer->start(timerInterval);
 }
@@ -536,10 +531,9 @@ void CalendarWidget::getCalendarRequest() {
 }
 
 void CalendarWidget::setupConnection() {
-    std::cout << "[CalendarWidget] setupConnection" << std::endl;
     calendarGroupBox->setTitle(connectionManager->getCalendarName());
     QObject::connect(connectionManager, &ConnectionManager::calendarReady, this,
-                     &CalendarWidget::finished); //Connect
+                     &CalendarWidget::onCalendarReady); //Connect
     getCalendarRequest();
 }
 
@@ -552,14 +546,11 @@ void CalendarWidget::setupTimer() {
 }
 
 void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
-    //getCalendarRequest();
-    std::cout << "task deleted/n";
     timer->stop();
     connectionManager->getctag();
 }
 
 void CalendarWidget::onTimeout() {
-    std::cout << "[CalendarWidget] Timeout\n";
     connectionManager->getctag();
 }
 

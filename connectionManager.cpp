@@ -17,7 +17,7 @@ ConnectionManager::ConnectionManager(QString username, QString password) :
 }
 
 void ConnectionManager::setup() {
-    //connect(networkAccessManager, &QNetworkAccessManager::finished, this, &ConnectionManager::responseHandler);
+    //connect(networkAccessManager, &QNetworkAccessManager::onCalendarReady, this, &ConnectionManager::responseHandler);
     connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, this,
             &ConnectionManager::authenticationRequired);
 }
@@ -33,10 +33,7 @@ void ConnectionManager::getCalendarRequest() {
 }
 
 void ConnectionManager::onGetCalendarRequestFinished() {
-    if (getCalendarReply) {
-        std::cout << "[ConnectionManager] CalendarWidget Ready\n";
-        emit(calendarReady(getCalendarReply));
-    }
+    emit(calendarReady(getCalendarReply));
 }
 
 
@@ -67,10 +64,11 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     deleteResourceNetworkReply = networkAccessManager->deleteResource(networkRequest);
     connect(deleteResourceNetworkReply, &QNetworkReply::finished, this, &ConnectionManager::onObjectDeleted);
 
-    if (!deleteResourceNetworkReply) {
-        std::cerr << "[ConnectionManager] deleteCalendarObject went wrong" << std::endl;
+    if (deleteResourceNetworkReply != nullptr) {
+        QMessageBox::information(nullptr, "Task Deleted", "Task deleted successfully");
     } else {
-        QMessageBox::information(nullptr, "ToDo", "Task deleted successfully");
+        // std::cerr << "[ConnectionManager] deleteCalendarObject went wrong" << std::endl;
+        QMessageBox::warning(nullptr, "Task Deleted", "Could not delete selected object");
     }
 }
 
@@ -79,7 +77,7 @@ void ConnectionManager::onObjectDeleted() {
 }
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     int buffersize = buffer->write(requestString.toUtf8());
@@ -148,7 +146,6 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
         if (error == QNetworkReply::NoError) {
             parseAndUpdatectag(answerString);
         } else {
-            /*TODO errore qui */
             std::cerr << "checkctag: " << errorString.toStdString() << '\n';
         }
     }
@@ -157,7 +154,7 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
 /*
 void ConnectionManager::tryLogin() {
     makectagRequest();
-    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::onCalendarReady, this,
                                 &ConnectionManager::onLoginRequestFinished);
 }
  */
@@ -182,7 +179,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 
 void ConnectionManager::makectagRequest() {
     std::cout << "[ConnectionManager] makectagRequest\n";
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -218,8 +215,7 @@ void ConnectionManager::makectagRequest() {
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
     networkRequest.setSslConfiguration(conf);
 
-    QNetworkReply * networkReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"),
-                                                                           buffer);
+    networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"), buffer);
 }
 
 /*
@@ -240,7 +236,7 @@ void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
 */
 
 void ConnectionManager::getCalendarList() {
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -296,7 +292,7 @@ void ConnectionManager::printCalendarsList() {
         //std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
         //std::cout << response.size() << " nodes\n";
-        QList < Calendar * > calendarsList;
+        QList<Calendar *> calendarsList;
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
             QDomElement href = node.firstChildElement("d:href");
@@ -322,10 +318,11 @@ void ConnectionManager::printCalendarsList() {
             }
 
         }
-        // finished parsing
+        // onCalendarReady parsing
         emit(calendars(calendarsList));
     } else {
         std::cerr << "printCalendarsList: " << errorString.toStdString() << '\n';
+        std::cerr << answerString.toStdString() << '\n';
     }
     emit(loggedin(getCalendarsListReply));
 }
