@@ -150,18 +150,6 @@ void TaskForm::on_buttonBox_accepted() {
             requestString.append("STATUS:IN-PROCESS\r\n");
         }
     }
-
-    /*
-     if (!rrule.isEmpty())
-    {
-        requestString.append("RRULE:" + rrule + "\r\n");
-    }
-
-    if (!exdate.isEmpty())
-    {
-        requestString.append("EXDATE:" + exdate + "\r\n");
-    }
-     */
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
 
