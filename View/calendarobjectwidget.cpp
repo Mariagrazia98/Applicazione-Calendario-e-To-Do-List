@@ -120,6 +120,106 @@ void CalendarObjectWidget::onModifyButtonClicked() {
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
+    if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
+        // has repetitions
+        EliminationTaskDialog *dialog = new EliminationTaskDialog(nullptr);
+        dialog->show();
+        connect(dialog, &EliminationTaskDialog::eliminateRecurrences, this,
+                &CalendarObjectWidget::handleDeleteReccurrencies);
+    } else {
+        deleteCalendarObject();
+    }
+}
+
+void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
+    if (type == 0) { // delete all recurrences
+        deleteCalendarObject();
+    } else if (type == 1) { // delete only one recurrence
+        CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+
+        QString requestString = "BEGIN:VCALENDAR\r\n"
+                                "BEGIN:VTODO\r\n"
+                                "UID:" + calendarObject->getUID() + "\r\n"
+                                                                    "VERSION:2.0\r\n"
+                                                                    "DTSTAMP:" +
+                                calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
+                                "\r\n"
+                                "SUMMARY:" + calendarObject->getName() + "\r\n"
+                                                                         "DTSTART:" +
+                                calendarToDo->getStartDateTime()->toString("yyyyMMddTHHmmss") + "\r\n"
+
+                                                                                                "LOCATION:" +
+                                calendarObject->getLocation() + "\r\n"
+                                                                "DESCRIPTION:" + calendarObject->getDescription() +
+                                "\r\n"
+                                "TRANSP:OPAQUE\r\n";
+
+        requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+        if (calendarToDo->getCompletedDateTime()) {
+            requestString.append(
+                    "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+            requestString.append("STATUS:COMPLETED\r\n");
+        } else {
+            requestString.append("STATUS:IN-PROCESS\r\n");
+        }
+
+        if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
+            QString rrule = "RRULE:FREQ=";
+            switch (calendarObject->getTypeRepetition()) {
+                case DAILY:
+                    rrule += "DAILY";
+                    break;
+                case WEEKLY:
+                    rrule += "WEEKLY";
+                    break;
+                case MONTHLY:
+                    rrule += "MONTHLY";
+                    break;
+                case YEARLY:
+                    rrule += "YEARLY";
+                    break;
+                default:
+                    break;
+            }
+            rrule += ";COUNT=" + QString::number(calendarObject->getNumRepetition()) + "\r\n";
+            requestString.append(rrule);
+        }
+
+        if (calendarToDo->getDueDateTime()) {
+            requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+        }
+
+        requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
+
+        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+        if (calendarEvent) {
+            requestString.append("EXDATE:");
+            std::cout << "deleting reccurence on " +
+                         calendarEvent->getStartDateTime().toString("yyyyMMddT010000Z").toStdString() + '\n';
+            requestString.append(calendarEvent->getStartDateTime().toString("yyyyMMddT010000Z") + "\r\n");
+        }else if(calendarToDo){
+            QDate recurrenceDate;
+            if(calendarToDo->getStartDateTime())
+            {
+                recurrenceDate = calendarToDo->getStartDateTime()->date();
+            }else{
+                recurrenceDate = calendarToDo->getCreationDateTime().date();
+            }
+            requestString.append("EXDATE:");
+            std::cout << "deleting reccurence on " +
+                    recurrenceDate.toString("yyyyMMddT010000Z").toStdString() + '\n';
+            requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
+        }
+
+        requestString.append("END:VTODO\r\nEND:VCALENDAR");
+
+        connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
+                                     &CalendarObjectWidget::manageResponse);
+        connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+    }
+}
+
+void CalendarObjectWidget::deleteCalendarObject() {
     connectionToFinish = connect(connectionManager, SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(manageResponse(QNetworkReply * )));
     connectionManager->deleteCalendarObject(calendarObject->getUID());

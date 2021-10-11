@@ -11,6 +11,8 @@
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
 #include "taskform.h"
+#include "eliminationtaskdialog.h"
+#include "calendarwidget.h"
 
 namespace Ui {
 class CalendarObjectWidget;
@@ -30,6 +32,7 @@ private slots:
     void onCheckBoxToggled(bool checked);
     void manageResponse(QNetworkReply* reply);
     void onTaskModified();
+    void handleDeleteReccurrencies(int type);
     signals:
     void taskModified();
     void taskDeleted(CalendarObject& obj);
@@ -38,6 +41,8 @@ private:
     void setupUI();
     void setupText();
     void setupButtons();
+
+    void deleteCalendarObject();
 
     Ui::CalendarObjectWidget *ui;
     CalendarObject* calendarObject;
@@ -51,7 +56,6 @@ private:
     QPushButton* modifyButton;
     QPushButton* removeButton;
     ConnectionManager* connectionManager;
-
 
 };
 

@@ -26,9 +26,9 @@ add_executable(${PROJECT_NAME} main.cpp src.qrc
         Controller/connectionManager.cpp Controller/connectionManager.h Model/calendartodo.cpp
         Model/calendartodo.h View/calendarchoicedialog.cpp
         View/calendarchoicedialog.h View/calendarchoicedialog.ui
-        Model/calendar.cpp Model/calendar.h)
+        Model/calendar.cpp Model/calendar.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h)
 
-add_executable(${name} WIN32 ${source_files} View/CustomCalendarWidget.cpp View/CustomCalendarWidget.h)
+add_executable(${name} WIN32 ${source_files} View/CustomCalendarWidget.cpp View/CustomCalendarWidget.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "
