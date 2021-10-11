@@ -1,5 +1,6 @@
 #include "calendarobjectwidget.h"
 #include "ui_calendarobjectwidget.h"
+#include "eliminationtaskdialog.h"
 
 #include <iostream>
 

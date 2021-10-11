@@ -53,6 +53,8 @@ public:
 
     void setupTimer();
 
+    QDate getCurrentDateSelected();
+
 public slots:
 
     void parseCalendar(QString calendar);
@@ -78,6 +80,8 @@ private slots:
     void onTaskDeleted(CalendarObject &obj);
 
     void onTimeout();
+
+
 
 private:
     void setupCalendar();

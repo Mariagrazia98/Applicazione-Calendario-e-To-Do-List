@@ -14,9 +14,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
         stream(new QTextStream()),
         timerInterval(10000) {
     ui->setupUi(this);
-
     createCalendarGroupBox();
-
     setupCalendar();
 
     QGridLayout * layout = new QGridLayout;
@@ -554,4 +552,7 @@ void CalendarWidget::onTimeout() {
     connectionManager->getctag();
 }
 
+QDate CalendarWidget::getCurrentDateSelected() {
+    return currentDateEdit->date();
+}
 
