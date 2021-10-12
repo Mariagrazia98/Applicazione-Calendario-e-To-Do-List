@@ -268,11 +268,13 @@ void CalendarWidget::showSelectedDateTasks() {
                             while (start.date() < calendar->selectedDate()) {
                                 start = start.addDays(calendarToDo->getNumRepetition());
                                 if (start.date() == calendar->selectedDate()) {
+
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(
                                             *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
-                                    addCalendarObjectWidget(calendarToDo_);
+                                    /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        addCalendarObjectWidget(calendarToDo_);
+
                                     break;
                                 }
                             }
@@ -284,7 +286,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
+                                   /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -297,7 +299,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
+                                    /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -310,7 +312,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                    calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime());
+                                    /* TODO  calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
