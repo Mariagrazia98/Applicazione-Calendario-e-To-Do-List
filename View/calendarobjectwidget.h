@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QTextBrowser>
+#include <QDateTime>
 
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
@@ -26,6 +27,8 @@ public:
     CalendarObjectWidget(QWidget *parent, CalendarObject& calendarObject, ConnectionManager* connectionManager);
     ~CalendarObjectWidget();
 
+    void setupUI();
+
 private slots:
     void onModifyButtonClicked();
     void onRemoveButtonClicked();
@@ -38,7 +41,6 @@ private slots:
     void taskDeleted(CalendarObject& obj);
 
 private:
-    void setupUI();
     void setupText();
     void setupButtons();
 

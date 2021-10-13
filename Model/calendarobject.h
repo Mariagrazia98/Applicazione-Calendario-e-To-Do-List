@@ -19,8 +19,6 @@ public:
 
     virtual ~CalendarObject() = 0;
 
-    virtual void printCalendarObject();
-
     const QString &getCalendarName() const;
 
     void setCalendarName(const QString &calendarName);
@@ -45,6 +43,14 @@ public:
 
     void setCreationDateTime(const QDateTime &creationDateTime);
 
+    const QDateTime &getStartDateTime() const;
+
+    void setStartDateTime(const QDateTime &startDateTime);
+
+    const std::optional<QDateTime> &getDueDateTime() const;
+
+    void setDueDateTime(const QDateTime &dueDateTime);
+
     int getTypeRepetition() const;
 
     void setTypeRepetition(int typeRepetition);
@@ -67,6 +73,14 @@ private:
     int typeRepetition;
     QDateTime creationDateTime;
     unsigned int priority; // [0-9]
+    QDateTime startDateTime;
+    std::optional<QDateTime> dueDateTime;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
+    QList<QDate> exDates;
+public:
+    const QList<QDate> &getExDates() const;
+
+    void setExDates(const QList<QDate> &exDates);
+
 
 };
 

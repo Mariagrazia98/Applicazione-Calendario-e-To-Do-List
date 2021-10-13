@@ -17,7 +17,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
     createCalendarGroupBox();
     setupCalendar();
 
-    QGridLayout * layout = new QGridLayout;
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -139,18 +139,6 @@ void CalendarWidget::createCalendarGroupBox() {
     calendarGroupBox->setLayout(calendarLayout);
 }
 
-QComboBox *CalendarWidget::createColorComboBox() {
-    QComboBox *comboBox = new QComboBox;
-    comboBox->addItem(tr("Red"), QColor(Qt::red));
-    comboBox->addItem(tr("Blue"), QColor(Qt::blue));
-    comboBox->addItem(tr("Black"), QColor(Qt::black));
-    comboBox->addItem(tr("Magenta"), QColor(Qt::magenta));
-    return comboBox;
-}
-
-void CalendarWidget::onDateTextChanged() {
-
-}
 
 void CalendarWidget::parseCalendar(QString calendar) {
     stream = new QTextStream(&calendar, QIODevice::ReadOnly);
@@ -183,6 +171,9 @@ void CalendarWidget::showSelectedDateTasks() {
         delete item;
     }
     for (int i = 0; i < calendarObjects.length(); i++) {
+        if (calendarObjects[i]->getExDates().contains(calendar->selectedDate())) {
+            continue;
+        }
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
         if (calendarEvent) {
             if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
@@ -242,7 +233,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 CalendarEvent *calendarEvent_ = new CalendarEvent(*calendarEvent);
                                 calendarEvent_->setStartDateTime(start);
                                 calendarEvent_->setEndDateTime(end);
-                                addCalendarObjectWidget(calendarEvent_);
+                                addCalendarObjectWidget(calendarEvent);
                                 break;
                             }
                         }
@@ -253,11 +244,7 @@ void CalendarWidget::showSelectedDateTasks() {
         } else {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
             QDateTime start;
-            if (calendarToDo->getStartDateTime()) {
-                start = *calendarToDo->getStartDateTime();
-            } else {
-                start = calendarToDo->getCreationDateTime();
-            }
+            start = calendarToDo->getStartDateTime();
             if (start.date() <= calendar->selectedDate()) {
                 if (!(calendarToDo->getDueDateTime() &&
                       calendarToDo->getDueDateTime()->date() < calendar->selectedDate())) {
@@ -273,7 +260,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                             *calendarToDo); // TODO: usare smart ptrs?
                                     calendarToDo_->setStartDateTime(start);
                                     /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
-                                        addCalendarObjectWidget(calendarToDo_);
+                                    addCalendarObjectWidget(calendarToDo_);
 
                                     break;
                                 }
@@ -286,7 +273,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 if (start.date() == calendar->selectedDate()) {
                                     CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
                                     calendarToDo_->setStartDateTime(start);
-                                   /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                    /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
                                     addCalendarObjectWidget(calendarToDo_);
                                     break;
                                 }
@@ -328,6 +315,7 @@ void CalendarWidget::showSelectedDateTasks() {
 
 void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
     CalendarObjectWidget *calendarObjectWidget = new CalendarObjectWidget(this, *calendarObject, connectionManager);
+    calendarObjectWidget->setupUI();
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
     taskViewLayout->addWidget(calendarObjectWidget);
@@ -401,6 +389,23 @@ void CalendarWidget::parseEvent() {
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
+        } else if (key == QLatin1String("EXDATE")) {
+            int startDelimitatorPosition = 0;
+            int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+            QList<QDate> exDates;
+            while (endDelimitatorPosition != -1 || value.isEmpty()) {
+                std::cout << "parsing value: " << value.toStdString() << '\n';
+                const QString exDateString = value.mid(startDelimitatorPosition,
+                                                       endDelimitatorPosition);
+                std::cout << "exDateString: " << exDateString.toStdString() << '\n';
+                const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
+                exDates.append(exDate);
+                std::cout << "ex date " + exDate.toString().toStdString() << "\n";
+                value = value.mid(endDelimitatorPosition, -1);
+                startDelimitatorPosition = 2;
+                endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+            }
+            calendarObject->setExDates(exDates);
         }
     }
 }

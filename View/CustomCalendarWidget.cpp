@@ -2,6 +2,7 @@
 // Created by manue on 09/10/2021.
 //
 
+#include <iostream>
 #include "CustomCalendarWidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
@@ -16,24 +17,10 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
         // TODO: gestire ricorrenze
-        if (calendarEvent) {
-            if (calendarEvent->getStartDateTime().date() == date) {
-                paintDate(painter, rect);
-                return;
-            }
-        } else {
-            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
-            if (calendarToDo->getStartDateTime()) {
-                if (calendarToDo->getStartDateTime()->date() == date) {
-                    paintDate(painter, rect);
-                    return;
-                }
-            } else if (calendarToDo->getCreationDateTime().date() == date) {
-                paintDate(painter, rect);
-                return;
-            }
+        if (calendarObjects[i]->getStartDateTime().date() == date) {
+            paintDate(painter, rect);
+            return;
         }
 
     }

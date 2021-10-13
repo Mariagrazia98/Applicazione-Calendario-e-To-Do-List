@@ -77,6 +77,7 @@ void ConnectionManager::onObjectDeleted() {
 }
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
+
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -111,7 +112,7 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
 }
 
 void ConnectionManager::onInsertOrUpdateCalendarObject() {
-    if (addOrUpdateCalendarObjectNetworkReply) {
+    if (addOrUpdateCalendarObjectNetworkReply){
         emit(insertOrUpdatedCalendarObject(addOrUpdateCalendarObjectNetworkReply));
     }
 }

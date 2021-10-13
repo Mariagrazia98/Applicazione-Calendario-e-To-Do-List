@@ -46,11 +46,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
-            if (calendarToDo->getStartDateTime()) {
-                ui->beginDateTime->setDateTime(*calendarToDo->getStartDateTime());
-            } else {
-                ui->beginDateTime->setDateTime(calendarToDo->getCreationDateTime());
-            }
+            ui->beginDateTime->setDateTime(calendarToDo->getStartDateTime());
             ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             if (calendarToDo->getDueDateTime()) {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());

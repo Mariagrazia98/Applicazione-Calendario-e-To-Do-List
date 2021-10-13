@@ -67,8 +67,6 @@ private slots:
 
     void reformatCalendarPage();
 
-    void onDateTextChanged();
-
     void addTaskButtonClicked();
 
     void parseEvent();

@@ -18,7 +18,14 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         creationDateTime(other.creationDateTime),
         typeRepetition(other.typeRepetition),
         numRepetition(other.numRepetition),
-        priority(other.priority){
+        priority(other.priority),
+        startDateTime(other.startDateTime),
+        exDates(other.exDates) {
+    if (other.dueDateTime) {
+        dueDateTime = *other.dueDateTime;
+    } else {
+        dueDateTime = std::nullopt;
+    }
 
 }
 
@@ -75,11 +82,6 @@ void CalendarObject::setCreationDateTime(const QDateTime &creationDateTime) {
     CalendarObject::creationDateTime = creationDateTime;
 }
 
-void CalendarObject::printCalendarObject() {
-    std::cout << "Name: " << name.toStdString() << '\n';
-    std::cout << "Description: " << description.toStdString() << '\n';
-    std::cout << "UID: " << UID.toStdString() << '\n';
-}
 
 int CalendarObject::getNumRepetition() const {
     return numRepetition;
@@ -111,4 +113,32 @@ void CalendarObject::setPriority(unsigned int priority) {
     }
 }
 
+const std::optional<QDateTime> &CalendarObject::getDueDateTime() const {
+    return dueDateTime;
+}
 
+void CalendarObject::setDueDateTime(const QDateTime &dueDateTime) {
+    if (this->dueDateTime && dueDateTime < startDateTime) {
+        this->dueDateTime = startDateTime;
+    } else {
+        this->dueDateTime = dueDateTime;
+    }
+
+}
+
+const QDateTime &CalendarObject::getStartDateTime() const {
+    return startDateTime;
+}
+
+void CalendarObject::setStartDateTime(const QDateTime &startDateTime) {
+    this->startDateTime = startDateTime;
+}
+
+const QList<QDate> &CalendarObject::getExDates() const {
+    return exDates;
+}
+
+void CalendarObject::setExDates(const QList<QDate> &exDates) {
+    this->exDates.clear();
+    CalendarObject::exDates = exDates;
+}
