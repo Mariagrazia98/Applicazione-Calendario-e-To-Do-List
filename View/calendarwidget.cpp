@@ -17,7 +17,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
     createCalendarGroupBox();
     setupCalendar();
 
-    QGridLayout *layout = new QGridLayout;
+    QGridLayout * layout = new QGridLayout;
     layout->addWidget(calendarGroupBox, 0, 0);
     layout->addWidget(tasksGroupBox, 0, 1);
 
@@ -394,16 +394,17 @@ void CalendarWidget::parseEvent() {
             int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
             QList<QDate> exDates;
             while (endDelimitatorPosition != -1 || value.isEmpty()) {
-                std::cout << "parsing value: " << value.toStdString() << '\n';
+                //std::cout << "parsing value: " << value.toStdString() << '\n';
                 const QString exDateString = value.mid(startDelimitatorPosition,
                                                        endDelimitatorPosition);
-                std::cout << "exDateString: " << exDateString.toStdString() << '\n';
+                //std::cout << "exDateString: " << exDateString.toStdString() << '\n';
                 const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
                 exDates.append(exDate);
-                std::cout << "ex date " + exDate.toString().toStdString() << "\n";
+                //std::cout << "ex date " + exDate.toString().toStdString() << "\n";
                 value = value.mid(endDelimitatorPosition, -1);
                 startDelimitatorPosition = 2;
-                endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+                endDelimitatorPosition = value.indexOf(QLatin1Char(','));
+                //std::cout << endDelimitatorPosition << '\n';
             }
             calendarObject->setExDates(exDates);
         }
@@ -469,6 +470,24 @@ void CalendarWidget::parseToDo() {
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
+        } else if (key == QLatin1String("EXDATE")) {
+            int startDelimitatorPosition = 0;
+            int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+            QList<QDate> exDates;
+            while (endDelimitatorPosition != -1 || value.isEmpty()) {
+                //std::cout << "parsing value: " << value.toStdString() << '\n';
+                const QString exDateString = value.mid(startDelimitatorPosition,
+                                                       endDelimitatorPosition);
+                //std::cout << "exDateString: " << exDateString.toStdString() << '\n';
+                const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
+                exDates.append(exDate);
+                //std::cout << "ex date " + exDate.toString().toStdString() << "\n";
+                value = value.mid(endDelimitatorPosition, -1);
+                startDelimitatorPosition = 2;
+                endDelimitatorPosition = value.indexOf(QLatin1Char(','));
+                //std::cout << endDelimitatorPosition << '\n';
+            }
+            calendarObject->setExDates(exDates);
         }
     }
 }
