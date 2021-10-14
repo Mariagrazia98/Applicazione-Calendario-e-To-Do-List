@@ -128,6 +128,7 @@ private:
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
+    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 };
 
 #endif // CALENDAR_H

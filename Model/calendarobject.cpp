@@ -26,7 +26,7 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
     } else {
         dueDateTime = std::nullopt;
     }
-
+    parent = std::optional<const CalendarObject *>(&other);
 }
 
 
@@ -141,4 +141,8 @@ const QList<QDate> &CalendarObject::getExDates() const {
 void CalendarObject::setExDates(const QList<QDate> &exDates) {
     this->exDates.clear();
     CalendarObject::exDates = exDates;
+}
+
+std::optional<const CalendarObject *> CalendarObject::getParent() const {
+    return parent;
 }

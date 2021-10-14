@@ -140,8 +140,8 @@ void CalendarWidget::createCalendarGroupBox() {
 }
 
 
-void CalendarWidget::parseCalendar(QString calendar) {
-    stream = new QTextStream(&calendar, QIODevice::ReadOnly);
+void CalendarWidget::parseCalendar(QString calendarString) {
+    stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
     QString line;
 
     while (stream->readLineInto(&line)) {
@@ -162,6 +162,7 @@ void CalendarWidget::parseCalendar(QString calendar) {
     this->calendar->setCalendarObjects(calendarObjects);
 
     showSelectedDateTasks();
+    calendar->repaint();
 }
 
 void CalendarWidget::showSelectedDateTasks() {
@@ -246,67 +247,77 @@ void CalendarWidget::showSelectedDateTasks() {
             QDateTime start;
             start = calendarToDo->getStartDateTime();
             if (start.date() <= calendar->selectedDate()) {
+                /*
                 if (!(calendarToDo->getDueDateTime() &&
                       calendarToDo->getDueDateTime()->date() < calendar->selectedDate())) {
+                    // the task is not overdue
+                    addCalendarObjectWidget(calendarToDo);
+                    */
+                if (start.date() == calendar->selectedDate()) {
                     addCalendarObjectWidget(calendarToDo);
                 } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
-                    switch (calendarToDo->getTypeRepetition()) {
-                        case DAILY: {   //daily
-                            while (start.date() < calendar->selectedDate()) {
-                                start = start.addDays(calendarToDo->getNumRepetition());
-                                if (start.date() == calendar->selectedDate()) {
-
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(
-                                            *calendarToDo); // TODO: usare smart ptrs?
-                                    calendarToDo_->setStartDateTime(start);
-                                    /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
-                                    addCalendarObjectWidget(calendarToDo_);
-
-                                    break;
+                    if (calendarToDo->getDueDateTime() &&
+                        calendarToDo->getDueDateTime()->date() >= calendar->selectedDate()) {
+                        std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString()<<'\n';
+                        // TODO: non importa aggiungere giorni, basta importare l'orario ?
+                        switch (calendarToDo->getTypeRepetition()) {
+                            case DAILY: {   // daily
+                                while (start.date() < calendar->selectedDate()) {
+                                    start = start.addDays(calendarToDo->getNumRepetition());
+                                    if (start.date() == calendar->selectedDate()) {
+                                        CalendarToDo *calendarToDo_ = new CalendarToDo(
+                                                *calendarToDo); // TODO: usare smart ptrs?
+                                        calendarToDo_->setStartDateTime(start);
+                                        std::cout << start.toString().toStdString() << '\n';
+                                        /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        addCalendarObjectWidget(calendarToDo_);
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        case WEEKLY: {      //weekly
-                            while (start.date() < calendar->selectedDate()) {
-                                start = start.addDays(7 * calendarToDo->getNumRepetition());
-                                if (start.date() == calendar->selectedDate()) {
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
-                                    calendarToDo_->setStartDateTime(start);
-                                    /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
-                                    addCalendarObjectWidget(calendarToDo_);
-                                    break;
+                            case WEEKLY: {      //weekly
+                                while (start.date() < calendar->selectedDate()) {
+                                    start = start.addDays(7 * calendarToDo->getNumRepetition());
+                                    if (start.date() == calendar->selectedDate()) {
+                                        CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
+                                        calendarToDo_->setStartDateTime(start);
+                                        /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        addCalendarObjectWidget(calendarToDo_);
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        case MONTHLY: {      //monthly
-                            while (start.date() < calendar->selectedDate()) {
-                                start = start.addMonths(calendarToDo->getNumRepetition());
-                                if (start.date() == calendar->selectedDate()) {
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
-                                    calendarToDo_->setStartDateTime(start);
-                                    /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
-                                    addCalendarObjectWidget(calendarToDo_);
-                                    break;
+                            case MONTHLY: {      //monthly
+                                while (start.date() < calendar->selectedDate()) {
+                                    start = start.addMonths(calendarToDo->getNumRepetition());
+                                    if (start.date() == calendar->selectedDate()) {
+                                        CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
+                                        calendarToDo_->setStartDateTime(start);
+                                        /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        addCalendarObjectWidget(calendarToDo_);
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        case YEARLY: {      //yearly
-                            while (start.date() < calendar->selectedDate()) {
-                                start = start.addYears(calendarToDo->getNumRepetition());
-                                if (start.date() == calendar->selectedDate()) {
-                                    CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
-                                    calendarToDo_->setStartDateTime(start);
-                                    /* TODO  calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
-                                    addCalendarObjectWidget(calendarToDo_);
-                                    break;
+                            case YEARLY: {      //yearly
+                                while (start.date() < calendar->selectedDate()) {
+                                    start = start.addYears(calendarToDo->getNumRepetition());
+                                    if (start.date() == calendar->selectedDate()) {
+                                        CalendarToDo *calendarToDo_ = new CalendarToDo(*calendarToDo);
+                                        calendarToDo_->setStartDateTime(start);
+                                        /* TODO  calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        addCalendarObjectWidget(calendarToDo_);
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
                         }
                     }
+
                 }
             }
         }
@@ -390,23 +401,7 @@ void CalendarWidget::parseEvent() {
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
         } else if (key == QLatin1String("EXDATE")) {
-            int startDelimitatorPosition = 0;
-            int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
-            QList<QDate> exDates;
-            while (endDelimitatorPosition != -1 || value.isEmpty()) {
-                //std::cout << "parsing value: " << value.toStdString() << '\n';
-                const QString exDateString = value.mid(startDelimitatorPosition,
-                                                       endDelimitatorPosition);
-                //std::cout << "exDateString: " << exDateString.toStdString() << '\n';
-                const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
-                exDates.append(exDate);
-                //std::cout << "ex date " + exDate.toString().toStdString() << "\n";
-                value = value.mid(endDelimitatorPosition, -1);
-                startDelimitatorPosition = 2;
-                endDelimitatorPosition = value.indexOf(QLatin1Char(','));
-                //std::cout << endDelimitatorPosition << '\n';
-            }
-            calendarObject->setExDates(exDates);
+            addExDatesToCalendarObject(calendarObject, value);
         }
     }
 }
@@ -429,8 +424,8 @@ void CalendarWidget::parseToDo() {
                     getDateTimeFromString(value).toLocalTime());
         } else if (key.startsWith(QLatin1String("DTSTART"))) {
             dynamic_cast<CalendarToDo *>(calendarObject)->setStartDateTime(getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("DUE"))) {
-            dynamic_cast<CalendarToDo *>(calendarObject)->setDueDateTime(getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("UNTIL"))) {
+            calendarObject->setDueDateTime(getDateTimeFromString(value).toLocalTime());
         } else if (key == QLatin1String("SUMMARY")) {
             calendarObject->setName(value);
         } else if (key == QLatin1String("LOCATION")) {
@@ -471,25 +466,23 @@ void CalendarWidget::parseToDo() {
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
         } else if (key == QLatin1String("EXDATE")) {
-            int startDelimitatorPosition = 0;
-            int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
-            QList<QDate> exDates;
-            while (endDelimitatorPosition != -1 || value.isEmpty()) {
-                //std::cout << "parsing value: " << value.toStdString() << '\n';
-                const QString exDateString = value.mid(startDelimitatorPosition,
-                                                       endDelimitatorPosition);
-                //std::cout << "exDateString: " << exDateString.toStdString() << '\n';
-                const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
-                exDates.append(exDate);
-                //std::cout << "ex date " + exDate.toString().toStdString() << "\n";
-                value = value.mid(endDelimitatorPosition, -1);
-                startDelimitatorPosition = 2;
-                endDelimitatorPosition = value.indexOf(QLatin1Char(','));
-                //std::cout << endDelimitatorPosition << '\n';
-            }
-            calendarObject->setExDates(exDates);
+            addExDatesToCalendarObject(calendarObject, value);
         }
     }
+}
+
+void CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
+    int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+    QList<QDate> exDates;
+    while (endDelimitatorPosition > 0 && !value.isEmpty()) {
+        const QString exDateString = value.mid(0, endDelimitatorPosition + 1);
+        const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
+        exDates.append(exDate);
+        std::cout << "ex date " + exDate.toString().toStdString() << "\n";
+        value = value.mid(endDelimitatorPosition + 2, -1);
+        endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+    }
+    calendarObject->setExDates(exDates);
 }
 
 void CalendarWidget::addTaskButtonClicked() {
@@ -510,7 +503,7 @@ QDateTime CalendarWidget::getDateTimeFromString(const QString &string) {
     if (!dateTime.isValid())
         dateTime = QDateTime::fromString(string, "yyyyMMdd");
     if (!dateTime.isValid())
-        std::cerr << "CalendarWidget" << ": " << "could not parse" << string.toStdString() << '\n';
+        std::cerr << "CalendarWidget: could not parse " << string.toStdString() << '\n';
     return dateTime;
 }
 

@@ -63,6 +63,12 @@ public:
 
     void setPriority(unsigned int priority);
 
+    std::optional<const CalendarObject *> getParent() const;
+
+    const QList<QDate> &getExDates() const;
+
+    void setExDates(const QList<QDate> &exDates);
+
 private:
     QString calendarName;
     QString name;
@@ -76,11 +82,7 @@ private:
     QDateTime startDateTime;
     std::optional<QDateTime> dueDateTime;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
     QList<QDate> exDates;
-public:
-    const QList<QDate> &getExDates() const;
-
-    void setExDates(const QList<QDate> &exDates);
-
+    std::optional<const CalendarObject *> parent;
 
 };
 

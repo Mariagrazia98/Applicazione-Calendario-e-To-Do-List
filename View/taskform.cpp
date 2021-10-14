@@ -32,12 +32,17 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
         ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
+        if (calendarObject->getParent()) {
+            // this is a reccurrence
+            ui->beginDateTime->setDateTime((*calendarObject->getParent())->getStartDateTime());
+        } else {
+            ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
+        }
         //TODO: setCurrentIndex based on typeRepetitionn of calendarObject
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
             ui->comboBox->setCurrentIndex(0);
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
-            ui->beginDateTime->setDateTime(calendarEvent->getStartDateTime());
         } else {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
             ui->comboBox->setCurrentIndex(1);
@@ -46,8 +51,6 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
-            ui->beginDateTime->setDateTime(calendarToDo->getStartDateTime());
-            ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             if (calendarToDo->getDueDateTime()) {
                 ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
             }
@@ -133,7 +136,7 @@ void TaskForm::on_buttonBox_accepted() {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
-        requestString.append("DUE:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("UNTIL:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
