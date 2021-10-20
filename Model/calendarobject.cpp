@@ -20,13 +20,9 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         numRepetition(other.numRepetition),
         priority(other.priority),
         startDateTime(other.startDateTime),
-        exDates(other.exDates) {
-    if (other.dueDateTime) {
-        dueDateTime = *other.dueDateTime;
-    } else {
-        dueDateTime = std::nullopt;
-    }
-    parent = std::optional<const CalendarObject *>(&other);
+        exDates(other.exDates),
+        untilDateRipetition(other.untilDateRipetition){
+        parent = std::optional<const CalendarObject *>(&other);
 }
 
 
@@ -113,15 +109,16 @@ void CalendarObject::setPriority(unsigned int priority) {
     }
 }
 
-const std::optional<QDateTime> &CalendarObject::getDueDateTime() const {
-    return dueDateTime;
+const QDate &CalendarObject::getUntilDateRipetition() const {
+    return untilDateRipetition;
 }
 
-void CalendarObject::setDueDateTime(const QDateTime &dueDateTime) {
-    if (this->dueDateTime && dueDateTime < startDateTime) {
-        this->dueDateTime = startDateTime;
+void CalendarObject::setUntilDateRipetition(const QDate &untilDateRipetition) {
+
+    if (untilDateRipetition < startDateTime.date()) {
+        this->untilDateRipetition = startDateTime.date();
     } else {
-        this->dueDateTime = dueDateTime;
+        this->untilDateRipetition = untilDateRipetition;
     }
 
 }

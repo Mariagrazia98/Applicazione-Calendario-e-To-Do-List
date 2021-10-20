@@ -42,6 +42,8 @@ private
 
     void on_beginDateTime_dateTimeChanged(const QDateTime &dateTime);
 
+    void onNumRepetitionChanged(int i);
+
     void handleUploadFinished(QNetworkReply *reply);
 
 signals:

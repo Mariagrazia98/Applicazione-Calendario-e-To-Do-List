@@ -21,10 +21,9 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
     ui->prioritySpinBox->setVisible(false);
     ui->priorityLabel->setVisible(false);
 
-    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
-    ui->beginDateTime->setLocale(locale);
-    ui->expireDateTime->setLocale(locale);
 
+    ui->untilDate->setVisible(false);
+    ui->untilLabel->setVisible(false);
     /* MODIFY */
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
@@ -32,7 +31,14 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
         ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
-        ui->comboBox->setEditable(false);
+
+        if (calendarObject->getNumRepetition() >= 1) {
+            ui->untilDate->setVisible(true);
+            ui->untilLabel->setVisible(true);
+            ui->untilDate->setDate(calendarObject->getUntilDateRipetition());
+        }
+        ui->comboBox->setDisabled(true);
+
         if (calendarObject->getParent()) {
             // this is a reccurrence
             ui->beginDateTime->setDateTime((*calendarObject->getParent())->getStartDateTime());
@@ -47,20 +53,28 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         } else {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
             ui->comboBox->setCurrentIndex(1);
-            ui->expireLabel->setText("To complete");
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
             ui->prioritySpinBox->setValue(calendarToDo->getPriority());
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
-            if (calendarToDo->getDueDateTime()) {
-                ui->expireDateTime->setDateTime(*calendarToDo->getDueDateTime());
-            }
+            ui->expireDateTime->setVisible(false);
+            ui->expireLabel->setVisible(false);
         }
     } else {
         QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
         ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
         ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
+        ui->untilDate->setDate(QDate::currentDate());
     }
+    QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
+    ui->beginDateTime->setLocale(locale);
+    ui->expireDateTime->setLocale(locale);
+    ui->untilDate->setLocale(locale);
+    ui->beginDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
+    ui->expireDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
+    ui->untilDate->setDisplayFormat("yyyy/MM/dd");
+
+    connect(ui->numRepetition, &QSpinBox::valueChanged, this, &TaskForm::onNumRepetitionChanged);
 }
 
 TaskForm::~TaskForm() {
@@ -131,16 +145,14 @@ void TaskForm::on_buttonBox_accepted() {
         }
         rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
+        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMdd") + "\r\n");
     }
-    else{
 
-    }
     // TODO: campi opzionali
-    if (ui->comboBox->currentIndex() == 0) {
+    if (ui->comboBox->currentIndex() == 0) { //Event
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
-        requestString.append("UNTIL:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"); /*TODO:manage*/
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
@@ -155,12 +167,13 @@ void TaskForm::on_buttonBox_accepted() {
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
-
+    std::cout << requestString.toStdString() << "\n";
     connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
+
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     disconnect(connectionToFinish);
@@ -188,14 +201,16 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
             /* EVENT */
-            ui->expireLabel->setText("Expire");
+            ui->expireLabel->setVisible(true);
+            ui->expireDateTime->setVisible(true);
             ui->prioritySpinBox->setVisible(false);
             ui->priorityLabel->setVisible(false);
             ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
             break;
         case 1:
             /* TASK */
-            ui->expireLabel->setText("Due");
+            ui->expireLabel->setVisible(false);
+            ui->expireDateTime->setVisible(false);
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -218,4 +233,15 @@ void TaskForm::closeEvent(QCloseEvent *event) {
 void TaskForm::setDate(const QDate &date) {
     ui->beginDateTime->setDate(date);
     ui->expireDateTime->setDate(date);
+    ui->untilDate->setDate(date);
+}
+
+void TaskForm::onNumRepetitionChanged(int i) {
+    if (ui->numRepetition->value() >= 1) {
+        ui->untilDate->setVisible(true);
+        ui->untilLabel->setVisible(true);
+    } else {
+        ui->untilDate->setVisible(false);
+        ui->untilLabel->setVisible(false);
+    }
 }

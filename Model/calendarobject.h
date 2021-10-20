@@ -47,9 +47,9 @@ public:
 
     void setStartDateTime(const QDateTime &startDateTime);
 
-    const std::optional<QDateTime> &getDueDateTime() const;
+    const  QDate &getUntilDateRipetition() const;
 
-    void setDueDateTime(const QDateTime &dueDateTime);
+    void setUntilDateRipetition(const QDate &untilDateRipetition);
 
     int getTypeRepetition() const;
 
@@ -80,7 +80,7 @@ private:
     QDateTime creationDateTime;
     unsigned int priority; // [0-9]
     QDateTime startDateTime;
-    std::optional<QDateTime> dueDateTime;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
+    QDate untilDateRipetition;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
     QList<QDate> exDates;
     std::optional<const CalendarObject *> parent;
 

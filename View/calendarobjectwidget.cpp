@@ -205,10 +205,9 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
 
         requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-        if (calendarObject->getDueDateTime()) {
-            requestString.append("UNTIL:" + calendarObject->getDueDateTime()->toString("yyyyMMddTHHmmssZ") +
-                                 "\r\n"); // TODO: capire se va bene solo data
-        }
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMdd") +
+                             "\r\n");
+
 
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
 
@@ -252,7 +251,7 @@ void CalendarObjectWidget::onTaskModified() {
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
-    std::cout<<"on check box toggled\n";
+    std::cout << "on check box toggled\fonCheckBoxToggledn";
     CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
@@ -268,10 +267,11 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                             calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
                             "SUMMARY:" + calendarObject->getName() + "\r\n""LOCATION:" +
-                            calendarObject->getLocation() + "\r\n""DESCRIPTION:" + calendarObject->getDescription() + "\r\n""TRANSP:OPAQUE\r\n";
-    std::cout<<"dtstart\n";
+                            calendarObject->getLocation() + "\r\n""DESCRIPTION:" + calendarObject->getDescription() +
+                            "\r\n""TRANSP:OPAQUE\r\n";
+    std::cout << "dtstart\n";
     if (calendarObject->getParent()) {
-        std::cout<<"if\n";
+        std::cout << "if\n";
         requestString.append(
                 "DTSTART:" + (*calendarObject->getParent())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");
@@ -279,13 +279,11 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
         requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
     }
 
-    std::cout<<"until\n";
-    if (calendarObject->getDueDateTime()) {
-        requestString.append("UNTIL:" + calendarObject->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
-    }
+
+    requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddTHHmmss") + "\r\n");
 
     if (calendarToDo->getCompletedDateTime()) {
-        std::cout<<"GETCOMPLETE\n";
+        std::cout << "GETCOMPLETE\n";
         requestString.append("COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("STATUS:COMPLETED\r\n");
     } else {
@@ -316,7 +314,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-    std::cout<<requestString.toStdString()<<"\n";
+    std::cout << requestString.toStdString() << "\n";
 
     connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::manageResponse);
