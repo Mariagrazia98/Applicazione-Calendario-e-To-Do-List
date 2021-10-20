@@ -32,6 +32,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
         ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
+        ui->comboBox->setEditable(false);
         if (calendarObject->getParent()) {
             // this is a reccurrence
             ui->beginDateTime->setDateTime((*calendarObject->getParent())->getStartDateTime());
@@ -131,12 +132,15 @@ void TaskForm::on_buttonBox_accepted() {
         rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
     }
+    else{
+
+    }
     // TODO: campi opzionali
     if (ui->comboBox->currentIndex() == 0) {
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
-        requestString.append("UNTIL:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("UNTIL:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"); /*TODO:manage*/
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
