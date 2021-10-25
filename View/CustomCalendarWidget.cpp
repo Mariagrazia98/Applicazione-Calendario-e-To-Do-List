@@ -44,4 +44,5 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
 void CustomCalendarWidget::setCalendarObjects(const QList<CalendarObject *> &calendarObjects) {
     this->calendarObjects.clear();
     CustomCalendarWidget::calendarObjects = calendarObjects;
+    updateCells();
 }

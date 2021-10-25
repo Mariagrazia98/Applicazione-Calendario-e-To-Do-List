@@ -160,9 +160,8 @@ void CalendarWidget::parseCalendar(QString calendarString) {
     stream->seek(0);
 
     this->calendar->setCalendarObjects(calendarObjects);
-
     showSelectedDateTasks();
-    calendar->repaint();
+
 }
 
 void CalendarWidget::showSelectedDateTasks() {
