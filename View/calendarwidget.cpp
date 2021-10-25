@@ -264,7 +264,7 @@ void CalendarWidget::showSelectedDateTasks() {
                     addCalendarObjectWidget(calendarToDo);
                 } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
                     if (calendarToDo->getUntilDateRipetition() >= calendar->selectedDate()) {
-                        std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString() << '\n';
+                        //std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString() << '\n';
                         // TODO: non importa aggiungere giorni, basta importare l'orario ?
                         switch (calendarToDo->getTypeRepetition()) {
                             case DAILY: {   // daily
