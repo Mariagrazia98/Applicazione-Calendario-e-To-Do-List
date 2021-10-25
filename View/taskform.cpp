@@ -11,17 +11,15 @@
 
 TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject) :
         QWidget(nullptr),
-        connectionManager(connectionManager),
+        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
-    setFixedSize(ui->formLayout->sizeHint()+ui->buttonBox->sizeHint());
+    setFixedSize(ui->formLayout->sizeHint() + ui->buttonBox->sizeHint());
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
     ui->prioritySpinBox->setVisible(false);
     ui->priorityLabel->setVisible(false);
-
-
     ui->untilDate->setVisible(false);
     ui->untilLabel->setVisible(false);
     /* MODIFY */
@@ -52,13 +50,15 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
         } else {
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
-            ui->comboBox->setCurrentIndex(1);
-            ui->prioritySpinBox->setVisible(true);
-            ui->priorityLabel->setVisible(true);
-            ui->prioritySpinBox->setValue(calendarToDo->getPriority());
-            ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
-            ui->expireDateTime->setVisible(false);
-            ui->expireLabel->setVisible(false);
+            if (calendarToDo) {
+                ui->comboBox->setCurrentIndex(1);
+                ui->prioritySpinBox->setVisible(true);
+                ui->priorityLabel->setVisible(true);
+                ui->prioritySpinBox->setValue(calendarToDo->getPriority());
+                ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
+                ui->expireDateTime->setVisible(false);
+                ui->expireLabel->setVisible(false);
+            }
         }
     } else {
         QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
@@ -167,9 +167,9 @@ void TaskForm::on_buttonBox_accepted() {
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
+    connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
-    connectionManager->addOrUpdateCalendarObject(requestString, UID);
+    (*connectionManager.get())->addOrUpdateCalendarObject(requestString, UID);
 
 }
 

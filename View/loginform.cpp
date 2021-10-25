@@ -6,7 +6,7 @@
 
 LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
         QDialog(parent),
-        connectionManager(connectionManager),
+        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
         groupBox(new QGroupBox),
         formLayout(new QFormLayout),
         layout(new QGridLayout),
@@ -38,14 +38,14 @@ LoginForm::~LoginForm() {
 
 void LoginForm::onLoginButtonClicked() {
     dialogButtonBox->setDisabled(true);
-    connectionManager->setUsername(user->text());
-    connectionManager->setPassword(password->text());
-    connectionManager->getCalendarList();
-    connection = connect(connectionManager, &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
+    (*connectionManager.get())->setUsername(user->text());
+    (*connectionManager.get())->setPassword(password->text());
+    (*connectionManager.get())->getCalendarList();
+    connection = connect(*connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 }
 
 void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
-    this->connectionManager = connectionManager;
+    this->connectionManager = std::make_shared<ConnectionManager*>(connectionManager);
 }
 
 

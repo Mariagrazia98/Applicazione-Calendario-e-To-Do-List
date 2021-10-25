@@ -36,7 +36,7 @@ public slots:
 private:
     Ui::CalendarChoiceDialog *ui;
 
-    ConnectionManager *connectionManager;
+    std::shared_ptr<ConnectionManager *>connectionManager;
 
     QVBoxLayout *buttonsLayout;
     QButtonGroup *groupButton;

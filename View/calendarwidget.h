@@ -38,7 +38,7 @@ namespace Ui {
 }
 
 class CalendarWidget : public QWidget {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit CalendarWidget(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
@@ -55,15 +55,18 @@ public:
 
     QDate getCurrentDateSelected();
 
-public slots:
+public
+    slots:
 
-    void parseCalendar(QString calendar);
+            void parseCalendar(QString
+    calendar);
 
     void onCalendarReady(QNetworkReply *reply);
 
-private slots:
+private
+    slots:
 
-    void selectedDateChanged();
+            void selectedDateChanged();
 
     void reformatCalendarPage();
 
@@ -78,7 +81,6 @@ private slots:
     void onTaskDeleted(CalendarObject &obj);
 
     void onTimeout();
-
 
 
 private:
@@ -117,11 +119,7 @@ private:
     QScrollArea *scrollArea;
     QVBoxLayout *taskViewLayout;
 
-    ConnectionManager *connectionManager;
-    QMetaObject::Connection connectionToFinished;
-    QMetaObject::Connection connectionCtag;
-    QMetaObject::Connection connectionToModify;
-    QMetaObject::Connection connectionToTaskDeleted;
+    std::shared_ptr<ConnectionManager *> connectionManager;
 
     QTimer *timer;
     const unsigned int timerInterval;

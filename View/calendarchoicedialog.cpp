@@ -11,7 +11,7 @@
 
 CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *connectionManager) :
         QDialog(parent),
-        connectionManager(connectionManager),
+        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
         ui(new Ui::CalendarChoiceDialog),
         layout(new QGridLayout),
         buttonsLayout(new QVBoxLayout),
@@ -25,7 +25,7 @@ CalendarChoiceDialog::~CalendarChoiceDialog() {
 }
 
 void CalendarChoiceDialog::setConnectionManager(ConnectionManager *connectionManager) {
-    this->connectionManager = connectionManager;
+    this->connectionManager = std::make_shared<ConnectionManager*>(connectionManager);
 }
 
 void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
@@ -55,7 +55,7 @@ void CalendarChoiceDialog::onGroupButtonClicked(QAbstractButton *button) {
     QString buttonText = button->text();
     for (int i = 0; i < calendarsList.length(); ++i) {
         if (calendarsList[i]->getName() == buttonText) {
-            connectionManager->setCalendar(calendarsList[i]);
+            (*connectionManager.get())->setCalendar(calendarsList[i]);
             break;
         }
     }
