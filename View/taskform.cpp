@@ -15,7 +15,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
-    setFixedSize(440, 380);
+    setFixedSize(ui->formLayout->sizeHint()+ui->buttonBox->sizeHint());
     ui->numRepetition->setValue(0);
     ui->typeRepetition->setCurrentIndex(-1);
     ui->prioritySpinBox->setVisible(false);
