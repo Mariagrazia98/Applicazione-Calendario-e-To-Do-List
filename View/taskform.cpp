@@ -167,7 +167,6 @@ void TaskForm::on_buttonBox_accepted() {
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
-    std::cout << requestString.toStdString() << "\n";
     connectionToFinish = connect(connectionManager, &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
