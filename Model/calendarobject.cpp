@@ -22,7 +22,7 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         startDateTime(other.startDateTime),
         exDates(other.exDates),
         untilDateRipetition(other.untilDateRipetition){
-        parent = std::optional<const CalendarObject *>(&other);
+        parent = std::make_shared<const CalendarObject *>(&other);
 }
 
 
@@ -140,6 +140,6 @@ void CalendarObject::setExDates(const QList<QDate> &exDates) {
     CalendarObject::exDates = exDates;
 }
 
-std::optional<const CalendarObject *> CalendarObject::getParent() const {
+std::shared_ptr<const CalendarObject *> CalendarObject::getParent() const {
     return parent;
 }

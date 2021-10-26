@@ -141,9 +141,9 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
                 "\r\nSUMMARY:" + calendarObject->getName() + "\r\nLOCATION:" +
                 calendarObject->getLocation() + "\r\nDESCRIPTION:" + calendarObject->getDescription() +
                 "\r\nTRANSP:OPAQUE\r\n";
-        if (calendarObject->getParent()) {
+        if (calendarObject->getParent().get()) {
             requestString.append(
-                    "DTSTART:" + (*calendarObject->getParent())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                    "DTSTART:" + (*calendarObject->getParent().get())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                     "\r\n");
         } else {
             requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
@@ -159,8 +159,8 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
             }
         } else {
             CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-            if (calendarEvent->getParent()) {
-                const CalendarEvent *parent = dynamic_cast<const CalendarEvent *>(*calendarEvent->getParent());
+            if (calendarEvent->getParent().get()) {
+                const CalendarEvent *parent = dynamic_cast<const CalendarEvent *>(*calendarEvent->getParent().get());
                 requestString.append(
                         "DTEND:" + parent->getEndDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
             } else {
@@ -270,10 +270,10 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                             calendarObject->getLocation() + "\r\n""DESCRIPTION:" + calendarObject->getDescription() +
                             "\r\n""TRANSP:OPAQUE\r\n";
     std::cout << "dtstart\n";
-    if (calendarObject->getParent()) {
+    if (calendarObject->getParent().get()) {
         std::cout << "if\n";
         requestString.append(
-                "DTSTART:" + (*calendarObject->getParent())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                "DTSTART:" + (*calendarObject->getParent().get())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");
     } else {
         requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
