@@ -17,7 +17,7 @@ set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 
 add_executable(${PROJECT_NAME} main.cpp src.qrc
         View/loginform.h View/loginform.cpp View/loginform.ui
-        View/calendarwidget.h View/calendarwidget.cpp View/calendarwidget.ui
+        View/calendarwidget.h View/calendarwidget.cpp
         View/customCalendarWidget.cpp View/customCalendarWidget.h
         View/taskform.h View/taskform.cpp View/taskform.ui
         Model/calendarobject.cpp Model/calendarobject.h

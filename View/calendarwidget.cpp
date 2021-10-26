@@ -1,5 +1,4 @@
 #include "calendarwidget.h"
-#include "ui_calendarwidget.h"
 
 #define DAILY 1
 #define WEEKLY 2
@@ -7,26 +6,30 @@
 #define YEARLY 4
 
 CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionManager) :
-        QWidget(parent),
-        ui(new Ui::CalendarWidget),
+        QMainWindow(parent),
         dateString(new QTextBrowser),
         connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         stream(new QTextStream()),
         timerInterval(10000) {
-    ui->setupUi(this);
     createCalendarGroupBox();
     setupCalendar();
 
-    QGridLayout * layout = new QGridLayout;
-    layout->addWidget(calendarGroupBox, 0, 0);
-    layout->addWidget(tasksGroupBox, 0, 1);
+
+    calendarGroupBox->setMinimumSize(calendar->sizeHint());
+    setCentralWidget(calendarGroupBox);
+    QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
+    dockWidget->setAllowedAreas(Qt::RightDockWidgetArea);
+    tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
+    dockWidget->setWidget(tasksGroupBox);
+    addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
     //layout->setSizeConstraint(QLayout::SetFixedSize);
-    setLayout(layout);
+    //setLayout(layout);
 
-    layout->setRowMinimumHeight(0, calendar->sizeHint().height());
-    layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
-    layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);
+    /* layout->setRowMinimumHeight(0, calendar->sizeHint().height());
+     layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
+     layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);ù
+     */
 
     setMinimumHeight(480);
 
@@ -35,7 +38,6 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
 }
 
 CalendarWidget::~CalendarWidget() {
-    delete ui;
 }
 
 void CalendarWidget::setupCalendar() {
@@ -165,7 +167,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
 }
 
 void CalendarWidget::showSelectedDateTasks() {
-    QLayoutItem * item;
+    QLayoutItem *item;
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
         delete item;
@@ -490,7 +492,7 @@ void CalendarWidget::parseToDo() {
 
 void CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
     int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
-    QList < QDate > exDates;
+    QList<QDate> exDates;
     while (endDelimitatorPosition > 0 && !value.isEmpty()) {
         const QString exDateString = value.mid(0, endDelimitatorPosition + 1);
         const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();

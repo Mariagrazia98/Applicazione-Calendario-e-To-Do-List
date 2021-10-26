@@ -22,6 +22,8 @@
 #include <QDebug>
 #include <QScrollArea>
 #include <QTimer>
+#include <QMainWindow>
+#include <QDockWidget>
 
 #include <iostream>
 
@@ -33,11 +35,7 @@
 #include "../Controller/connectionManager.h"
 #include "CustomCalendarWidget.h"
 
-namespace Ui {
-    class CalendarWidget;
-}
-
-class CalendarWidget : public QWidget {
+class CalendarWidget : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -97,8 +95,6 @@ private:
     QDateTime getDateTimeFromString(const QString &string);
 
     void parseToDo();
-
-    Ui::CalendarWidget *ui;
 
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
