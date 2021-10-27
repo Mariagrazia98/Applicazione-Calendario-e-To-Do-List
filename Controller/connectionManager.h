@@ -119,6 +119,7 @@ private:
     QString username;
     QString password;
     QUrl serverUrl;
+    QList<Calendar*> calendarsList;
 
     QMetaObject::Connection connectionToGetCtag;
     QMetaObject::Connection connectionToLogin;

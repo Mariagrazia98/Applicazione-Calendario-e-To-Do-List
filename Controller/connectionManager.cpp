@@ -219,23 +219,6 @@ void ConnectionManager::makectagRequest() {
     networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"), buffer);
 }
 
-/*
-void ConnectionManager::onLoginRequestFinished(QNetworkReply *reply) {
-    disconnect(connectionToLogin);
-    std::cout << "[ConnectionManager] OnLoginRequestFInished\n";
-    QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
-    QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
-    if (error == QNetworkReply::NoError) {
-        parseAndUpdatectag(answerString);
-        emit(loggedin(reply));
-    } else {
-        std::cerr << "onLoginRequestFinished: " << errorString.toStdString() << '\n';
-    }
-}
-*/
-
 void ConnectionManager::getCalendarList() {
     QBuffer *buffer = new QBuffer();
 
@@ -294,7 +277,7 @@ void ConnectionManager::printCalendarsList() {
         //std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
         //std::cout << response.size() << " nodes\n";
-        QList<Calendar *> calendarsList;
+        calendarsList.clear();
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
             QDomElement href = node.firstChildElement("d:href");
