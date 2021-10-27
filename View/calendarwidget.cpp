@@ -157,8 +157,8 @@ void CalendarWidget::parseCalendar(QString calendarString) {
         if (line.contains("X-WR-CALNAME")) {
             // salva id calendario
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
-            calendarName = line.mid(deliminatorPosition+1, -1);
-            std::cout << "parsing calendar: "calendarName.toStdString() <<'\n';
+            calendarName = line.mid(deliminatorPosition + 1, -1);
+            std::cout << "parsing calendar: " << calendarName.toStdString() << '\n';
         }
         if (line.contains("BEGIN:VEVENT")) {
             parseEvent(calendarName);
