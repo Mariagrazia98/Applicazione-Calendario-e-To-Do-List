@@ -10,6 +10,7 @@ CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionMan
         dateString(new QTextBrowser),
         connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         stream(new QTextStream()),
+        shareCalendarButton(new QPushButton("Share Calendar")),
         timerInterval(10000) {
     createCalendarGroupBox();
     setupCalendar();
@@ -138,6 +139,12 @@ void CalendarWidget::createCalendarGroupBox() {
 
     calendarLayout = new QGridLayout;
     calendarLayout->addWidget(calendar);
+
+
+    shareCalendarButton->setEnabled(true);
+    shareCalendarButton->setToolTip(tr("Share current calendar"));
+    connect(shareCalendarButton, &QPushButton::clicked, this, &CalendarWidget::shareCalendarButtonClicked);
+    calendarLayout->addWidget(shareCalendarButton);
     calendarGroupBox->setLayout(calendarLayout);
 }
 
@@ -591,5 +598,23 @@ void CalendarWidget::onTimeout() {
 
 QDate CalendarWidget::getCurrentDateSelected() {
     return currentDateEdit->date();
+}
+
+void CalendarWidget::shareCalendarButtonClicked() {
+    shareCalendarButton->setEnabled(false);
+
+    ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, *connectionManager.get());
+    sharecalendarForm->show();
+    //connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
+    /*
+    TaskForm *taskForm = new TaskForm(*connectionManager.get());
+    taskForm->show();
+    connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
+    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);
+     */
+}
+
+void CalendarWidget::onSharecalendarFormClosed() {
+    shareCalendarButton->setEnabled(true);
 }
 

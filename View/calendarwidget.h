@@ -34,6 +34,7 @@
 #include "calendarobjectwidget.h"
 #include "../Controller/connectionManager.h"
 #include "CustomCalendarWidget.h"
+#include "sharecalendarform.h"
 
 class CalendarWidget : public QMainWindow {
     Q_OBJECT
@@ -70,7 +71,11 @@ private
 
     void addTaskButtonClicked();
 
+    void shareCalendarButtonClicked();
+
     void parseEvent();
+
+    void onSharecalendarFormClosed();
 
     void onTaskFormClosed();
 
@@ -107,6 +112,8 @@ private:
     QTextBrowser *dateString;
 
     QPushButton *addTaskButton;
+    QPushButton *shareCalendarButton;
+
 
     QTextStream *stream;
     QList<CalendarObject *> calendarObjects;
@@ -123,6 +130,7 @@ private:
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
     void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
+
 };
 
 #endif // CALENDAR_H
