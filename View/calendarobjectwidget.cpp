@@ -19,7 +19,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
-        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
+        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
 //    setupUI();
@@ -211,9 +211,10 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
 
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
 
-        std::cout << requestString.toStdString() << "\n";
+        //std::cout << requestString.toStdString() << "\n";
 
-        connectionToFinish = connect(*connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )), this,
+        connectionToFinish = connect(*connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
+                                     this,
                                      SLOT(manageResponse(QNetworkReply * )));
         (*connectionManager.get())->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
     }
@@ -228,13 +229,14 @@ void CalendarObjectWidget::deleteCalendarObject() {
 void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
     disconnect(connectionToFinish);
     if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
+
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
             emit(taskDeleted(*calendarObject));
         } else {
             const QString &errorString = reply->errorString();
+            QByteArray answer = reply->readAll();
+            QString answerString = QString::fromUtf8(answer);
             std::cerr << answerString.toStdString() << "\n";
             QMessageBox::warning(this, "Error", errorString);
         }
@@ -251,7 +253,7 @@ void CalendarObjectWidget::onTaskModified() {
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
-    std::cout << "on check box toggled\fonCheckBoxToggledn";
+    //std::cout << "on check box toggled onCheckBoxToggledn";
     CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
@@ -269,9 +271,8 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                             "SUMMARY:" + calendarObject->getName() + "\r\n""LOCATION:" +
                             calendarObject->getLocation() + "\r\n""DESCRIPTION:" + calendarObject->getDescription() +
                             "\r\n""TRANSP:OPAQUE\r\n";
-    std::cout << "dtstart\n";
+
     if (calendarObject->getParent().get()) {
-        std::cout << "if\n";
         requestString.append(
                 "DTSTART:" + (*calendarObject->getParent().get())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");
@@ -280,11 +281,12 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     }
 
 
-    requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddTHHmmss") + "\r\n");
+    requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddT000000Z") + "\r\n");
 
     if (calendarToDo->getCompletedDateTime()) {
-        std::cout << "GETCOMPLETE\n";
-        requestString.append("COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+        //std::cout << "GETCOMPLETE\n";
+        requestString.append(
+                "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmssZ") + "\r\n");
         requestString.append("STATUS:COMPLETED\r\n");
     } else {
         requestString.append("STATUS:IN-PROCESS\r\n");
@@ -314,7 +316,9 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-    std::cout << requestString.toStdString() << "\n";
+    requestString.append("END:VTODO\r\nEND:VCALENDAR");
+
+    //std::cout << requestString.toStdString() << "\n";
 
     connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::manageResponse);
