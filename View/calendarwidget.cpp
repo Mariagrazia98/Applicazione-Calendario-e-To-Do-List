@@ -152,13 +152,18 @@ void CalendarWidget::createCalendarGroupBox() {
 void CalendarWidget::parseCalendar(QString calendarString) {
     stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
     QString line;
-
+    QString calendarName = "";
     while (stream->readLineInto(&line)) {
-
+        if (line.contains("X-WR-CALNAME")) {
+            // salva id calendario
+            const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
+            const QString key = line.mid(deliminatorPosition+1, -1);
+            std::cout << key.toStdString() <<'\n';
+        }
         if (line.contains("BEGIN:VEVENT")) {
-            parseEvent();
+            parseEvent(calendarName);
         } else if (line.contains("BEGIN:VTODO")) {
-            parseToDo();
+            parseToDo(calendarName);
         }
     }
 
@@ -360,13 +365,14 @@ void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
             &CalendarWidget::onTaskDeleted);
 }
 
-void CalendarWidget::parseEvent() {
+void CalendarWidget::parseEvent(const QString &calendarName) {
     QString line;
 
     CalendarObject *calendarObject = new CalendarEvent();
     while (stream->readLineInto(&line)) {
         if (line.contains(QByteArray("END:VEVENT"))) {
             if (calendarObject->getName() != "") {
+                calendarObject->setCalendarName(calendarName);
                 calendarObjects.append(calendarObject);
             }
             return;
@@ -432,12 +438,13 @@ void CalendarWidget::parseEvent() {
     }
 }
 
-void CalendarWidget::parseToDo() {
+void CalendarWidget::parseToDo(const QString &calendarName) {
     QString line;
     CalendarObject *calendarObject = new CalendarToDo();
     while (stream->readLineInto(&line)) {
         if (line.contains(QByteArray("END:VTODO"))) {
             if (calendarObject->getName() != "") {
+                calendarObject->setCalendarName(calendarName);
                 calendarObjects.append(calendarObject);
             }
             return;

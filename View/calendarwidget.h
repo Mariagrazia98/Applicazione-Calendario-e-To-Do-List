@@ -73,7 +73,7 @@ private
 
     void shareCalendarButtonClicked();
 
-    void parseEvent();
+    void parseEvent(const QString &calendarName);
 
     void onSharecalendarFormClosed();
 
@@ -99,7 +99,7 @@ private:
 
     QDateTime getDateTimeFromString(const QString &string);
 
-    void parseToDo();
+    void parseToDo(const QString &calendarName);
 
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
