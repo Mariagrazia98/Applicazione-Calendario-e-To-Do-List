@@ -24,7 +24,7 @@ namespace Ui {
  */
 
 class LoginForm : public QDialog {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     explicit LoginForm(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
@@ -37,8 +37,8 @@ public:
 private
     slots:
 
-            /// @brief buttonClicked callback
-            void onLoginButtonClicked();
+    /// @brief buttonClicked callback
+    void onLoginButtonClicked();
 
     /** @brief checks the login reply
      * @details if the reply has no errors, accept and close the widget

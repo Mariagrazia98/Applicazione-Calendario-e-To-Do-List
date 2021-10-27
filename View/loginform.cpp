@@ -38,6 +38,7 @@ LoginForm::~LoginForm() {
 
 void LoginForm::onLoginButtonClicked() {
     dialogButtonBox->setDisabled(true);
+    // set connection manager attributes
     (*connectionManager.get())->setUsername(user->text());
     (*connectionManager.get())->setPassword(password->text());
     (*connectionManager.get())->getCalendarList();
