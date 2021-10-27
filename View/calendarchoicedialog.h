@@ -30,14 +30,16 @@ public:
 public slots:
 
     void setupUI(QList<Calendar *> calendarsList);
-    void onGroupButtonClicked(QAbstractButton* button);
+
+    void onGroupButtonClicked(QAbstractButton *button);
+
 private:
     Ui::CalendarChoiceDialog *ui;
 
-    ConnectionManager *connectionManager;
+    std::shared_ptr<ConnectionManager *>connectionManager;
 
     QVBoxLayout *buttonsLayout;
-    QButtonGroup* groupButton;
+    QButtonGroup *groupButton;
     QGridLayout *layout;
 
     QList<Calendar *> calendarsList;

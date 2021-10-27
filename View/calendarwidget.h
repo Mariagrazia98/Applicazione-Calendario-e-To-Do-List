@@ -22,6 +22,8 @@
 #include <QDebug>
 #include <QScrollArea>
 #include <QTimer>
+#include <QMainWindow>
+#include <QDockWidget>
 
 #include <iostream>
 
@@ -32,13 +34,10 @@
 #include "calendarobjectwidget.h"
 #include "../Controller/connectionManager.h"
 #include "CustomCalendarWidget.h"
+#include "sharecalendarform.h"
 
-namespace Ui {
-    class CalendarWidget;
-}
-
-class CalendarWidget : public QWidget {
-Q_OBJECT
+class CalendarWidget : public QMainWindow {
+    Q_OBJECT
 
 public:
     explicit CalendarWidget(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
@@ -55,23 +54,28 @@ public:
 
     QDate getCurrentDateSelected();
 
-public slots:
+public
+    slots:
 
-    void parseCalendar(QString calendar);
+            void parseCalendar(QString
+    calendar);
 
     void onCalendarReady(QNetworkReply *reply);
 
-private slots:
+private
+    slots:
 
-    void selectedDateChanged();
+            void selectedDateChanged();
 
     void reformatCalendarPage();
 
-    void onDateTextChanged();
-
     void addTaskButtonClicked();
 
+    void shareCalendarButtonClicked();
+
     void parseEvent();
+
+    void onSharecalendarFormClosed();
 
     void onTaskFormClosed();
 
@@ -80,7 +84,6 @@ private slots:
     void onTaskDeleted(CalendarObject &obj);
 
     void onTimeout();
-
 
 
 private:
@@ -98,8 +101,6 @@ private:
 
     void parseToDo();
 
-    Ui::CalendarWidget *ui;
-
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
     CustomCalendarWidget *calendar;
@@ -111,6 +112,8 @@ private:
     QTextBrowser *dateString;
 
     QPushButton *addTaskButton;
+    QPushButton *shareCalendarButton;
+
 
     QTextStream *stream;
     QList<CalendarObject *> calendarObjects;
@@ -119,16 +122,14 @@ private:
     QScrollArea *scrollArea;
     QVBoxLayout *taskViewLayout;
 
-    ConnectionManager *connectionManager;
-    QMetaObject::Connection connectionToFinished;
-    QMetaObject::Connection connectionCtag;
-    QMetaObject::Connection connectionToModify;
-    QMetaObject::Connection connectionToTaskDeleted;
+    std::shared_ptr<ConnectionManager *> connectionManager;
 
     QTimer *timer;
     const unsigned int timerInterval;
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
+
+    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
 };
 

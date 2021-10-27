@@ -2,6 +2,7 @@
 // Created by manue on 09/10/2021.
 //
 
+#include <iostream>
 #include "CustomCalendarWidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
@@ -17,22 +18,42 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
-        // TODO: gestire ricorrenze
         if (calendarEvent) {
-            if (calendarEvent->getStartDateTime().date() == date) {
+            if (calendarEvent->getStartDateTime().date() <= date && calendarEvent->getEndDateTime().date() >= date) {
                 paintDate(painter, rect);
                 return;
             }
-        } else {
-            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObjects[i]);
-            if (calendarToDo->getStartDateTime()) {
-                if (calendarToDo->getStartDateTime()->date() == date) {
+        }
+        if (calendarObjects[i]->getStartDateTime().date() == date) {
+            paintDate(painter, rect);
+            return;
+        } else if (calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRipetition() >= date) {
+            if (!calendarObjects[i]->getExDates().contains(date)) {
+                QDate start = calendarObjects[i]->getStartDateTime().date();
+                while (start < date) {
+                    switch (calendarObjects[i]->getTypeRepetition()) {
+                        case 1:
+                            start = start.addDays(calendarObjects[i]->getNumRepetition());
+                            break;
+                        case 2:
+                            start = start.addDays(calendarObjects[i]->getNumRepetition() * 7);
+                            break;
+                        case 3:
+                            // Monthly
+                            start = start.addMonths(calendarObjects[i]->getNumRepetition());
+                            break;
+                        case 4:
+                            start = start.addYears(calendarObjects[i]->getNumRepetition());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                if (start == date) {
                     paintDate(painter, rect);
                     return;
                 }
-            } else if (calendarToDo->getCreationDateTime().date() == date) {
-                paintDate(painter, rect);
-                return;
+
             }
         }
 
@@ -57,4 +78,5 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
 void CustomCalendarWidget::setCalendarObjects(const QList<CalendarObject *> &calendarObjects) {
     this->calendarObjects.clear();
     CustomCalendarWidget::calendarObjects = calendarObjects;
+    updateCells();
 }

@@ -64,7 +64,9 @@ public:
 
     void getCalendarList();
 
-    void setCalendar(Calendar* calendar);
+    void setCalendar(Calendar *calendar);
+
+    void makeShareCalendarRequest(const QString &email, const QString &displayName, const QString &comment);
 
 private slots:
 
@@ -93,6 +95,8 @@ private slots:
     void onObjectDeleted();
 
     void onInsertOrUpdateCalendarObject();
+
+    void shareCalendarDone();
 
 signals:
 
@@ -123,8 +127,10 @@ private:
     QNetworkReply *deleteResourceNetworkReply;
     QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
     QNetworkReply *getCalendarsListReply;
+    QNetworkReply *shareCalendarRequestReply;
 
-    Calendar* calendar;
+
+    Calendar *calendar;
 
     void setup();
 
@@ -138,6 +144,7 @@ private:
 
 
     void printCalendarsList();
+
 };
 
 

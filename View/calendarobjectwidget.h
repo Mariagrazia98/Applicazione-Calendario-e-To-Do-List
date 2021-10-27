@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QTextBrowser>
+#include <QDateTime>
 
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
@@ -15,47 +16,57 @@
 #include "calendarwidget.h"
 
 namespace Ui {
-class CalendarObjectWidget;
+    class CalendarObjectWidget;
 }
 
-class CalendarObjectWidget : public QWidget
-{
+class CalendarObjectWidget : public QWidget {
     Q_OBJECT
 
 public:
-    CalendarObjectWidget(QWidget *parent, CalendarObject& calendarObject, ConnectionManager* connectionManager);
+    CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject, ConnectionManager *connectionManager);
+
     ~CalendarObjectWidget();
 
-private slots:
-    void onModifyButtonClicked();
+    void setupUI();
+
+private
+    slots:
+            void onModifyButtonClicked();
+
     void onRemoveButtonClicked();
+
     void onCheckBoxToggled(bool checked);
-    void manageResponse(QNetworkReply* reply);
+
+    void manageResponse(QNetworkReply *reply);
+
     void onTaskModified();
+
     void handleDeleteReccurrencies(int type);
+
     signals:
-    void taskModified();
-    void taskDeleted(CalendarObject& obj);
+            void taskModified();
+
+    void taskDeleted(CalendarObject &obj);
 
 private:
-    void setupUI();
     void setupText();
+
     void setupButtons();
 
     void deleteCalendarObject();
 
     Ui::CalendarObjectWidget *ui;
-    CalendarObject* calendarObject;
+    CalendarObject *calendarObject;
     QMetaObject::Connection connectionToFinish;
     QMetaObject::Connection connectionToObjectModified;
 
-    QHBoxLayout* displayLayout;
-    QVBoxLayout* buttonsLayout;
-    QCheckBox* checkBox;
-    QTextBrowser* textBrowser;
-    QPushButton* modifyButton;
-    QPushButton* removeButton;
-    ConnectionManager* connectionManager;
+    QHBoxLayout *displayLayout;
+    QVBoxLayout *buttonsLayout;
+    QCheckBox *checkBox;
+    QTextBrowser *textBrowser;
+    QPushButton *modifyButton;
+    QPushButton *removeButton;
+    std::shared_ptr<ConnectionManager *> connectionManager;
 
 };
 

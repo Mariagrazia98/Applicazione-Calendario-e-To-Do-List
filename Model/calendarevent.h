@@ -16,18 +16,11 @@ public:
 
     ~CalendarEvent() override;
 
-    virtual void printCalendarObject();
-
-    const QDateTime &getStartDateTime() const;
-
-    void setStartDateTime(const QDateTime &startDateTime);
-
     const QDateTime &getEndDateTime() const;
 
     void setEndDateTime(const QDateTime &endDateTime);
 
 private:
-    QDateTime startDateTime;
     QDateTime endDateTime;
 };
 

@@ -24,15 +24,6 @@ public:
 
     CalendarToDo(const CalendarToDo &other);
 
-
-    const std::optional<QDateTime> &getStartDateTime() const;
-
-    void setStartDateTime(const QDateTime &startDateTime);
-
-    const std::optional<QDateTime> &getDueDateTime() const;
-
-    void setDueDateTime(const QDateTime &dueDateTime);
-
     std::optional<QDateTime> &getCompletedDateTime();
 
     void setCompletedDateTime(const std::optional<QDateTime> &completedDateTime);
@@ -44,12 +35,7 @@ public:
 
 private:
     std::optional<QDateTime> completedDateTime;
-
     ToDoStatus status;
-
-    std::optional<QDateTime> startDateTime;
-    std::optional<QDateTime> dueDateTime;
-
 };
 
 

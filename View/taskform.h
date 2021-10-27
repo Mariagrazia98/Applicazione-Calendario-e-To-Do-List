@@ -42,6 +42,8 @@ private
 
     void on_beginDateTime_dateTimeChanged(const QDateTime &dateTime);
 
+    void onNumRepetitionChanged(int i);
+
     void handleUploadFinished(QNetworkReply *reply);
 
 signals:
@@ -52,7 +54,7 @@ signals:
 
 private:
     Ui::TaskForm *ui;
-    ConnectionManager *connectionManager;
+    std::shared_ptr<ConnectionManager *> connectionManager;
     QMetaObject::Connection connectionToFinish;
 
     CalendarObject *calendarObject;

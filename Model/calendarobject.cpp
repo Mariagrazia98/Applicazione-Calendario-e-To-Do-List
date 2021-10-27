@@ -18,8 +18,11 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         creationDateTime(other.creationDateTime),
         typeRepetition(other.typeRepetition),
         numRepetition(other.numRepetition),
-        priority(other.priority){
-
+        priority(other.priority),
+        startDateTime(other.startDateTime),
+        exDates(other.exDates),
+        untilDateRipetition(other.untilDateRipetition){
+        parent = std::make_shared<const CalendarObject *>(&other);
 }
 
 
@@ -75,11 +78,6 @@ void CalendarObject::setCreationDateTime(const QDateTime &creationDateTime) {
     CalendarObject::creationDateTime = creationDateTime;
 }
 
-void CalendarObject::printCalendarObject() {
-    std::cout << "Name: " << name.toStdString() << '\n';
-    std::cout << "Description: " << description.toStdString() << '\n';
-    std::cout << "UID: " << UID.toStdString() << '\n';
-}
 
 int CalendarObject::getNumRepetition() const {
     return numRepetition;
@@ -111,4 +109,37 @@ void CalendarObject::setPriority(unsigned int priority) {
     }
 }
 
+const QDate &CalendarObject::getUntilDateRipetition() const {
+    return untilDateRipetition;
+}
 
+void CalendarObject::setUntilDateRipetition(const QDate &untilDateRipetition) {
+
+    if (untilDateRipetition < startDateTime.date()) {
+        this->untilDateRipetition = startDateTime.date();
+    } else {
+        this->untilDateRipetition = untilDateRipetition;
+    }
+
+}
+
+const QDateTime &CalendarObject::getStartDateTime() const {
+    return startDateTime;
+}
+
+void CalendarObject::setStartDateTime(const QDateTime &startDateTime) {
+    this->startDateTime = startDateTime;
+}
+
+const QList<QDate> &CalendarObject::getExDates() const {
+    return exDates;
+}
+
+void CalendarObject::setExDates(const QList<QDate> &exDates) {
+    this->exDates.clear();
+    CalendarObject::exDates = exDates;
+}
+
+std::shared_ptr<const CalendarObject *> CalendarObject::getParent() const {
+    return parent;
+}

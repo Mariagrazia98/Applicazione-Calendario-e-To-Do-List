@@ -77,6 +77,7 @@ void ConnectionManager::onObjectDeleted() {
 }
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
+
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -287,6 +288,7 @@ void ConnectionManager::printCalendarsList() {
         //std::cout << answerString.toStdString() << "\n\n";
         const int startPosition = answerString.indexOf("<?xml version=\"1.0\"?>");
         answerString = answerString.mid(startPosition, -1);
+        //std::cout << answerString.toStdString() << '\n';
         QDomDocument document;
         document.setContent(answerString);
         //std::cout << "document: " << document.toString().toStdString() << "\n\n";
@@ -330,6 +332,66 @@ void ConnectionManager::printCalendarsList() {
 void ConnectionManager::setCalendar(Calendar *calendar) {
     this->calendar = calendar;
     updateUrl();
+}
+
+void
+ConnectionManager::makeShareCalendarRequest(const QString &email, const QString &displayName, const QString &comment) {
+    QBuffer *buffer = new QBuffer();
+
+    buffer->open(QIODevice::ReadWrite);
+
+    QString requestString =
+            "<D:share-resource xmlns:D=\"DAV:\">\n"
+            "     <D:sharee>\n"
+            "       <D:href>" + email + "</D:href>\n"
+                                        "       <D:prop>\n"
+                                        "         <D:displayname>" + displayName + "</D:displayname>\n"
+                                                                                   "       </D:prop>\n"
+                                                                                   "       <D:comment>" + comment +
+            "</D:comment>\n"
+            "       <D:share-access>\n"
+            "         <D:read-write />\n"
+            "       </D:share-access>\n"
+            "     </D:sharee>\n"
+            "   </D:share-resource>";
+
+    int buffersize = buffer->write(requestString.toUtf8());
+    buffer->seek(0);
+    buffer->size();
+
+    QByteArray contentlength;
+    contentlength.append(buffersize);
+
+    QString authorization = "Basic ";
+    authorization.append((username + ":" + password).toUtf8().toBase64());
+
+    QNetworkRequest networkRequest;
+    networkRequest.setUrl(
+            "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar->getName());
+    networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
+    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
+    networkRequest.setRawHeader("Content-Type", "application/davsharing+xml; charset=utf-8");
+    networkRequest.setRawHeader("Content-Length", contentlength);
+
+    QSslConfiguration conf = networkRequest.sslConfiguration();
+    conf.setPeerVerifyMode(QSslSocket::VerifyNone);
+    networkRequest.setSslConfiguration(conf);
+
+    shareCalendarRequestReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("POST"),
+                                                                        buffer);
+    connect(shareCalendarRequestReply, &QNetworkReply::finished, this, &ConnectionManager::shareCalendarDone);
+}
+
+void ConnectionManager::shareCalendarDone() {
+    QNetworkReply::NetworkError error = shareCalendarRequestReply->error();
+    const QString &errorString = shareCalendarRequestReply->errorString();
+    if (error == QNetworkReply::NoError) {
+        QByteArray answer = shareCalendarRequestReply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        std::cout << "answer: " << answer.toStdString() << '\n';
+    } else {
+        std::cerr << "shareCalendarDone: " << errorString.toStdString() << '\n';
+    }
 }
 
 

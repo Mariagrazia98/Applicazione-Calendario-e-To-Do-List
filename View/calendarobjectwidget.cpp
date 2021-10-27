@@ -19,10 +19,10 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
-        connectionManager(connectionManager),
+        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
-    setupUI();
+//    setupUI();
 }
 
 CalendarObjectWidget::~CalendarObjectWidget() {
@@ -63,11 +63,12 @@ void CalendarObjectWidget::setupText() {
     if (!calendarObject->getDescription().isEmpty()) {
         text.append("Description: " + calendarObject->getDescription() + '\n');
     }
+    text.append(
+            "Start date and time: " + calendarObject->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
     if (calendarEvent != nullptr) {
         // calendarObject is a CalendarEvent
-        text.append(
-                "Start date and time: " + calendarEvent->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
+
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
         CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
@@ -76,17 +77,6 @@ void CalendarObjectWidget::setupText() {
             if (calendarToDo->getCompletedDateTime()) {
                 textBrowser->setTextColor(QColor(0, 150, 0));
             }
-            if (calendarToDo->getStartDateTime()) {
-                text.append(
-                        "Start date and time: " + calendarToDo->getStartDateTime()->toString("dddd, yyyy/MM/d hh:mm") +
-                        '\n');
-            }
-            if (calendarToDo->getDueDateTime()) {
-                text.append(
-                        "Due date and time: " + calendarToDo->getDueDateTime()->toString("dddd, yyyy/MM/d hh:mm") +
-                        '\n');
-            }
-
         }
     }
     textBrowser->setText(text);
@@ -113,7 +103,7 @@ void CalendarObjectWidget::setupButtons() {
 }
 
 void CalendarObjectWidget::onModifyButtonClicked() {
-    TaskForm *taskForm = new TaskForm(connectionManager, calendarObject);
+    TaskForm *taskForm = new TaskForm(*connectionManager.get(), calendarObject);
     taskForm->show();
     connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this,
                                          &CalendarObjectWidget::onTaskModified);
@@ -151,44 +141,44 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
                 "\r\nSUMMARY:" + calendarObject->getName() + "\r\nLOCATION:" +
                 calendarObject->getLocation() + "\r\nDESCRIPTION:" + calendarObject->getDescription() +
                 "\r\nTRANSP:OPAQUE\r\n";
-
+        if (calendarObject->getParent().get()) {
+            requestString.append(
+                    "DTSTART:" + (*calendarObject->getParent().get())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                    "\r\n");
+        } else {
+            requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
+        }
 
         if (calendarToDo) {
-            if (calendarToDo->getStartDateTime()) {
-                requestString.append(
-                        "DTSTART:" + calendarToDo->getStartDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
-            }
-            if (calendarToDo->getDueDateTime()) {
-                requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
-            }
-
             if (calendarToDo->getCompletedDateTime()) {
                 requestString.append(
-                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmssZ") + "\r\n");
                 requestString.append("STATUS:COMPLETED\r\n");
             } else {
                 requestString.append("STATUS:IN-PROCESS\r\n");
             }
-
-            QDate recurrenceDate;
-            if (calendarToDo->getStartDateTime()) {
-                recurrenceDate = calendarToDo->getStartDateTime()->date();
-            } else {
-                recurrenceDate = calendarToDo->getCreationDateTime().date();
-            }
-            requestString.append("EXDATE:");
-            std::cout << "deleting ToDo reccurence on " +
-                         recurrenceDate.toString("yyyyMMddT010000Z").toStdString() + '\n';
-            requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
         } else {
             CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-            if (calendarEvent) {
-                requestString.append("EXDATE:");
-                std::cout << "deleting Event reccurence on " +
-                             calendarEvent->getStartDateTime().toString("yyyyMMddT010000Z").toStdString() + '\n';
-                requestString.append(calendarEvent->getStartDateTime().toString("yyyyMMddT010000Z") + "\r\n");
+            if (calendarEvent->getParent().get()) {
+                const CalendarEvent *parent = dynamic_cast<const CalendarEvent *>(*calendarEvent->getParent().get());
+                requestString.append(
+                        "DTEND:" + parent->getEndDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
+            } else {
+                requestString.append("DTEND:" + calendarEvent->getEndDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
             }
+
         }
+
+        QDate recurrenceDate;
+        recurrenceDate = calendarObject->getStartDateTime().date();
+
+        QList<QDate> exDates = calendarObject->getExDates();
+        requestString.append("EXDATE:");
+        for (int i = 0; i < exDates.size(); i++) {
+            requestString.append(exDates[i].toString("yyyyMMddT010000Z") + ",");
+        }
+        //std::cout << "deleting reccurence on " + recurrenceDate.toString("yyyyMMddT010000Z").toStdString() + '\n';
+        requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
 
         if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
             QString rrule = "RRULE:FREQ=";
@@ -215,31 +205,39 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
 
         requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMdd") +
+                             "\r\n");
+
+
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
 
-        connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
-                                     &CalendarObjectWidget::manageResponse);
-        connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+        //std::cout << requestString.toStdString() << "\n";
+
+        connectionToFinish = connect(*connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
+                                     this,
+                                     SLOT(manageResponse(QNetworkReply * )));
+        (*connectionManager.get())->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
     }
 }
 
 void CalendarObjectWidget::deleteCalendarObject() {
-    connectionToFinish = connect(connectionManager, SIGNAL(objectDeleted(QNetworkReply * )), this,
+    connectionToFinish = connect(*connectionManager.get(), SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(manageResponse(QNetworkReply * )));
-    connectionManager->deleteCalendarObject(calendarObject->getUID());
+    (*connectionManager.get())->deleteCalendarObject(calendarObject->getUID());
 }
 
 void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
     disconnect(connectionToFinish);
     if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
+
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
             emit(taskDeleted(*calendarObject));
         } else {
             const QString &errorString = reply->errorString();
-            std::cerr << error << "\n";
+            QByteArray answer = reply->readAll();
+            QString answerString = QString::fromUtf8(answer);
+            std::cerr << answerString.toStdString() << "\n";
             QMessageBox::warning(this, "Error", errorString);
         }
     } else {
@@ -255,6 +253,7 @@ void CalendarObjectWidget::onTaskModified() {
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
+    //std::cout << "on check box toggled onCheckBoxToggledn";
     CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
@@ -269,18 +268,25 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                                                                 "DTSTAMP:" +
                             calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
-                            "SUMMARY:" + calendarObject->getName() + "\r\n"
-                                                                     "DTSTART:" +
-                            calendarToDo->getStartDateTime()->toString("yyyyMMddTHHmmss") + "\r\n"
+                            "SUMMARY:" + calendarObject->getName() + "\r\n""LOCATION:" +
+                            calendarObject->getLocation() + "\r\n""DESCRIPTION:" + calendarObject->getDescription() +
+                            "\r\n""TRANSP:OPAQUE\r\n";
 
-                                                                                            "LOCATION:" +
-                            calendarObject->getLocation() + "\r\n"
-                                                            "DESCRIPTION:" + calendarObject->getDescription() + "\r\n"
-                                                                                                                "TRANSP:OPAQUE\r\n";
+    if (calendarObject->getParent().get()) {
+        requestString.append(
+                "DTSTART:" + (*calendarObject->getParent().get())->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                "\r\n");
+    } else {
+        requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
+    }
 
-    requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+
+    requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddT000000Z") + "\r\n");
+
     if (calendarToDo->getCompletedDateTime()) {
-        requestString.append("COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
+        //std::cout << "GETCOMPLETE\n";
+        requestString.append(
+                "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmssZ") + "\r\n");
         requestString.append("STATUS:COMPLETED\r\n");
     } else {
         requestString.append("STATUS:IN-PROCESS\r\n");
@@ -308,15 +314,13 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
         requestString.append(rrule);
     }
 
-    if (calendarToDo->getDueDateTime()) {
-        requestString.append("DUE:" + calendarToDo->getDueDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
-    }
-
     requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 
-    connectionToFinish = connect(connectionManager, &ConnectionManager::onFinished, this,
+    //std::cout << requestString.toStdString() << "\n";
+
+    connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::manageResponse);
-    connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+    (*connectionManager.get())->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }

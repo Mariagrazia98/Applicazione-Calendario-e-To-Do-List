@@ -19,8 +19,6 @@ public:
 
     virtual ~CalendarObject() = 0;
 
-    virtual void printCalendarObject();
-
     const QString &getCalendarName() const;
 
     void setCalendarName(const QString &calendarName);
@@ -45,6 +43,14 @@ public:
 
     void setCreationDateTime(const QDateTime &creationDateTime);
 
+    const QDateTime &getStartDateTime() const;
+
+    void setStartDateTime(const QDateTime &startDateTime);
+
+    const  QDate &getUntilDateRipetition() const;
+
+    void setUntilDateRipetition(const QDate &untilDateRipetition);
+
     int getTypeRepetition() const;
 
     void setTypeRepetition(int typeRepetition);
@@ -57,6 +63,12 @@ public:
 
     void setPriority(unsigned int priority);
 
+    std::shared_ptr<const CalendarObject *> getParent() const;
+
+    const QList<QDate> &getExDates() const;
+
+    void setExDates(const QList<QDate> &exDates);
+
 private:
     QString calendarName;
     QString name;
@@ -67,6 +79,10 @@ private:
     int typeRepetition;
     QDateTime creationDateTime;
     unsigned int priority; // [0-9]
+    QDateTime startDateTime;
+    QDate untilDateRipetition;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
+    QList<QDate> exDates;
+    std::shared_ptr<const CalendarObject *> parent;
 
 };
 
