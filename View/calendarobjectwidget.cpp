@@ -10,7 +10,7 @@
 #define YEARLY 4
 
 CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
-                                           ConnectionManager *connectionManager) :
+                                           QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers) :
         QWidget(parent),
         calendarObject(&calendarObject),
         displayLayout(new QHBoxLayout),
@@ -19,7 +19,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
-        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
+        connectionManagers(connectionManagers),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
 //    setupUI();
@@ -79,6 +79,7 @@ void CalendarObjectWidget::setupText() {
             }
         }
     }
+    text.append("CalendarName: " + calendarObject->getCalendarName() + '\n');
     textBrowser->setText(text);
 }
 
@@ -103,7 +104,7 @@ void CalendarObjectWidget::setupButtons() {
 }
 
 void CalendarObjectWidget::onModifyButtonClicked() {
-    TaskForm *taskForm = new TaskForm(*connectionManager.get(), calendarObject);
+    TaskForm *taskForm = new TaskForm(connectionManagers, calendarObject);
     taskForm->show();
     connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this,
                                          &CalendarObjectWidget::onTaskModified);
@@ -115,13 +116,13 @@ void CalendarObjectWidget::onRemoveButtonClicked() {
         EliminationTaskDialog *dialog = new EliminationTaskDialog(nullptr);
         dialog->show();
         connect(dialog, &EliminationTaskDialog::eliminateRecurrences, this,
-                &CalendarObjectWidget::handleDeleteReccurrencies);
+                &CalendarObjectWidget::handleDeleteRecurrencies);
     } else {
         deleteCalendarObject();
     }
 }
 
-void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
+void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
     if (type == 0) { // delete all recurrences
         deleteCalendarObject();
     } else if (type == 1) { // delete only one recurrence
@@ -213,6 +214,8 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
 
         //std::cout << requestString.toStdString() << "\n";
 
+        std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
+
         connectionToFinish = connect(*connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
                                      this,
                                      SLOT(manageResponse(QNetworkReply * )));
@@ -221,6 +224,7 @@ void CalendarObjectWidget::handleDeleteReccurrencies(int type) {
 }
 
 void CalendarObjectWidget::deleteCalendarObject() {
+    std::shared_ptr<ConnectionManager *> connectionManager;
     connectionToFinish = connect(*connectionManager.get(), SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(manageResponse(QNetworkReply * )));
     (*connectionManager.get())->deleteCalendarObject(calendarObject->getUID());
@@ -249,7 +253,7 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
 
 void CalendarObjectWidget::onTaskModified() {
     disconnect(connectionToObjectModified);
-    emit(taskModified());
+    emit(taskModified(calendarObject->getCalendarName()));
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
@@ -319,6 +323,8 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
 
     //std::cout << requestString.toStdString() << "\n";
+
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
 
     connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::manageResponse);

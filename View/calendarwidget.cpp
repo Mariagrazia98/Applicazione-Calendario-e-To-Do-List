@@ -158,6 +158,14 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
             std::cout << "parsing calendar: " << calendarName.toStdString() << '\n';
+            int i = 0;
+            while (i < calendarObjects.length()) {
+                if (calendarObjects[i]->getCalendarName() == calendarName) {
+                    calendarObjects.removeAt(i);
+                } else {
+                    i++;
+                }
+            }
         }
         if (line.contains("BEGIN:VEVENT")) {
             parseEvent(calendarName);
@@ -352,8 +360,15 @@ void CalendarWidget::showSelectedDateTasks() {
 }
 
 void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
+    const QString calendarName = calendarObject->getCalendarName();
+    // get connectionManager relative to the calendarObject calendar
+    if (!connectionManagers.contains(calendarName)) {
+        std::cerr << "Cannot find a connection for calendar " << calendarName.toStdString() << '\n';
+        return;
+    }
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarName];
     CalendarObjectWidget *calendarObjectWidget = new CalendarObjectWidget(this, *calendarObject,
-                                                                          *connectionManager.get());
+                                                                          connectionManagers);
     calendarObjectWidget->setupUI();
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
@@ -518,7 +533,7 @@ void CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, 
 
 void CalendarWidget::addTaskButtonClicked() {
     addTaskButton->setEnabled(false);
-    TaskForm *taskForm = new TaskForm(*connectionManager.get());
+    TaskForm *taskForm = new TaskForm(connectionManagers);
     taskForm->setDate(currentDateEdit->date());
     taskForm->show();
     connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
@@ -543,8 +558,9 @@ void CalendarWidget::onTaskFormClosed() {
     // TODO: aggiornare widgets se ce n'è bisogno
 }
 
-void CalendarWidget::onTaskModified() {
+void CalendarWidget::onTaskModified(const QString calendarName) {
     timer->stop();
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarName];
     (*connectionManager.get())->getctag();
 }
 
@@ -561,7 +577,6 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
         QString answerString = QString::fromUtf8(answer);
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
-            calendarObjects.clear();
             parseCalendar(answerString);
         } else {
             // error
@@ -577,32 +592,39 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
     timer->start(timerInterval);
 }
 
-void CalendarWidget::getCalendarRequest() {
+void CalendarWidget::getCalendarRequest(const QString calendarName) {
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarName];
     (*connectionManager.get())->getCalendarRequest();
 }
 
 void CalendarWidget::setupConnection() {
-    calendarGroupBox->setTitle((*connectionManager.get())->getCalendarName());
-    QObject::connect(*connectionManager.get(), &ConnectionManager::calendarReady, this,
-                     &CalendarWidget::onCalendarReady); //Connect
-    getCalendarRequest();
+            foreach(auto connectionManager, connectionManagers) {
+            QObject::connect(*connectionManager.get(), &ConnectionManager::calendarReady, this,
+                             &CalendarWidget::onCalendarReady); //Connect
+            getCalendarRequest((*connectionManager.get())->getCalendarName());
+        };
 }
 
 void CalendarWidget::setupTimer() {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &CalendarWidget::onTimeout);
-    QObject::connect(*connectionManager.get(), &ConnectionManager::ctagChanged, this,
-                     &CalendarWidget::getCalendarRequest); //Connect
+            foreach(auto connectionManager, connectionManagers) {
+            QObject::connect(*connectionManager.get(), &ConnectionManager::ctagChanged, this,
+                             &CalendarWidget::getCalendarRequest); //Connect
+        };
     timer->start(timerInterval);
 }
 
 void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
     timer->stop();
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[obj.getCalendarName()];
     (*connectionManager.get())->getctag();
 }
 
 void CalendarWidget::onTimeout() {
-    (*connectionManager.get())->getctag();
+            foreach(auto connectionManager, connectionManagers) {
+            (*connectionManager.get())->getctag();
+        };
 }
 
 QDate CalendarWidget::getCurrentDateSelected() {
@@ -612,8 +634,8 @@ QDate CalendarWidget::getCurrentDateSelected() {
 void CalendarWidget::shareCalendarButtonClicked() {
     shareCalendarButton->setEnabled(false);
 
-    ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, *connectionManager.get());
-    sharecalendarForm->show();
+    //ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, *connectionManager.get());
+    //sharecalendarForm->show();
     //connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
     /*
     TaskForm *taskForm = new TaskForm(*connectionManager.get());

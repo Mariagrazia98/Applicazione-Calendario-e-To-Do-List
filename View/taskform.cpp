@@ -9,9 +9,10 @@
 
 #include <iostream>
 
-TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calendarObject) :
+TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers,
+                   CalendarObject *calendarObject) :
         QWidget(nullptr),
-        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
+        connectionManagers(connectionManagers),
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
     ui->setupUi(this);
@@ -22,6 +23,9 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
     ui->priorityLabel->setVisible(false);
     ui->untilDate->setVisible(false);
     ui->untilLabel->setVisible(false);
+    for(auto connectionManager = connectionManagers.begin(); connectionManager!=connectionManagers.end(); connectionManager++){
+        ui->calendarComboBox->addItem(connectionManager.key());
+    }
     /* MODIFY */
     if (calendarObject) {
         ui->name->setText(calendarObject->getName());
@@ -29,7 +33,7 @@ TaskForm::TaskForm(ConnectionManager *connectionManager, CalendarObject *calenda
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
         ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
-
+        ui->calendarComboBox->setVisible(false);
         if (calendarObject->getNumRepetition() >= 1) {
             ui->untilDate->setVisible(true);
             ui->untilLabel->setVisible(true);
@@ -86,13 +90,18 @@ void TaskForm::on_buttonBox_rejected() {
 }
 
 void TaskForm::on_buttonBox_accepted() {
+    std::shared_ptr<ConnectionManager *>connectionManager;
     QString UID;
     if (calendarObject) {
         UID = calendarObject->getUID();
+        connectionManager = connectionManagers[calendarObject->getCalendarName()];
     } else {
+        const int index = ui->calendarComboBox->currentIndex();
+        connectionManager = connectionManagers[connectionManagers.keys()[index]];
         UID = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
+    calendarName = (*connectionManager.get())->getCalendarName();
 
     QString objectType;
     if (ui->comboBox->currentIndex() == 0) {
@@ -167,6 +176,8 @@ void TaskForm::on_buttonBox_accepted() {
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
+
+
     connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     (*connectionManager.get())->addOrUpdateCalendarObject(requestString, UID);
@@ -181,7 +192,7 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
         QString answerString = QString::fromUtf8(answer);
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
-            emit(taskUploaded());
+            emit(taskUploaded(calendarName));
             close();
         } else {
             //const QString &errorString = reply->errorString();

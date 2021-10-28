@@ -48,7 +48,7 @@ public:
 
     void addConnectionManager(ConnectionManager *connectionManager);
 
-    void getCalendarRequest();
+    void getCalendarRequest(const QString calendarName);
 
     void setupTimer();
 
@@ -78,7 +78,7 @@ private
 
     void onTaskFormClosed();
 
-    void onTaskModified();
+    void onTaskModified(const QString calendarName);
 
     void onTaskDeleted(CalendarObject &obj);
 
@@ -124,7 +124,7 @@ private:
     QScrollArea *scrollArea;
     QVBoxLayout *taskViewLayout;
 
-    std::shared_ptr<ConnectionManager *> connectionManager;
+    //std::shared_ptr<ConnectionManager *> connectionManager;
     QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
 
     QTimer *timer;

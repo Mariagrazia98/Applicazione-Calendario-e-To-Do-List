@@ -20,10 +20,11 @@ namespace Ui {
 }
 
 class CalendarObjectWidget : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject, ConnectionManager *connectionManager);
+    CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
+                         QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers);
 
     ~CalendarObjectWidget();
 
@@ -31,7 +32,8 @@ public:
 
 private
     slots:
-            void onModifyButtonClicked();
+
+    void onModifyButtonClicked();
 
     void onRemoveButtonClicked();
 
@@ -41,10 +43,11 @@ private
 
     void onTaskModified();
 
-    void handleDeleteReccurrencies(int type);
+    void handleDeleteRecurrencies(int type);
 
-    signals:
-            void taskModified();
+signals:
+
+    void taskModified(const QString calendarName);
 
     void taskDeleted(CalendarObject &obj);
 
@@ -66,7 +69,7 @@ private:
     QTextBrowser *textBrowser;
     QPushButton *modifyButton;
     QPushButton *removeButton;
-    std::shared_ptr<ConnectionManager *> connectionManager;
+    QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
 
 };
 

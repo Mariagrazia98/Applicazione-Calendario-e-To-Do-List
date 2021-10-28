@@ -173,7 +173,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     int new_ctag = ctagString.toInt();
     if (calendar->getCtag() != new_ctag && new_ctag > 0) { //something is changed
         calendar->setCtag(new_ctag);
-        emit(ctagChanged());
+        emit(ctagChanged(calendar->getName()));
         std::cout << "new ctag: " << new_ctag << '\n';
     }
 }

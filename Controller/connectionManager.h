@@ -112,7 +112,7 @@ signals:
 
     void loggedin(QNetworkReply *reply);
 
-    void ctagChanged();
+    void ctagChanged(const QString);
 
     void insertOrUpdatedCalendarObject(QNetworkReply *reply);
 
