@@ -37,16 +37,16 @@
 #include "sharecalendarform.h"
 
 class CalendarWidget : public QMainWindow {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    explicit CalendarWidget(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    explicit CalendarWidget(QWidget *parent = nullptr);
 
     ~CalendarWidget();
 
     void setupConnection();
 
-    void setConnectionManager(ConnectionManager *connectionManager);
+    void addConnectionManager(ConnectionManager *connectionManager);
 
     void getCalendarRequest();
 
@@ -57,15 +57,14 @@ public:
 public
     slots:
 
-            void parseCalendar(QString
-    calendar);
+    void parseCalendar(QString calendar);
 
     void onCalendarReady(QNetworkReply *reply);
 
 private
     slots:
 
-            void selectedDateChanged();
+    void selectedDateChanged();
 
     void reformatCalendarPage();
 
@@ -101,6 +100,10 @@ private:
 
     void parseToDo(const QString &calendarName);
 
+    void addCalendarObjectWidget(CalendarObject *calendarObject);
+
+    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
+
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
     CustomCalendarWidget *calendar;
@@ -114,7 +117,6 @@ private:
     QPushButton *addTaskButton;
     QPushButton *shareCalendarButton;
 
-
     QTextStream *stream;
     QList<CalendarObject *> calendarObjects;
 
@@ -123,13 +125,11 @@ private:
     QVBoxLayout *taskViewLayout;
 
     std::shared_ptr<ConnectionManager *> connectionManager;
+    QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
 
     QTimer *timer;
     const unsigned int timerInterval;
 
-    void addCalendarObjectWidget(CalendarObject *calendarObject);
-
-    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
 };
 

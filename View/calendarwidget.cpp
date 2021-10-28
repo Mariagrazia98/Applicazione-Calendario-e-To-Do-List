@@ -5,10 +5,9 @@
 #define MONTHLY 3
 #define YEARLY 4
 
-CalendarWidget::CalendarWidget(QWidget *parent, ConnectionManager *connectionManager) :
+CalendarWidget::CalendarWidget(QWidget *parent) :
         QMainWindow(parent),
         dateString(new QTextBrowser),
-        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         stream(new QTextStream()),
         shareCalendarButton(new QPushButton("Share Calendar")),
         timerInterval(10000) {
@@ -549,8 +548,11 @@ void CalendarWidget::onTaskModified() {
     (*connectionManager.get())->getctag();
 }
 
-void CalendarWidget::setConnectionManager(ConnectionManager *connectionManager) {
-    CalendarWidget::connectionManager = std::make_shared<ConnectionManager *>(connectionManager);
+void CalendarWidget::addConnectionManager(ConnectionManager *connectionManager) {
+    QString calendarName = connectionManager->getCalendarName();
+    if (!connectionManagers.contains(calendarName)) {
+        connectionManagers.insert(calendarName, std::make_shared<ConnectionManager *>(connectionManager));
+    }
 }
 
 void CalendarWidget::onCalendarReady(QNetworkReply *reply) {

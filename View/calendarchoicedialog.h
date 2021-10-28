@@ -28,23 +28,23 @@ public:
 
     void setConnectionManager(ConnectionManager *connectionManager);
 
+    QList<Calendar *> getSelectedCalendars();
+
 public slots:
 
     void setupUI(QList<Calendar *> calendarsList);
-
-    void onButtonClicked();
 
     void checkBoxToggled(int state);
 
 private:
     Ui::CalendarChoiceDialog *ui;
 
-    std::shared_ptr<ConnectionManager *>connectionManager;
+    std::shared_ptr<ConnectionManager *> connectionManager;
 
     QVBoxLayout *verticalLayout;
-    QFormLayout* formLayout;
-    QList<QCheckBox*> checkBoxes;
-    QPushButton* pushButton;
+    QFormLayout *formLayout;
+    QList<QCheckBox *> checkBoxes;
+    QPushButton *pushButton;
 
     QList<Calendar *> calendarsList;
 

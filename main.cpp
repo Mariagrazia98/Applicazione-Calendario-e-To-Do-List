@@ -30,13 +30,20 @@ int main(int argc, char *argv[]) {
 
     ConnectionManager *connectionManager = new ConnectionManager();
     LoginForm loginForm(nullptr, connectionManager);
-    CalendarWidget calendarWidget(nullptr, connectionManager);
+    CalendarWidget calendarWidget(nullptr);
     CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager);
     Calendar::connect(connectionManager, &ConnectionManager::calendars, &calendarChoiceDialog,
                       &CalendarChoiceDialog::setupUI);
     if (loginForm.exec() == QDialog::Accepted) {
         calendarChoiceDialog.show();
         if (calendarChoiceDialog.exec() == QDialog::Accepted) {
+            QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
+            for (int i = 0; i < calendars.length(); ++i) {
+                ConnectionManager *connectionManager_ = new ConnectionManager(connectionManager->getUsername(),
+                                                                              connectionManager->getPassword());
+                connectionManager_->setCalendar(calendars[i]);
+                calendarWidget.addConnectionManager(connectionManager_);
+            }
             calendarWidget.setupConnection();
             calendarWidget.setupTimer();
             calendarWidget.show();

@@ -52,7 +52,7 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
     verticalLayout->addLayout(formLayout);
     verticalLayout->addWidget(pushButton);
     connect(pushButton, &QPushButton::pressed,
-            this, &CalendarChoiceDialog::onButtonClicked);
+            this, &CalendarChoiceDialog::accept);
 
     verticalLayout->addSpacing(30);
 
@@ -60,23 +60,6 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
     //this->setMinimumSize(400,300);
 
     setLayout(verticalLayout);
-}
-
-void CalendarChoiceDialog::onButtonClicked() {
-    for (int i = 0; i < calendarsList.length(); ++i) {
-        if (checkBoxes[i]->isChecked()) {
-            if (calendarsList[i]) {
-                std::cout << "Calendario " << calendarsList[i]->getName().toStdString() << " selezionato\n";
-            }
-        }
-        /*
-        if (calendarsList[i]->getName() == buttonText) {
-            (*connectionManager.get())->setCalendar(calendarsList[i]);
-            break;
-        }
-         */
-    }
-    this->accept();
 }
 
 void CalendarChoiceDialog::checkBoxToggled(int state) {
@@ -92,4 +75,16 @@ void CalendarChoiceDialog::checkBoxToggled(int state) {
             pushButton->setEnabled(true);
             break;
     }
+}
+
+QList<Calendar *> CalendarChoiceDialog::getSelectedCalendars() {
+    QList<Calendar *> ret;
+    for (int i = 0; i < calendarsList.length(); ++i) {
+        if (checkBoxes[i]->isChecked()) {
+            if (calendarsList[i]) {
+                ret.append(calendarsList[i]);
+            }
+        }
+    }
+    return ret;
 }

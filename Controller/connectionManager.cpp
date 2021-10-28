@@ -179,7 +179,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 }
 
 void ConnectionManager::makectagRequest() {
-    std::cout << "[ConnectionManager] makectagRequest\n";
+    //std::cout << "[ConnectionManager] makectagRequest\n";
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -375,6 +375,14 @@ void ConnectionManager::shareCalendarDone() {
     } else {
         std::cerr << "shareCalendarDone: " << errorString.toStdString() << '\n';
     }
+}
+
+const QString &ConnectionManager::getUsername() const {
+    return username;
+}
+
+const QString &ConnectionManager::getPassword() const {
+    return password;
 }
 
 

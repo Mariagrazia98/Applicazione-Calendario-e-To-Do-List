@@ -44,6 +44,10 @@ public:
 
     void setPassword(QString password);
 
+    const QString &getUsername() const;
+
+    const QString &getPassword() const;
+
     /**
      * @brief add or update a Calendar Object
      *
