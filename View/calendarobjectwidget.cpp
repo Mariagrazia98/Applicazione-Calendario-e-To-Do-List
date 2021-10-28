@@ -224,7 +224,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 }
 
 void CalendarObjectWidget::deleteCalendarObject() {
-    std::shared_ptr<ConnectionManager *> connectionManager;
+    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
     connectionToFinish = connect(*connectionManager.get(), SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(manageResponse(QNetworkReply * )));
     (*connectionManager.get())->deleteCalendarObject(calendarObject->getUID());
