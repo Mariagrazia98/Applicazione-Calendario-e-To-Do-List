@@ -11,6 +11,7 @@
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>
+#include <QFormLayout>
 #include "../Controller/connectionManager.h"
 
 QT_BEGIN_NAMESPACE
@@ -31,18 +32,23 @@ public slots:
 
     void setupUI(QList<Calendar *> calendarsList);
 
-    void onGroupButtonClicked(QAbstractButton *button);
+    void onButtonClicked();
+
+    void checkBoxToggled(int state);
 
 private:
     Ui::CalendarChoiceDialog *ui;
 
     std::shared_ptr<ConnectionManager *>connectionManager;
 
-    QVBoxLayout *buttonsLayout;
-    QButtonGroup *groupButton;
-    QGridLayout *layout;
+    QVBoxLayout *verticalLayout;
+    QFormLayout* formLayout;
+    QList<QCheckBox*> checkBoxes;
+    QPushButton* pushButton;
 
     QList<Calendar *> calendarsList;
+
+    int calendarSelected;
 };
 
 
