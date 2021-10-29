@@ -25,7 +25,7 @@ class TaskForm : public QWidget {
 Q_OBJECT
 
 public:
-    TaskForm(QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers,
+    TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
              CalendarObject *calendarObject = nullptr);
 
     ~TaskForm();
@@ -56,7 +56,7 @@ signals:
 private:
     Ui::TaskForm *ui;
     //std::shared_ptr<ConnectionManager *> connectionManager;
-    QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
+    QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
     QMetaObject::Connection connectionToFinish;
 
     CalendarObject *calendarObject;

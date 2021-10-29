@@ -125,7 +125,7 @@ private:
     QVBoxLayout *taskViewLayout;
 
     //std::shared_ptr<ConnectionManager *> connectionManager;
-    QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
+    QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
     QTimer *timer;
     const unsigned int timerInterval;

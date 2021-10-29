@@ -31,6 +31,8 @@ public:
 
     ConnectionManager(QString username = "", QString password = "");
 
+    virtual ~ConnectionManager();
+
     void getCalendarRequest();
 
     /**
@@ -133,7 +135,6 @@ private:
     QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
     QNetworkReply *getCalendarsListReply;
     QNetworkReply *shareCalendarRequestReply;
-
 
     Calendar *calendar;
 

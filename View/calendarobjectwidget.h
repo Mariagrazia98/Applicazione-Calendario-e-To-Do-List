@@ -24,7 +24,7 @@ Q_OBJECT
 
 public:
     CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
-                         QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers);
+                         QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers);
 
     ~CalendarObjectWidget();
 
@@ -69,7 +69,7 @@ private:
     QTextBrowser *textBrowser;
     QPushButton *modifyButton;
     QPushButton *removeButton;
-    QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers;
+    QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
 };
 

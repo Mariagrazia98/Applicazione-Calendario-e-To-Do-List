@@ -10,7 +10,7 @@
 #define YEARLY 4
 
 CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
-                                           QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers) :
+                                           QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QWidget(parent),
         calendarObject(&calendarObject),
         displayLayout(new QHBoxLayout),
@@ -214,20 +214,20 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 
         //std::cout << requestString.toStdString() << "\n";
 
-        std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
+        std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarObject->getCalendarName()];
 
-        connectionToFinish = connect(*connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
+        connectionToFinish = connect(connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
                                      this,
                                      SLOT(manageResponse(QNetworkReply * )));
-        (*connectionManager.get())->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+        connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
     }
 }
 
 void CalendarObjectWidget::deleteCalendarObject() {
-    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
-    connectionToFinish = connect(*connectionManager.get(), SIGNAL(objectDeleted(QNetworkReply * )), this,
+    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarObject->getCalendarName()];
+    connectionToFinish = connect(connectionManager.get(), SIGNAL(objectDeleted(QNetworkReply * )), this,
                                  SLOT(manageResponse(QNetworkReply * )));
-    (*connectionManager.get())->deleteCalendarObject(calendarObject->getUID());
+    connectionManager->deleteCalendarObject(calendarObject->getUID());
 }
 
 void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
@@ -324,9 +324,9 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     //std::cout << requestString.toStdString() << "\n";
 
-    std::shared_ptr<ConnectionManager *> connectionManager = connectionManagers[calendarObject->getCalendarName()];
+    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarObject->getCalendarName()];
 
-    connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::onFinished, this,
+    connectionToFinish = connect(connectionManager.get(), &ConnectionManager::onFinished, this,
                                  &CalendarObjectWidget::manageResponse);
-    (*connectionManager.get())->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+    connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }

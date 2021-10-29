@@ -28,17 +28,18 @@ int main(int argc, char *argv[]) {
 
     a.setWindowIcon(QIcon(":/resources/list.png"));
 
-    ConnectionManager *connectionManager = new ConnectionManager();
-    LoginForm loginForm(nullptr, connectionManager);
+    std::shared_ptr<ConnectionManager> connectionManager = std::shared_ptr<ConnectionManager>(new ConnectionManager());
+    LoginForm loginForm(nullptr, connectionManager.get());
     CalendarWidget calendarWidget(nullptr);
-    CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager);
-    Calendar::connect(connectionManager, &ConnectionManager::calendars, &calendarChoiceDialog,
+    CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager.get());
+    Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,
                       &CalendarChoiceDialog::setupUI);
     if (loginForm.exec() == QDialog::Accepted) {
         calendarChoiceDialog.show();
         if (calendarChoiceDialog.exec() == QDialog::Accepted) {
             QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
             for (int i = 0; i < calendars.length(); ++i) {
+
                 ConnectionManager *connectionManager_ = new ConnectionManager(connectionManager->getUsername(),
                                                                               connectionManager->getPassword());
                 connectionManager_->setCalendar(calendars[i]);

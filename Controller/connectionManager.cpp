@@ -385,5 +385,8 @@ const QString &ConnectionManager::getPassword() const {
     return password;
 }
 
+ConnectionManager::~ConnectionManager() {
+}
+
 
 

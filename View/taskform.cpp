@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager *>> connectionManagers,
+TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
                    CalendarObject *calendarObject) :
         QWidget(nullptr),
         connectionManagers(connectionManagers),
@@ -23,7 +23,8 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager *>> connectio
     ui->priorityLabel->setVisible(false);
     ui->untilDate->setVisible(false);
     ui->untilLabel->setVisible(false);
-    for(auto connectionManager = connectionManagers.begin(); connectionManager!=connectionManagers.end(); connectionManager++){
+    for (auto connectionManager = connectionManagers.begin();
+         connectionManager != connectionManagers.end(); connectionManager++) {
         ui->calendarComboBox->addItem(connectionManager.key());
     }
     /* MODIFY */
@@ -90,7 +91,7 @@ void TaskForm::on_buttonBox_rejected() {
 }
 
 void TaskForm::on_buttonBox_accepted() {
-    std::shared_ptr<ConnectionManager *>connectionManager;
+    std::shared_ptr<ConnectionManager> connectionManager;
     QString UID;
     if (calendarObject) {
         UID = calendarObject->getUID();
@@ -101,7 +102,7 @@ void TaskForm::on_buttonBox_accepted() {
         UID = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
-    calendarName = (*connectionManager.get())->getCalendarName();
+    calendarName = connectionManager->getCalendarName();
 
     QString objectType;
     if (ui->comboBox->currentIndex() == 0) {
@@ -177,10 +178,9 @@ void TaskForm::on_buttonBox_accepted() {
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
 
 
-
-    connectionToFinish = connect(*connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
+    connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
-    (*connectionManager.get())->addOrUpdateCalendarObject(requestString, UID);
+    connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
 
