@@ -27,7 +27,7 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
 
 
 CalendarObject::~CalendarObject() {
-
+    std::cout<<"prova distruttore "<<std::endl;
 }
 
 const QString &CalendarObject::getCalendarName() const {
@@ -140,6 +140,6 @@ void CalendarObject::setExDates(const QList<QDate> &exDates) {
     CalendarObject::exDates = exDates;
 }
 
-std::shared_ptr<const CalendarObject *> CalendarObject::getParent() const {
+std::weak_ptr<const CalendarObject *> CalendarObject::getParent() const {
     return parent;
 }
