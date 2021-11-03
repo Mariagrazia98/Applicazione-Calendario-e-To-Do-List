@@ -29,7 +29,7 @@ public:
 
     const QString &getLocation() const;
 
-    void setLocation(const QString &location);
+    void setLocation(const QString location);
 
     const QString &getDescription() const;
 

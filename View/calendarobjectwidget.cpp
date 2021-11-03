@@ -31,13 +31,13 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 
 void CalendarObjectWidget::setupUI() {
-    CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+    std::shared_ptr<CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent>(dynamic_cast<CalendarEvent*>(calendarObject.get()));
     checkBox->adjustSize();
-    if (calendarEvent) {
+    if (calendarEvent.get()!=nullptr) {
         checkBox->setVisible(false);
         displayLayout->addSpacing(17);
     } else {
-        CalendarToDo *calendarToDO = dynamic_cast<CalendarToDo *>(calendarObject);
+        std::shared_ptr <CalendarToDo> calendarToDO = std::shared_ptr<CalendarToDo>(dynamic_cast<CalendarToDo *>(calendarObject.get()));
         if (calendarToDO->getCompletedDateTime()) {
             checkBox->setCheckState(Qt::Checked);
         } else {
@@ -65,14 +65,14 @@ void CalendarObjectWidget::setupText() {
     }
     text.append(
             "Start date and time: " + calendarObject->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
-    CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
-    if (calendarEvent != nullptr) {
+    std::shared_ptr <CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent> (dynamic_cast<CalendarEvent *>(calendarObject.get()));
+    if (calendarEvent.get() != nullptr) {
         // calendarObject is a CalendarEvent
 
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
-        CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
-        if (calendarToDo != nullptr) {
+        std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject.get()));
+        if (calendarToDo.get() != nullptr) {
             // calendarObject is a CalendarEvent
             if (calendarToDo->getCompletedDateTime()) {
                 textBrowser->setTextColor(QColor(0, 150, 0));
@@ -104,7 +104,7 @@ void CalendarObjectWidget::setupButtons() {
 }
 
 void CalendarObjectWidget::onModifyButtonClicked() {
-    TaskForm *taskForm = new TaskForm(connectionManagers, calendarObject);
+    TaskForm *taskForm = new TaskForm(connectionManagers, calendarObject.get());
     taskForm->show();
     connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this,
                                          &CalendarObjectWidget::onTaskModified);
@@ -128,8 +128,8 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
     } else if (type == 1) { // delete only one recurrence
 
         QString objectType;
-        CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
-        if (calendarToDo) {
+        std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr <CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject.get()));
+        if (calendarToDo.get()) {
             objectType = "VTODO";
         } else {
             objectType = "VEVENT";
@@ -159,7 +159,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
                 requestString.append("STATUS:IN-PROCESS\r\n");
             }
         } else {
-            CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
+            std::shared_ptr <CalendarEvent> calendarEvent = std::shared_ptr <CalendarEvent> ( dynamic_cast<CalendarEvent *>(calendarObject.get()));
             if (calendarEvent->getParent().get()) {
                 const CalendarEvent *parent = dynamic_cast<const CalendarEvent *>(*calendarEvent->getParent().get());
                 requestString.append(
@@ -258,7 +258,7 @@ void CalendarObjectWidget::onTaskModified() {
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     //std::cout << "on check box toggled onCheckBoxToggledn";
-    CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+    std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject.get()));
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
     } else {

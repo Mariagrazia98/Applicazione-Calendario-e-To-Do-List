@@ -16,34 +16,34 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
-    for (int i = 0; i < calendarObjects.size(); ++i) {
-        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
-        if (calendarEvent) {
+    for (int i = 0; i < calendarObjects->size(); ++i) {
+        std::shared_ptr<CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent>(dynamic_cast<CalendarEvent *>((*calendarObjects)[i].get()));
+        if (calendarEvent.get()!= nullptr) {
             if (calendarEvent->getStartDateTime().date() <= date && calendarEvent->getEndDateTime().date() >= date) {
                 paintDate(painter, rect);
                 return;
             }
         }
-        if (calendarObjects[i]->getStartDateTime().date() == date) {
+        if ((*calendarObjects)[i]->getStartDateTime().date() == date) {
             paintDate(painter, rect);
             return;
-        } else if (calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRipetition() >= date) {
-            if (!calendarObjects[i]->getExDates().contains(date)) {
-                QDate start = calendarObjects[i]->getStartDateTime().date();
+        } else if ((*calendarObjects)[i]->getNumRepetition() > 0 && (*calendarObjects)[i]->getUntilDateRipetition() >= date) {
+            if (!(*calendarObjects)[i]->getExDates().contains(date)) {
+                QDate start = (*calendarObjects)[i]->getStartDateTime().date();
                 while (start < date) {
-                    switch (calendarObjects[i]->getTypeRepetition()) {
+                    switch ((*calendarObjects)[i]->getTypeRepetition()) {
                         case 1:
-                            start = start.addDays(calendarObjects[i]->getNumRepetition());
+                            start = start.addDays((*calendarObjects)[i]->getNumRepetition());
                             break;
                         case 2:
-                            start = start.addDays(calendarObjects[i]->getNumRepetition() * 7);
+                            start = start.addDays((*calendarObjects)[i]->getNumRepetition() * 7);
                             break;
                         case 3:
                             // Monthly
-                            start = start.addMonths(calendarObjects[i]->getNumRepetition());
+                            start = start.addMonths((*calendarObjects)[i]->getNumRepetition());
                             break;
                         case 4:
-                            start = start.addYears(calendarObjects[i]->getNumRepetition());
+                            start = start.addYears((*calendarObjects)[i]->getNumRepetition());
                             break;
                         default:
                             break;
@@ -75,8 +75,8 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
     painter->setOpacity(1);
 }
 
-void CustomCalendarWidget::setCalendarObjects(const QList<CalendarObject *> &calendarObjects) {
-    this->calendarObjects.clear();
-    CustomCalendarWidget::calendarObjects = calendarObjects;
+void CustomCalendarWidget::setCalendarObjects( QList<std::shared_ptr<CalendarObject>>* calendarObjects) {
+    this->calendarObjects->clear();
+    this->calendarObjects = calendarObjects;
     updateCells();
 }

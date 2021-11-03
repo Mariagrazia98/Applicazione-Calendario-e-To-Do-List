@@ -165,7 +165,7 @@ void TaskForm::on_buttonBox_accepted() {
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
-            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+            std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr <CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject.get()));
             if (calendarToDo->getCompletedDateTime()) {
                 requestString.append(
                         "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");

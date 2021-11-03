@@ -118,7 +118,7 @@ private:
     QPushButton *shareCalendarButton;
 
     QTextStream *stream;
-    QList<CalendarObject *> calendarObjects;
+    QList<std::shared_ptr<CalendarObject>> calendarObjects;
 
     QWidget *taskScrollWidget;
     QScrollArea *scrollArea;

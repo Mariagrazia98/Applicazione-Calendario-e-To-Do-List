@@ -21,8 +21,8 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
         priority(other.priority),
         startDateTime(other.startDateTime),
         exDates(other.exDates),
-        untilDateRipetition(other.untilDateRipetition){
-        parent = std::make_shared<const CalendarObject *>(&other);
+        untilDateRipetition(other.untilDateRipetition) {
+    parent = std::make_shared<const CalendarObject *>(&other);
 }
 
 
@@ -50,8 +50,8 @@ const QString &CalendarObject::getLocation() const {
     return location;
 }
 
-void CalendarObject::setLocation(const QString &location) {
-    CalendarObject::location = location;
+void CalendarObject::setLocation(const QString location) {
+    this->location = location;
 }
 
 const QString &CalendarObject::getDescription() const {

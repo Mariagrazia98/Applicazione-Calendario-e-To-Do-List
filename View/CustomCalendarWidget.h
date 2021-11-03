@@ -15,13 +15,13 @@ Q_OBJECT
 public:
     explicit CustomCalendarWidget(QWidget *parent = nullptr);
 
-    void setCalendarObjects(const QList<CalendarObject *> &calendarObjects);
+    void setCalendarObjects( QList<std::shared_ptr<CalendarObject>>* calendarObjects);
 
 protected:
     void paintCell(QPainter *painter, const QRect &rect, QDate date) const override;
 
 private:
-    QList<CalendarObject *> calendarObjects;
+    QList<std::shared_ptr<CalendarObject>>* calendarObjects; // metterlo weak
 
     void paintDate(QPainter *painter, const QRect &rect) const;
 };
