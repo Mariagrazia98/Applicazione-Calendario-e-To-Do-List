@@ -16,9 +16,8 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
-    //std::cout<<calendarObjects->value(0)<<" crasha?\n";
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        std::shared_ptr<CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent>(dynamic_cast<CalendarEvent *>((calendarObjects)[i].get()));
+        auto calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
         if (calendarEvent.get()!= nullptr) {
             if (calendarEvent->getStartDateTime().date() <= date && calendarEvent->getEndDateTime().date() >= date) {
                 paintDate(painter, rect);
@@ -57,9 +56,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
 
             }
         }
-
     }
-
 }
 
 void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const {

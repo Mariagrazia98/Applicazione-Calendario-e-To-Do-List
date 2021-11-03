@@ -100,7 +100,7 @@ private:
 
     void parseToDo(const QString &calendarName);
 
-    void addCalendarObjectWidget(CalendarObject *calendarObject);
+    void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
 
     void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 

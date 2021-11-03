@@ -27,7 +27,7 @@ CalendarObject::CalendarObject(const CalendarObject &other) :
 
 
 CalendarObject::~CalendarObject() {
-    std::cout<<"prova distruttore "<<std::endl;
+    std::cout << "prova distruttore " << std::endl;
 }
 
 const QString &CalendarObject::getCalendarName() const {
@@ -120,7 +120,6 @@ void CalendarObject::setUntilDateRipetition(const QDate &untilDateRipetition) {
     } else {
         this->untilDateRipetition = untilDateRipetition;
     }
-
 }
 
 const QDateTime &CalendarObject::getStartDateTime() const {

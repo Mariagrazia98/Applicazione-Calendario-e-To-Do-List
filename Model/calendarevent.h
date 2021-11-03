@@ -14,8 +14,6 @@ public:
 
     CalendarEvent(const CalendarEvent &other);
 
-    ~CalendarEvent() override;
-
     const QDateTime &getEndDateTime() const;
 
     void setEndDateTime(const QDateTime &endDateTime);

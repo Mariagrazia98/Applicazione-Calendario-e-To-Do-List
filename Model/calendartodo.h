@@ -26,7 +26,7 @@ public:
 
     std::optional<QDateTime> &getCompletedDateTime();
 
-    void setCompletedDateTime(const std::optional<QDateTime> &completedDateTime);
+    void setCompletedDateTime(const std::optional<QDateTime> completedDateTime);
 
     ToDoStatus getStatus() const;
 

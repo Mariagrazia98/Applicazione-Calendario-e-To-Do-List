@@ -23,7 +23,7 @@ std::optional<QDateTime> &CalendarToDo::getCompletedDateTime() {
     return completedDateTime;
 }
 
-void CalendarToDo::setCompletedDateTime(const std::optional<QDateTime> &completedDateTime) {
+void CalendarToDo::setCompletedDateTime(const std::optional<QDateTime> completedDateTime) {
     CalendarToDo::completedDateTime = completedDateTime;
 }
 

@@ -22,6 +22,9 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<Cale
         connectionManagers(connectionManagers),
         ui(new Ui::CalendarObjectWidget) {
     ui->setupUi(this);
+    if (!calendarObject.get()) {
+        std::cout << "calendar object null\n";
+    }
 //    setupUI();
 }
 
@@ -32,13 +35,13 @@ CalendarObjectWidget::~CalendarObjectWidget() {
 
 void CalendarObjectWidget::setupUI() {
     auto calendarObject_ = calendarObject.lock();
-    std::shared_ptr<CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent>(dynamic_cast<CalendarEvent*>(calendarObject_.get()));
+    std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject_);
     checkBox->adjustSize();
-    if (calendarEvent.get()!=nullptr) {
+    if (calendarEvent.get() != nullptr) {
         checkBox->setVisible(false);
         displayLayout->addSpacing(17);
     } else {
-        std::shared_ptr <CalendarToDo> calendarToDO = std::shared_ptr<CalendarToDo>(dynamic_cast<CalendarToDo *>(calendarObject_.get()));
+        auto calendarToDO = std::dynamic_pointer_cast<CalendarToDo>(calendarObject_);
         if (calendarToDO->getCompletedDateTime()) {
             checkBox->setCheckState(Qt::Checked);
         } else {
@@ -53,6 +56,7 @@ void CalendarObjectWidget::setupUI() {
     displayLayout->addWidget(textBrowser);
     setupButtons();
     this->setLayout(displayLayout);
+
 }
 
 void CalendarObjectWidget::setupText() {
@@ -67,13 +71,13 @@ void CalendarObjectWidget::setupText() {
     }
     text.append(
             "Start date and time: " + calendarObject_->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
-    std::shared_ptr <CalendarEvent> calendarEvent = std::shared_ptr<CalendarEvent> (dynamic_cast<CalendarEvent *>(calendarObject_.get()));
+    std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject_);
     if (calendarEvent.get() != nullptr) {
         // calendarObject is a CalendarEvent
 
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
-        std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject_.get()));
+        std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject_);
         if (calendarToDo.get() != nullptr) {
             // calendarObject is a CalendarEvent
             if (calendarToDo->getCompletedDateTime()) {
@@ -133,7 +137,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
     } else if (type == 1) { // delete only one recurrence
 
         QString objectType;
-        std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr <CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject_.get()));
+        std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject_);
         if (calendarToDo.get()) {
             objectType = "VTODO";
         } else {
@@ -152,7 +156,8 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
                     "DTSTART:" + (*parent)->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                     "\r\n");
         } else {
-            requestString.append("DTSTART:" + calendarObject_->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
+            requestString.append(
+                    "DTSTART:" + calendarObject_->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
         }
 
         if (calendarToDo) {
@@ -164,9 +169,9 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
                 requestString.append("STATUS:IN-PROCESS\r\n");
             }
         } else {
-            std::shared_ptr <CalendarEvent> calendarEvent = std::shared_ptr <CalendarEvent> ( dynamic_cast<CalendarEvent *>(calendarObject_.get()));
-            if (auto parent = calendarEvent->getParent().lock()){
-                const CalendarEvent *parent_event = dynamic_cast<const CalendarEvent *>(*parent);
+            std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject_);
+            if (auto parent = calendarEvent->getParent().lock()) {
+                const CalendarEvent* parent_event = dynamic_cast<const CalendarEvent*>(*parent);
                 requestString.append(
                         "DTEND:" + parent_event->getEndDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
             } else {
@@ -267,7 +272,8 @@ void CalendarObjectWidget::onTaskModified() {
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     auto calendarObject_ = calendarObject.lock();
     //std::cout << "on check box toggled onCheckBoxToggledn";
-    std::shared_ptr <CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo> (dynamic_cast<CalendarToDo *>(calendarObject_.get()));
+    std::shared_ptr<CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo>(
+            dynamic_cast<CalendarToDo *>(calendarObject_.get()));
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
     } else {
@@ -277,15 +283,15 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VTODO\r\n"
                             "UID:" + calendarObject_->getUID() + "\r\n"
-                                                                "VERSION:2.0\r\n"
-                                                                "DTSTAMP:" +
+                                                                 "VERSION:2.0\r\n"
+                                                                 "DTSTAMP:" +
                             calendarObject_->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
                             "SUMMARY:" + calendarObject_->getName() + "\r\n""LOCATION:" +
                             calendarObject_->getLocation() + "\r\n""DESCRIPTION:" + calendarObject_->getDescription() +
                             "\r\n""TRANSP:OPAQUE\r\n";
 
-    if (auto parent = calendarObject_->getParent().lock()){
+    if (auto parent = calendarObject_->getParent().lock()) {
         requestString.append(
                 "DTSTART:" + (*parent)->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");

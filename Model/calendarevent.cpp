@@ -13,10 +13,6 @@ CalendarEvent::CalendarEvent(const CalendarEvent &other) : CalendarObject(other)
                                                            endDateTime(other.endDateTime) {
 }
 
-CalendarEvent::~CalendarEvent() {
-
-}
-
 
 const QDateTime &CalendarEvent::getEndDateTime() const {
     return endDateTime;
