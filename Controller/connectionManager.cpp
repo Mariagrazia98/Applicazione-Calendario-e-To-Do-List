@@ -318,7 +318,7 @@ void ConnectionManager::setCalendar(Calendar *calendar) {
 }
 
 void
-ConnectionManager::makeShareCalendarRequest(const QString &email, const QString &displayName, const QString &comment) {
+ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName, const QString &comment) {
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -350,7 +350,7 @@ ConnectionManager::makeShareCalendarRequest(const QString &email, const QString 
 
     QNetworkRequest networkRequest;
     networkRequest.setUrl(
-            "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar->getName());
+            "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
     //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
     networkRequest.setRawHeader("Content-Type", "application/davsharing+xml; charset=utf-8");

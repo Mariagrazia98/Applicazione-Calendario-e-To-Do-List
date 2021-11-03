@@ -52,6 +52,14 @@ void ShareCalendarForm::closeEvent(QCloseEvent *event) {
 
 
 void ShareCalendarForm::onAcceptButtonClicked() {
+    if (email->text().isEmpty()) {
+        QMessageBox::warning(this, "Error", "Insert an email");
+        return;
+    }
+    if (name->text().isEmpty()){
+    QMessageBox::warning(this, "Error", "Insert a name");
+    return;
+    }
     connectionManagers[calendar->currentText()]->makeShareCalendarRequest(calendar->currentText(), email->text(), name->text(), comment->text());
     this->close();
 }
