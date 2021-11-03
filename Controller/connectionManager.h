@@ -72,7 +72,7 @@ public:
 
     void setCalendar(Calendar *calendar);
 
-    void makeShareCalendarRequest(const QString &email, const QString &displayName, const QString &comment);
+    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName, const QString &comment);
 
 private slots:
 

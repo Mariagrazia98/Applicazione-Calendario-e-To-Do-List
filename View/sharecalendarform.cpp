@@ -52,6 +52,6 @@ void ShareCalendarForm::closeEvent(QCloseEvent *event) {
 
 
 void ShareCalendarForm::onAcceptButtonClicked() {
-    connectionManagers[calendar->currentText()]->makeShareCalendarRequest(email->text(), name->text(), comment->text());
+    connectionManagers[calendar->currentText()]->makeShareCalendarRequest(calendar->currentText(), email->text(), name->text(), comment->text());
     this->close();
 }
