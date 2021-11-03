@@ -42,9 +42,9 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         }
         ui->comboBox->setDisabled(true);
 
-        if (calendarObject->getParent()) {
+        if (auto parent = calendarObject->getParent().lock()) {
             // this is a reccurrence
-            ui->beginDateTime->setDateTime((*calendarObject->getParent())->getStartDateTime());
+            ui->beginDateTime->setDateTime((*parent)->getStartDateTime());
         } else {
             ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
         }

@@ -182,7 +182,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
 
     stream->seek(0);
 
-    this->calendar->setCalendarObjects(&calendarObjects);
+    this->calendar->setCalendarObjects(calendarObjects);
     showSelectedDateTasks();
 
 }
@@ -369,7 +369,7 @@ void CalendarWidget::addCalendarObjectWidget(CalendarObject *calendarObject) {
         return;
     }
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
-    CalendarObjectWidget *calendarObjectWidget = new CalendarObjectWidget(this, *calendarObject, connectionManagers);
+    CalendarObjectWidget *calendarObjectWidget = new CalendarObjectWidget(this, std::shared_ptr<CalendarObject>(calendarObject), connectionManagers);
     calendarObjectWidget->setupUI();
     calendarObjectWidget->setVisible(true);
     calendarObjectWidget->setEnabled(true);
