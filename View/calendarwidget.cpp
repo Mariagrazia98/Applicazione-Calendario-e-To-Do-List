@@ -633,15 +633,10 @@ QDate CalendarWidget::getCurrentDateSelected() {
 void CalendarWidget::shareCalendarButtonClicked() {
     shareCalendarButton->setEnabled(false);
 
-    //ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, *connectionManager.get());
-    //sharecalendarForm->show();
-    //connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
-    /*
-    TaskForm *taskForm = new TaskForm(*connectionManager.get());
-    taskForm->show();
-    connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
-    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);
-     */
+    ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, connectionManagers);
+    sharecalendarForm->show();
+    connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
+
 }
 
 void CalendarWidget::onSharecalendarFormClosed() {

@@ -5,12 +5,16 @@
 
 #include "sharecalendarform.h"
 
-ShareCalendarForm::ShareCalendarForm(QWidget *parent, ConnectionManager *connectionManager) :
+ShareCalendarForm::ShareCalendarForm(QWidget *parent,
+                                     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QDialog(parent),
-        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
+        parent(parent),
+        connectionManagers(connectionManagers),
         groupBox(new QGroupBox),
         formLayout(new QFormLayout),
         layout(new QGridLayout),
+        calendar(new QComboBox),
+        calendarLabel(new QLabel("Calendar")),
         emailLabel(new QLabel("Email")),
         email(new QLineEdit),
         nameLabel(new QLabel("Name")),
@@ -23,6 +27,12 @@ ShareCalendarForm::ShareCalendarForm(QWidget *parent, ConnectionManager *connect
 
 
 void ShareCalendarForm::setupUI() {
+    for (auto connectionManager = connectionManagers.begin();
+         connectionManager != connectionManagers.end(); connectionManager++) {
+        calendar->addItem(connectionManager.key());
+    }
+
+    formLayout->addRow(calendarLabel, calendar);
     formLayout->addRow(emailLabel, email);
     formLayout->addRow(nameLabel, name);
     formLayout->addRow(commentLabel, comment);
@@ -36,7 +46,12 @@ void ShareCalendarForm::setupUI() {
     connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &ShareCalendarForm::close);
 }
 
+void ShareCalendarForm::closeEvent(QCloseEvent *event) {
+    emit(closing());
+}
+
+
 void ShareCalendarForm::onAcceptButtonClicked() {
-    (*connectionManager.get())->makeShareCalendarRequest(email->text(), name->text(), comment->text());
+    connectionManagers[calendar->currentText()]->makeShareCalendarRequest(email->text(), name->text(), comment->text());
     this->close();
 }
