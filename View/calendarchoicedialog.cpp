@@ -13,6 +13,7 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *c
         QDialog(parent),
         connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
         ui(new Ui::CalendarChoiceDialog),
+        groupBox(new QGroupBox("Calendars")),
         formLayout(new QFormLayout),
         verticalLayout(new QVBoxLayout),
         pushButton(new QPushButton("Confirm")),
@@ -38,25 +39,21 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
             connect(checkBox, &QCheckBox::stateChanged, this, &CalendarChoiceDialog::checkBoxToggled);
             checkBoxes.append(checkBox);
             QLabel *label = new QLabel(calendar->getName());
-            formLayout->addRow(label, checkBox);
-            /*
-            QPushButton * button = new QPushButton(calendar->getName(), this);
-            groupButton->addButton(button);
-            verticalLayout->addWidget(button, 0, Qt::AlignCenter);
-             */
+            formLayout->addRow(checkBox, label);
         } else {
             std::cerr << "[CalendarChoiceDialog] null Calendar\n";
         }
     }
     formLayout->setAlignment(Qt::AlignCenter);
-    verticalLayout->addLayout(formLayout);
+    groupBox->setAlignment(Qt::AlignCenter);
+    groupBox->setLayout(formLayout);
+    verticalLayout->addWidget(groupBox);
     verticalLayout->addWidget(pushButton);
+    setLayout(verticalLayout);
     connect(pushButton, &QPushButton::pressed,
             this, &CalendarChoiceDialog::accept);
 
-    verticalLayout->addSpacing(30);
-
-    this->adjustSize();
+    //this->adjustSize();
     //this->setMinimumSize(400,300);
 
     setLayout(verticalLayout);

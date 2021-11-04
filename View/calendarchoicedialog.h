@@ -41,6 +41,7 @@ private:
 
     std::shared_ptr<ConnectionManager *> connectionManager;
 
+    QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
     QFormLayout *formLayout;
     QList<QCheckBox *> checkBoxes;
