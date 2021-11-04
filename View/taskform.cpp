@@ -44,7 +44,7 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
 
         if (auto parent = calendarObject->getParent().lock()) {
             // this is a reccurrence
-            ui->beginDateTime->setDateTime((*parent)->getStartDateTime());
+            ui->beginDateTime->setDateTime(parent->getStartDateTime());
         } else {
             ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
         }

@@ -9,25 +9,28 @@ CalendarObject::CalendarObject() {
 
 }
 
-CalendarObject::CalendarObject(const CalendarObject &other) :
-        name(other.name),
-        calendarName(other.calendarName),
-        UID(other.UID),
-        location(other.location),
-        description(other.description),
-        creationDateTime(other.creationDateTime),
-        typeRepetition(other.typeRepetition),
-        numRepetition(other.numRepetition),
-        priority(other.priority),
-        startDateTime(other.startDateTime),
-        exDates(other.exDates),
-        untilDateRipetition(other.untilDateRipetition) {
-    parent = std::make_shared<const CalendarObject *>(&other);
+CalendarObject::CalendarObject(std::shared_ptr<const CalendarObject> other) :
+        name(other->name),
+        calendarName(other->calendarName),
+        UID(other->UID),
+        location(other->location),
+        description(other->description),
+        creationDateTime(other->creationDateTime),
+        typeRepetition(other->typeRepetition),
+        numRepetition(other->numRepetition),
+        priority(other->priority),
+        startDateTime(other->startDateTime),
+        exDates(other->exDates),
+        untilDateRipetition(other->untilDateRipetition) {
+    parent = other;
 }
 
 
 CalendarObject::~CalendarObject() {
-    std::cout << "prova distruttore " << std::endl;
+    std::cout << "distruttore " << name.toStdString() << " del " << startDateTime.toString().toStdString() << std::endl;
+    if (!parent.lock()) {
+        std::cout << "this calendarObject is a father\n";
+    }
 }
 
 const QString &CalendarObject::getCalendarName() const {
@@ -139,6 +142,6 @@ void CalendarObject::setExDates(const QList<QDate> &exDates) {
     CalendarObject::exDates = exDates;
 }
 
-std::weak_ptr<const CalendarObject *> CalendarObject::getParent() const {
+std::weak_ptr<const CalendarObject> CalendarObject::getParent() const {
     return parent;
 }

@@ -22,7 +22,7 @@ Q_OBJECT
 public:
     CalendarToDo();
 
-    CalendarToDo(const CalendarToDo &other);
+    CalendarToDo(std::shared_ptr<const CalendarToDo> other);
 
     std::optional<QDateTime> &getCompletedDateTime();
 

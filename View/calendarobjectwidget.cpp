@@ -25,6 +25,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<Cale
     if (!calendarObject.get()) {
         std::cout << "calendar object null\n";
     }
+    std::cout << "costruttore CalendarObjectWidget\n";
 //    setupUI();
 }
 
@@ -56,7 +57,7 @@ void CalendarObjectWidget::setupUI() {
     displayLayout->addWidget(textBrowser);
     setupButtons();
     this->setLayout(displayLayout);
-
+    std::cout << "return from setupUI\n";
 }
 
 void CalendarObjectWidget::setupText() {
@@ -119,6 +120,7 @@ void CalendarObjectWidget::onModifyButtonClicked() {
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
     auto calendarObject_ = calendarObject.lock();
+    assert(calendarObject_);
     if (calendarObject_->getTypeRepetition() > 0 && calendarObject_->getNumRepetition() != 0) {
         // has repetitions
         EliminationTaskDialog *dialog = new EliminationTaskDialog(nullptr);
@@ -135,7 +137,6 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
     if (type == 0) { // delete all recurrences
         deleteCalendarObject();
     } else if (type == 1) { // delete only one recurrence
-
         QString objectType;
         std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject_);
         if (calendarToDo.get()) {
@@ -153,7 +154,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
                 "\r\nTRANSP:OPAQUE\r\n";
         if (auto parent = calendarObject_->getParent().lock()) {
             requestString.append(
-                    "DTSTART:" + (*parent)->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                    "DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                     "\r\n");
         } else {
             requestString.append(
@@ -171,7 +172,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         } else {
             std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject_);
             if (auto parent = calendarEvent->getParent().lock()) {
-                const CalendarEvent* parent_event = dynamic_cast<const CalendarEvent*>(*parent);
+                auto parent_event = std::dynamic_pointer_cast<const CalendarEvent>(parent);
                 requestString.append(
                         "DTEND:" + parent_event->getEndDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
             } else {
@@ -245,7 +246,6 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
     auto calendarObject_ = calendarObject.lock();
     disconnect(connectionToFinish);
     if (reply != nullptr) {
-
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
             emit(taskDeleted(*calendarObject_));
@@ -264,16 +264,15 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
 }
 
 void CalendarObjectWidget::onTaskModified() {
-    auto calendarObject_ = calendarObject.lock();
     disconnect(connectionToObjectModified);
+    auto calendarObject_ = calendarObject.lock();
     emit(taskModified(calendarObject_->getCalendarName()));
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     auto calendarObject_ = calendarObject.lock();
     //std::cout << "on check box toggled onCheckBoxToggledn";
-    std::shared_ptr<CalendarToDo> calendarToDo = std::shared_ptr<CalendarToDo>(
-            dynamic_cast<CalendarToDo *>(calendarObject_.get()));
+    auto calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject_);
     if (checked) {
         calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
     } else {
@@ -293,7 +292,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     if (auto parent = calendarObject_->getParent().lock()) {
         requestString.append(
-                "DTSTART:" + (*parent)->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
+                "DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");
     } else {
         requestString.append("DTSTART:" + calendarObject_->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
