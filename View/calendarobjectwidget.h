@@ -59,7 +59,7 @@ private:
     void deleteCalendarObject();
 
     Ui::CalendarObjectWidget *ui;
-    std::weak_ptr <CalendarObject> calendarObject;
+    std::shared_ptr <CalendarObject> calendarObject;
     QMetaObject::Connection connectionToFinish;
     QMetaObject::Connection connectionToObjectModified;
 
