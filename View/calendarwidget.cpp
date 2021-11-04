@@ -159,7 +159,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             // salva id calendario
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
-            std::cout << "parsing calendar: " << calendarName.toStdString() << '\n';
+            //std::cout << "parsing calendar: " << calendarName.toStdString() << '\n';
             int i = 0;
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
@@ -189,7 +189,6 @@ void CalendarWidget::parseCalendar(QString calendarString) {
 }
 
 void CalendarWidget::showSelectedDateTasks() {
-    std::cout << "showSelectedDateTasks\n";
     QLayoutItem *item;
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -361,7 +360,6 @@ void CalendarWidget::showSelectedDateTasks() {
             }
         }
     }
-    std::cout << "return from showSelectedDateTasks\n";
 }
 
 void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject) {
@@ -462,7 +460,6 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
     QString line;
     std::shared_ptr<CalendarObject> calendarObject(new CalendarToDo());
     while (stream->readLineInto(&line)) {
-        //std::cout<<"LINEA: "<<line.toStdString()<<std::endl;
         if (line.contains(QByteArray("END:VTODO"))) {
             if (calendarObject->getName() != "") {
                 calendarObject->setCalendarName(calendarName);

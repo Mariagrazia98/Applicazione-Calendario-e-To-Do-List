@@ -25,12 +25,7 @@ CalendarObject::CalendarObject(std::shared_ptr<const CalendarObject> other) :
     parent = other;
 }
 
-
 CalendarObject::~CalendarObject() {
-    std::cout << "distruttore " << name.toStdString() << " del " << startDateTime.toString().toStdString() << std::endl;
-    if (!parent.lock()) {
-        std::cout << "this calendarObject is a father\n";
-    }
 }
 
 const QString &CalendarObject::getCalendarName() const {
