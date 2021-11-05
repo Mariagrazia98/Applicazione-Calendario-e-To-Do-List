@@ -21,57 +21,69 @@
 #include <QPushButton>
 #include <QDebug>
 #include <QScrollArea>
+#include <QTimer>
+#include <QMainWindow>
+#include <QDockWidget>
 
 #include <iostream>
 
-#include "taskForm.h"
-#include "calendarobject.h"
-#include "calendarevent.h"
-#include "calendartodo.h"
+#include "taskform.h"
+#include "../Model/calendarobject.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
-#include "connectionManager.h"
+#include "../Controller/connectionManager.h"
+#include "CustomCalendarWidget.h"
+#include "sharecalendarform.h"
 
-namespace Ui {
-    class Calendar;
-}
-
-class Calendar : public QWidget {
+class CalendarWidget : public QMainWindow {
 Q_OBJECT
 
 public:
-    explicit Calendar(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    explicit CalendarWidget(QWidget *parent = nullptr);
 
-    ~Calendar();
+    ~CalendarWidget();
 
     void setupConnection();
 
-    void setConnectionManager(ConnectionManager *connectionManager);
+    void addConnectionManager(ConnectionManager *connectionManager);
 
-    void getCalendarRequest();
+    void getCalendarRequest(const QString calendarName);
 
-public slots:
+    void setupTimer();
+
+    QDate getCurrentDateSelected();
+
+public
+    slots:
 
     void parseCalendar(QString calendar);
 
-    void finished(QNetworkReply *reply);
+    void onCalendarReady(QNetworkReply *reply);
 
-private slots:
+private
+    slots:
 
     void selectedDateChanged();
 
     void reformatCalendarPage();
 
-    void onDateTextChanged();
-
     void addTaskButtonClicked();
 
-    void parseEvent();
+    void shareCalendarButtonClicked();
+
+    void parseEvent(const QString &calendarName);
+
+    void onSharecalendarFormClosed();
 
     void onTaskFormClosed();
 
-    void onTaskModified();
+    void onTaskModified(const QString calendarName);
 
     void onTaskDeleted(CalendarObject &obj);
+
+    void onTimeout();
+
 
 private:
     void setupCalendar();
@@ -86,15 +98,15 @@ private:
 
     QDateTime getDateTimeFromString(const QString &string);
 
-    void parseToDo();
+    void parseToDo(const QString &calendarName);
 
     void addCalendarObjectWidget(CalendarObject *calendarObject);
 
-    Ui::Calendar *ui;
+    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
-    QGroupBox *calendarGroupBox; // calendar group box (left)
+    QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
-    QCalendarWidget *calendar;
+    CustomCalendarWidget *calendar;
 
     QGroupBox *tasksGroupBox; // tasks group box (right)
     QVBoxLayout *tasksLayout;
@@ -103,6 +115,7 @@ private:
     QTextBrowser *dateString;
 
     QPushButton *addTaskButton;
+    QPushButton *shareCalendarButton;
 
     QTextStream *stream;
     QList<CalendarObject *> calendarObjects;
@@ -111,10 +124,11 @@ private:
     QScrollArea *scrollArea;
     QVBoxLayout *taskViewLayout;
 
-    ConnectionManager *connectionManager;
-    QMetaObject::Connection connectionToFinished;
+    //std::shared_ptr<ConnectionManager *> connectionManager;
+    QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
-    QNetworkAccessManager* networkAccessManager;
+    QTimer *timer;
+    const unsigned int timerInterval;
 
 
 };

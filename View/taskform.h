@@ -59,8 +59,6 @@ private:
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
     QMetaObject::Connection connectionToFinish;
 
-    QNetworkAccessManager* networkAccessManager;
-
     CalendarObject *calendarObject;
     QString calendarName;
 
