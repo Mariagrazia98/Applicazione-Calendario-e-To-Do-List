@@ -1,13 +1,10 @@
 #include <QApplication>
 #include <QHBoxLayout>
 #include <QFile>
-#include <QWidget>
 
 #include <iostream>
-#include "View/loginform.h"
-#include "View/calendarwidget.h"
-#include "Controller/connectionManager.h"
-#include "View/calendarchoicedialog.h"
+#include "loginform.h"
+#include "calendar.h"
 
 
 int main(int argc, char *argv[]) {
@@ -28,27 +25,12 @@ int main(int argc, char *argv[]) {
 
     a.setWindowIcon(QIcon(":/resources/list.png"));
 
-    std::shared_ptr<ConnectionManager> connectionManager = std::shared_ptr<ConnectionManager>(new ConnectionManager());
-    LoginForm loginForm(nullptr, connectionManager.get());
-    CalendarWidget calendarWidget(nullptr);
-    CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager.get());
-    Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,
-                      &CalendarChoiceDialog::setupUI);
+    ConnectionManager connectionManager;
+    LoginForm loginForm(nullptr, &connectionManager);
+    Calendar calendar(nullptr, &connectionManager);
     if (loginForm.exec() == QDialog::Accepted) {
-        calendarChoiceDialog.show();
-        if (calendarChoiceDialog.exec() == QDialog::Accepted) {
-            QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
-            for (int i = 0; i < calendars.length(); ++i) {
-
-                ConnectionManager *connectionManager_ = new ConnectionManager(connectionManager->getUsername(),
-                                                                              connectionManager->getPassword());
-                connectionManager_->setCalendar(calendars[i]);
-                calendarWidget.addConnectionManager(connectionManager_);
-            }
-            calendarWidget.setupConnection();
-            calendarWidget.setupTimer();
-            calendarWidget.show();
-        }
+        calendar.setupConnection();
+        calendar.show();
     }
     return QApplication::exec();
 }
