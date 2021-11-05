@@ -23,7 +23,7 @@ class CalendarObjectWidget : public QWidget {
 Q_OBJECT
 
 public:
-    CalendarObjectWidget(QWidget *parent, CalendarObject &calendarObject,
+    CalendarObjectWidget(QWidget *parent, std::shared_ptr<CalendarObject> calendarObject,
                          QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers);
 
     ~CalendarObjectWidget();
@@ -59,7 +59,7 @@ private:
     void deleteCalendarObject();
 
     Ui::CalendarObjectWidget *ui;
-    CalendarObject *calendarObject;
+    std::shared_ptr <CalendarObject> calendarObject;
     QMetaObject::Connection connectionToFinish;
     QMetaObject::Connection connectionToObjectModified;
 

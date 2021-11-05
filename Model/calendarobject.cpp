@@ -9,25 +9,23 @@ CalendarObject::CalendarObject() {
 
 }
 
-CalendarObject::CalendarObject(const CalendarObject &other) :
-        name(other.name),
-        calendarName(other.calendarName),
-        UID(other.UID),
-        location(other.location),
-        description(other.description),
-        creationDateTime(other.creationDateTime),
-        typeRepetition(other.typeRepetition),
-        numRepetition(other.numRepetition),
-        priority(other.priority),
-        startDateTime(other.startDateTime),
-        exDates(other.exDates),
-        untilDateRipetition(other.untilDateRipetition){
-        parent = std::make_shared<const CalendarObject *>(&other);
+CalendarObject::CalendarObject(std::shared_ptr<const CalendarObject> other) :
+        name(other->name),
+        calendarName(other->calendarName),
+        UID(other->UID),
+        location(other->location),
+        description(other->description),
+        creationDateTime(other->creationDateTime),
+        typeRepetition(other->typeRepetition),
+        numRepetition(other->numRepetition),
+        priority(other->priority),
+        startDateTime(other->startDateTime),
+        exDates(other->exDates),
+        untilDateRipetition(other->untilDateRipetition) {
+    parent = other;
 }
 
-
 CalendarObject::~CalendarObject() {
-
 }
 
 const QString &CalendarObject::getCalendarName() const {
@@ -50,8 +48,8 @@ const QString &CalendarObject::getLocation() const {
     return location;
 }
 
-void CalendarObject::setLocation(const QString &location) {
-    CalendarObject::location = location;
+void CalendarObject::setLocation(const QString location) {
+    this->location = location;
 }
 
 const QString &CalendarObject::getDescription() const {
@@ -120,7 +118,6 @@ void CalendarObject::setUntilDateRipetition(const QDate &untilDateRipetition) {
     } else {
         this->untilDateRipetition = untilDateRipetition;
     }
-
 }
 
 const QDateTime &CalendarObject::getStartDateTime() const {
@@ -140,6 +137,6 @@ void CalendarObject::setExDates(const QList<QDate> &exDates) {
     CalendarObject::exDates = exDates;
 }
 
-std::shared_ptr<const CalendarObject *> CalendarObject::getParent() const {
+std::weak_ptr<const CalendarObject> CalendarObject::getParent() const {
     return parent;
 }

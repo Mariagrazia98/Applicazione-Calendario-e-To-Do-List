@@ -8,11 +8,11 @@
 
 CalendarToDo::CalendarToDo() {}
 
-CalendarToDo::CalendarToDo(const CalendarToDo &other) :
+CalendarToDo::CalendarToDo(std::shared_ptr<const CalendarToDo> other) :
         CalendarObject(other),
-        status(other.status) {
-    if (other.completedDateTime) {
-        completedDateTime = *other.completedDateTime;
+        status(other->status) {
+    if (other->completedDateTime) {
+        completedDateTime = other->completedDateTime;
     } else {
         completedDateTime = std::nullopt;
     }
@@ -23,8 +23,8 @@ std::optional<QDateTime> &CalendarToDo::getCompletedDateTime() {
     return completedDateTime;
 }
 
-void CalendarToDo::setCompletedDateTime(const std::optional<QDateTime> &completedDateTime) {
-    CalendarToDo::completedDateTime = completedDateTime;
+void CalendarToDo::setCompletedDateTime(const std::optional<QDateTime> completedDateTime) {
+    this->completedDateTime = completedDateTime;
 }
 
 ToDoStatus CalendarToDo::getStatus() const {

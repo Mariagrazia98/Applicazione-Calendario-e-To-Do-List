@@ -59,7 +59,7 @@ private:
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
     QMetaObject::Connection connectionToFinish;
 
-    CalendarObject *calendarObject;
+    std::shared_ptr <CalendarObject> calendarObject;
     QString calendarName;
 
     void closeEvent(QCloseEvent *event) override;

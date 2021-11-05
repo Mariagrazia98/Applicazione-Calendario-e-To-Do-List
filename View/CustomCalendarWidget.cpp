@@ -17,8 +17,8 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObjects[i]);
-        if (calendarEvent) {
+        auto calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
+        if (calendarEvent.get()!= nullptr) {
             if (calendarEvent->getStartDateTime().date() <= date && calendarEvent->getEndDateTime().date() >= date) {
                 paintDate(painter, rect);
                 return;
@@ -56,9 +56,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
 
             }
         }
-
     }
-
 }
 
 void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const {
@@ -75,8 +73,8 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
     painter->setOpacity(1);
 }
 
-void CustomCalendarWidget::setCalendarObjects(const QList<CalendarObject *> &calendarObjects) {
+void CustomCalendarWidget::setCalendarObjects( QList<std::shared_ptr<CalendarObject>> calendarObjects) {
     this->calendarObjects.clear();
-    CustomCalendarWidget::calendarObjects = calendarObjects;
+    this->calendarObjects = calendarObjects;
     updateCells();
 }

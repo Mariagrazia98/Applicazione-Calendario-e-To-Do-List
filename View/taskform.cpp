@@ -42,9 +42,9 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         }
         ui->comboBox->setDisabled(true);
 
-        if (calendarObject->getParent()) {
+        if (auto parent = calendarObject->getParent().lock()) {
             // this is a reccurrence
-            ui->beginDateTime->setDateTime((*calendarObject->getParent())->getStartDateTime());
+            ui->beginDateTime->setDateTime(parent->getStartDateTime());
         } else {
             ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
         }
@@ -165,7 +165,7 @@ void TaskForm::on_buttonBox_accepted() {
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
-            CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
+            std::shared_ptr <CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
             if (calendarToDo->getCompletedDateTime()) {
                 requestString.append(
                         "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");

@@ -12,9 +12,7 @@ Q_OBJECT
 public:
     CalendarEvent();
 
-    CalendarEvent(const CalendarEvent &other);
-
-    ~CalendarEvent() override;
+    CalendarEvent(std::shared_ptr<const CalendarEvent> other);
 
     const QDateTime &getEndDateTime() const;
 

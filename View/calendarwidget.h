@@ -100,7 +100,7 @@ private:
 
     void parseToDo(const QString &calendarName);
 
-    void addCalendarObjectWidget(CalendarObject *calendarObject);
+    void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
 
     void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
@@ -118,7 +118,7 @@ private:
     QPushButton *shareCalendarButton;
 
     QTextStream *stream;
-    QList<CalendarObject *> calendarObjects;
+    QList<std::shared_ptr<CalendarObject>> calendarObjects;
 
     QWidget *taskScrollWidget;
     QScrollArea *scrollArea;
