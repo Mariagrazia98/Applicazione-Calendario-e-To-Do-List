@@ -22,11 +22,13 @@ Q_OBJECT
 public:
     CalendarToDo();
 
-    CalendarToDo(std::shared_ptr<const CalendarToDo> other);
+    CalendarToDo(std::shared_ptr<CalendarToDo> other);
 
-    std::optional<QDateTime> &getCompletedDateTime();
+    QList<QDate> &getCompletedDate();
 
-    void setCompletedDateTime(const std::optional<QDateTime> completedDateTime);
+    void addCompletedDate(const QDate completedDate);
+
+    void removeCompletedDate(const QDate completedDate);
 
     ToDoStatus getStatus() const;
 
@@ -34,7 +36,7 @@ public:
 
 
 private:
-    std::optional<QDateTime> completedDateTime;
+    QList<QDate> completedDateList;
     ToDoStatus status;
 };
 

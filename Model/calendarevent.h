@@ -12,7 +12,7 @@ Q_OBJECT
 public:
     CalendarEvent();
 
-    CalendarEvent(std::shared_ptr<const CalendarEvent> other);
+    CalendarEvent(std::shared_ptr<CalendarEvent> other);
 
     const QDateTime &getEndDateTime() const;
 

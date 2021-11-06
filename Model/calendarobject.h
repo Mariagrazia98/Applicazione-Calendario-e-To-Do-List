@@ -15,7 +15,7 @@ public:
 
     CalendarObject();
 
-    CalendarObject(std::shared_ptr<const CalendarObject> other);
+    CalendarObject(std::shared_ptr<CalendarObject> other);
 
     virtual ~CalendarObject() = 0;
 
@@ -63,11 +63,11 @@ public:
 
     void setPriority(unsigned int priority);
 
-    std::weak_ptr<const CalendarObject> getParent() const;
+    std::weak_ptr< CalendarObject> getParent() const;
 
     const QList<QDate> &getExDates() const;
 
-    void setExDates(const QList<QDate> &exDates);
+    void addExDate(QDate exDate);
 
 private:
     QString calendarName;
@@ -82,7 +82,7 @@ private:
     QDateTime startDateTime;
     QDate untilDateRipetition;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
     QList<QDate> exDates;
-    std::weak_ptr<const CalendarObject> parent;
+    std::weak_ptr<CalendarObject> parent;
 
 };
 

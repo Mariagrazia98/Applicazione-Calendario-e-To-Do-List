@@ -165,12 +165,28 @@ void TaskForm::on_buttonBox_accepted() {
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
         if (calendarObject) {
-            std::shared_ptr <CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
-            if (calendarToDo->getCompletedDateTime()) {
-                requestString.append(
-                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmss") + "\r\n");
-                requestString.append("STATUS:COMPLETED\r\n");
+            std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
+            if(calendarToDo){
+                QList<QDate> completedDates = calendarToDo->getCompletedDate();
+                requestString.append("COMPLETED:");
+                for (int i = 0; i < completedDates.size(); i++) {
+                    requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+                    if (i != completedDates.size() - 1) {
+                        requestString.append(',');
+                    }
+                }
+                requestString.append("\r\n");
             }
+
+            QList<QDate> exDates = calendarObject->getExDates();
+            requestString.append("EXDATE:");
+            for (int i = 0; i < exDates.size(); i++) {
+                requestString.append(exDates[i].toString("yyyyMMddT010000Z"));
+                if (i != exDates.size() - 1) {
+                    requestString.append(',');
+                }
+            }
+            requestString.append("\r\n");
         } else {
             requestString.append("STATUS:IN-PROCESS\r\n");
         }

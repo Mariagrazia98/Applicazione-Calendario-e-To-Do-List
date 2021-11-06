@@ -159,7 +159,6 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             // salva id calendario
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
-            //std::cout << "parsing calendar: " << calendarName.toStdString() << '\n';
             int i = 0;
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
@@ -175,6 +174,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             parseToDo(calendarName);
         }
     }
+
 
     std::sort(calendarObjects.begin(), calendarObjects.end(),
               [](std::shared_ptr<CalendarObject> a, std::shared_ptr<CalendarObject> b) {
@@ -298,7 +298,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
-                                        /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        /* TODO calendarToDo_->addCompletedDate(calendarToDo->getCompletedDate()); */
                                         addCalendarObjectWidget(calendarToDo_);
                                         break;
                                     }
@@ -314,7 +314,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                         std::shared_ptr<CalendarObject> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
-                                        /*TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        /*TODO calendarToDo_->addCompletedDate(calendarToDo->getCompletedDate()); */
                                         addCalendarObjectWidget(calendarToDo_);
                                         break;
                                     }
@@ -330,7 +330,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
-                                        /* TODO calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        /* TODO calendarToDo_->addCompletedDate(calendarToDo->getCompletedDate()); */
                                         addCalendarObjectWidget(calendarToDo_);
                                         break;
                                     }
@@ -346,7 +346,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
-                                        /* TODO  calendarToDo_->setCompletedDateTime(calendarToDo->getCompletedDateTime()); */
+                                        /* TODO  calendarToDo_->addCompletedDate(calendarToDo->getCompletedDate()); */
                                         addCalendarObjectWidget(calendarToDo_);
                                         break;
                                     }
@@ -383,7 +383,8 @@ void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> cal
 
 void CalendarWidget::parseEvent(const QString &calendarName) {
     QString line;
-
+    QString lastKey = "";
+    QString lastLine = "";
     std::shared_ptr<CalendarObject> calendarObject = std::make_shared<CalendarEvent>();
     while (stream->readLineInto(&line)) {
         if (line.contains(QByteArray("END:VEVENT"))) {
@@ -394,10 +395,7 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
             return;
         }
         const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
-
-
         const QString key = line.mid(0, deliminatorPosition);
-
         QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
         if (key.startsWith(QLatin1String("DTSTAMP"))) {
             calendarObject->setCreationDateTime(
@@ -419,11 +417,8 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
         } else if (key == QLatin1String("UID")) {
             calendarObject->setUID(value);
         } else if (key == QLatin1String("DESCRIPTION")) {
+            lastKey = "DESCRIPTION";
             calendarObject->setDescription(value);
-        } else if (deliminatorPosition == -1) {
-            QString description = calendarObject->getDescription();
-            description.append(value);
-            calendarObject->setDescription(description);
         } else if (key == QLatin1String("RRULE")) {
             const QString rrule = value;
 
@@ -434,7 +429,6 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
             const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
 
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
-
             if (typeRepetition == "DAILY") {
                 calendarObject->setTypeRepetition(DAILY);
             } else if (typeRepetition == "WEEKLY") {
@@ -446,12 +440,20 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
             } else {
                 calendarObject->setTypeRepetition(-1);
             }
-
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
-        } else if (key == QLatin1String("EXDATE")) {
-            addExDatesToCalendarObject(calendarObject.get(), value);
+        } else if (key == "EXDATE") {
+            lastKey = "EXDATE";
+            lastLine = addExDatesToCalendarObject(calendarObject.get(), value);
+        } else if (deliminatorPosition == -1) {
+            if (lastKey == "DESCRIPTION") {
+                QString description = calendarObject->getDescription();
+                description.append(value);
+                calendarObject->setDescription(description);
+            } else if (lastKey == "EXDATE") {
+                lastLine = addExDatesToCalendarObject(calendarObject.get(), lastLine.append(value).replace(" ", ""));
+            }
         }
     }
 }
@@ -459,7 +461,10 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
 void CalendarWidget::parseToDo(const QString &calendarName) {
     QString line;
     std::shared_ptr<CalendarObject> calendarObject(new CalendarToDo());
+    QString lastKey = "";
+    QString lastLine = "";
     while (stream->readLineInto(&line)) {
+        //std::cout << line.toStdString()<<'\n';
         if (line.contains(QByteArray("END:VTODO"))) {
             if (calendarObject->getName() != "") {
                 calendarObject->setCalendarName(calendarName);
@@ -486,11 +491,29 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
             calendarObject->setUID(value);
         } else if (key == QLatin1String("DESCRIPTION")) {
             calendarObject->setDescription(value);
+            lastKey = "DESCRIPTION";
+        } else if (deliminatorPosition == -1) {
+            if (lastKey == "DESCRIPTION") {
+                QString description = calendarObject->getDescription();
+                description.append(value);
+                calendarObject->setDescription(description);
+            } else if (lastKey == "EXDATE") {
+                lastLine = addExDatesToCalendarObject(calendarObject.get(),
+                                                      lastLine.append(value).replace(" ", ""));
+            } else if (lastKey == "COMPLETED") {
+                lastLine = addCompletedDatesToCalendarObject(
+                        std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
+                        lastLine.append(value).replace(" ", ""));
+
+            }
+
         } else if (key == QLatin1String("PRIORITY")) {
             calendarObject->setPriority(value.toInt());
         } else if (key == QLatin1String("COMPLETED")) {
-            (std::dynamic_pointer_cast<CalendarToDo>(calendarObject))->setCompletedDateTime(
-                    getDateTimeFromString(value).toLocalTime());
+            lastLine = addCompletedDatesToCalendarObject(
+                    std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
+                    value);
+            lastKey = "COMPLETED";
         } else if (key == QLatin1String("RRULE")) {
             QString rrule = value;
 
@@ -501,7 +524,6 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
             const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
 
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
-
             if (typeRepetition == "DAILY") {
                 calendarObject->setTypeRepetition(DAILY);
             } else if (typeRepetition == "WEEKLY") {
@@ -513,27 +535,42 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
             } else {
                 calendarObject->setTypeRepetition(-1);
             }
-
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
             calendarObject->setNumRepetition(numRepetition);
         } else if (key == QLatin1String("EXDATE")) {
             addExDatesToCalendarObject(calendarObject.get(), value);
+            lastKey = "EXDATE";
         }
     }
 }
 
-void CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
+QString CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
+    std::cout << "exDates to parse for calendarObject " << calendarObject->getName().toStdString() << ": "
+              << value.toStdString() << '\n';
     int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
     QList<QDate> exDates;
     while (endDelimitatorPosition > 0 && !value.isEmpty()) {
         const QString exDateString = value.mid(0, endDelimitatorPosition + 1);
         const QDate exDate = getDateTimeFromString(exDateString).toLocalTime().date();
-        exDates.append(exDate);
+        calendarObject->addExDate(exDate);
         value = value.mid(endDelimitatorPosition + 2, -1);
         endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
     }
-    calendarObject->setExDates(exDates);
+    return value;
+}
+
+QString CalendarWidget::addCompletedDatesToCalendarObject(CalendarToDo *calendarTodo, QString &value) {
+    //std::cout << "completedDates to parse: " << value.toStdString() << '\n';
+    int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+    while (endDelimitatorPosition > 0 && !value.isEmpty()) {
+        const QString completedDateString = value.mid(0, endDelimitatorPosition + 1);
+        const QDate completedDate = getDateTimeFromString(completedDateString).toLocalTime().date();
+        calendarTodo->addCompletedDate(completedDate);
+        value = value.mid(endDelimitatorPosition + 2, -1);
+        endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
+    }
+    return value;
 }
 
 void CalendarWidget::addTaskButtonClicked() {

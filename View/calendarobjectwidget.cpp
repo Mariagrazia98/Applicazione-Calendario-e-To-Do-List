@@ -25,7 +25,6 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<Cale
     if (!calendarObject.get()) {
         std::cout << "calendar object null\n";
     }
-    std::cout << "costruttore CalendarObjectWidget\n";
 //    setupUI();
 }
 
@@ -42,7 +41,8 @@ void CalendarObjectWidget::setupUI() {
         displayLayout->addSpacing(17);
     } else {
         auto calendarToDO = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
-        if (calendarToDO->getCompletedDateTime()) {
+        QList<QDate> completedDate = calendarToDO->getCompletedDate();
+        if (completedDate.contains(calendarToDO->getStartDateTime().date())) {
             checkBox->setCheckState(Qt::Checked);
         } else {
             checkBox->setCheckState(Qt::Unchecked);
@@ -56,7 +56,6 @@ void CalendarObjectWidget::setupUI() {
     displayLayout->addWidget(textBrowser);
     setupButtons();
     this->setLayout(displayLayout);
-    std::cout << "return from setupUI\n";
 }
 
 void CalendarObjectWidget::setupText() {
@@ -79,7 +78,7 @@ void CalendarObjectWidget::setupText() {
         std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
         if (calendarToDo.get() != nullptr) {
             // calendarObject is a CalendarEvent
-            if (calendarToDo->getCompletedDateTime()) {
+            if (calendarToDo->getCompletedDate().contains(calendarToDo->getStartDateTime().date())) {
                 textBrowser->setTextColor(QColor(0, 150, 0));
             }
         }
@@ -157,12 +156,16 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         }
 
         if (calendarToDo) {
-            if (calendarToDo->getCompletedDateTime()) {
-                requestString.append(
-                        "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmssZ") + "\r\n");
-                requestString.append("STATUS:COMPLETED\r\n");
-            } else {
-                requestString.append("STATUS:IN-PROCESS\r\n");
+            if (!calendarToDo->getCompletedDate().isEmpty()) {
+                QList<QDate> completedDates = calendarToDo->getCompletedDate();
+                requestString.append("COMPLETED:");
+                for (int i = 0; i < completedDates.size(); i++) {
+                    requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+                    if (i != completedDates.size() - 1) {
+                        requestString.append(',');
+                    }
+                }
+                requestString.append("\r\n");
             }
         } else {
             std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
@@ -218,8 +221,6 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
 
-        //std::cout << requestString.toStdString() << "\n";
-
         std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarObject->getCalendarName()];
 
         connectionToFinish = connect(connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
@@ -265,16 +266,24 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     //std::cout << "on check box toggled onCheckBoxToggledn";
     auto calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
     if (checked) {
-        calendarToDo->setCompletedDateTime(QDateTime::currentDateTime());
+        calendarToDo->addCompletedDate(calendarToDo->getStartDateTime().date());
+        if (auto parent = calendarObject->getParent().lock()) {
+            auto parentToDo = std::dynamic_pointer_cast<CalendarToDo>(parent);
+            parentToDo->addCompletedDate(calendarToDo->getStartDateTime().date());
+        }
     } else {
-        calendarToDo->getCompletedDateTime().reset();
+        calendarToDo->removeCompletedDate(calendarToDo->getStartDateTime().date());
+        if (auto parent = calendarObject->getParent().lock()) {
+            auto parentToDo = std::dynamic_pointer_cast<CalendarToDo>(parent);
+            parentToDo->removeCompletedDate(calendarToDo->getStartDateTime().date());
+        }
     }
 
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VTODO\r\n"
                             "UID:" + calendarObject->getUID() + "\r\n"
-                                                                 "VERSION:2.0\r\n"
-                                                                 "DTSTAMP:" +
+                                                                "VERSION:2.0\r\n"
+                                                                "DTSTAMP:" +
                             calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
                             "\r\n"
                             "SUMMARY:" + calendarObject->getName() + "\r\n""LOCATION:" +
@@ -292,14 +301,24 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddT000000Z") + "\r\n");
 
-    if (calendarToDo->getCompletedDateTime()) {
-        //std::cout << "GETCOMPLETE\n";
-        requestString.append(
-                "COMPLETED:" + calendarToDo->getCompletedDateTime()->toString("yyyyMMddTHHmmssZ") + "\r\n");
-        requestString.append("STATUS:COMPLETED\r\n");
+    /*
+    if (calendarToDo->getParent().lock()) {
+        requestString.append();
     } else {
-        requestString.append("STATUS:IN-PROCESS\r\n");
+     */
+    if (!calendarToDo->getCompletedDate().isEmpty()) {
+        QList<QDate> completedDates = calendarToDo->getCompletedDate();
+        requestString.append("COMPLETED:");
+        for (int i = 0; i < completedDates.size(); i++) {
+            requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+            if (i != completedDates.size() - 1) {
+                requestString.append(',');
+            }
+        }
+        requestString.append("\r\n");
     }
+
+    //}
 
     if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
         QString rrule = "RRULE:FREQ=";
@@ -326,6 +345,8 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
     requestString.append("END:VTODO\r\nEND:VCALENDAR");
+
+    //std::cout << requestString.toStdString()<<std::endl;
 
     //std::cout << requestString.toStdString() << "\n";
 

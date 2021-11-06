@@ -102,7 +102,7 @@ private:
 
     void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
 
-    void addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
+    QString addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
     QGroupBox *calendarGroupBox; // Calendar group box (left)
     QGridLayout *calendarLayout;
@@ -119,6 +119,7 @@ private:
 
     QTextStream *stream;
     QList<std::shared_ptr<CalendarObject>> calendarObjects;
+    QString addCompletedDatesToCalendarObject(CalendarToDo* calendarTodo, QString &value);
 
     QWidget *taskScrollWidget;
     QScrollArea *scrollArea;

@@ -9,7 +9,7 @@ CalendarObject::CalendarObject() {
 
 }
 
-CalendarObject::CalendarObject(std::shared_ptr<const CalendarObject> other) :
+CalendarObject::CalendarObject(std::shared_ptr<CalendarObject> other) :
         name(other->name),
         calendarName(other->calendarName),
         UID(other->UID),
@@ -132,11 +132,10 @@ const QList<QDate> &CalendarObject::getExDates() const {
     return exDates;
 }
 
-void CalendarObject::setExDates(const QList<QDate> &exDates) {
-    this->exDates.clear();
-    CalendarObject::exDates = exDates;
+void CalendarObject::addExDate(QDate exDate) {
+    CalendarObject::exDates.append(exDate);
 }
 
-std::weak_ptr<const CalendarObject> CalendarObject::getParent() const {
+std::weak_ptr<CalendarObject> CalendarObject::getParent() const {
     return parent;
 }
