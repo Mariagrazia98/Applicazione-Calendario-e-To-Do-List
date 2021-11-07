@@ -9,6 +9,11 @@ Calendar::Calendar(const QString &href, const QString &name, const int ctag)
 
 }
 
+Calendar::Calendar(const Calendar &other) :
+        href(other.href), name(other.name), ctag(other.ctag) {
+
+}
+
 const QString &Calendar::getHref() const {
     return href;
 }
@@ -32,3 +37,5 @@ void Calendar::setName(const QString &name) {
 void Calendar::setCtag(int ctag) {
     Calendar::ctag = ctag;
 }
+
+

@@ -10,10 +10,13 @@
 #include <QString>
 
 struct Calendar : public QObject {
-    Q_OBJECT
+Q_OBJECT
 public:
 
     Calendar(const QString &href = "", const QString &name = "", const int ctag = -1);
+
+    // copy constructor
+    Calendar(const Calendar &other);
 
     void setHref(const QString &href);
 
