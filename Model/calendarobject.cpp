@@ -128,12 +128,12 @@ void CalendarObject::setStartDateTime(const QDateTime &startDateTime) {
     this->startDateTime = startDateTime;
 }
 
-const QList<QDate> &CalendarObject::getExDates() const {
+const QSet<QDate> & CalendarObject::getExDates() const {
     return exDates;
 }
 
 void CalendarObject::addExDate(QDate exDate) {
-    CalendarObject::exDates.append(exDate);
+    exDates.insert(exDate);
 }
 
 std::weak_ptr<CalendarObject> CalendarObject::getParent() const {

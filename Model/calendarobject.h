@@ -65,7 +65,7 @@ public:
 
     std::weak_ptr< CalendarObject> getParent() const;
 
-    const QList<QDate> &getExDates() const;
+    const QSet<QDate> & getExDates() const;
 
     void addExDate(QDate exDate);
 
@@ -81,7 +81,7 @@ private:
     unsigned int priority; // [0-9]
     QDateTime startDateTime;
     QDate untilDateRipetition;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
-    QList<QDate> exDates;
+    QSet<QDate> exDates;
     std::weak_ptr<CalendarObject> parent;
 
 };

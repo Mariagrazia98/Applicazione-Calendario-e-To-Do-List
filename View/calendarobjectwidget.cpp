@@ -182,10 +182,12 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         QDate recurrenceDate;
         recurrenceDate = calendarObject->getStartDateTime().date();
 
-        QList<QDate> exDates = calendarObject->getExDates();
+        QSet<QDate> exDates = calendarObject->getExDates();
         requestString.append("EXDATE:");
-        for (int i = 0; i < exDates.size(); i++) {
-            requestString.append(exDates[i].toString("yyyyMMddT010000Z") + ",");
+        QSet<QDate>::const_iterator i = exDates.constBegin();
+        while (i != exDates.constEnd()) {
+            requestString.append(i->toString("yyyyMMddT010000Z")+',');
+            i++;
         }
         //std::cout << "deleting reccurence on " + recurrenceDate.toString("yyyyMMddT010000Z").toStdString() + '\n';
         requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
