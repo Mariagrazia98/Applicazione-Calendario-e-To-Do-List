@@ -546,8 +546,6 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
 }
 
 QString CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
-    std::cout << "exDates to parse for calendarObject " << calendarObject->getName().toStdString() << ": "
-              << value.toStdString() << '\n';
     int endDelimitatorPosition = value.indexOf(QLatin1Char('Z'));
     QList<QDate> exDates;
     while (endDelimitatorPosition > 0 && !value.isEmpty()) {
