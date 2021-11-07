@@ -9,9 +9,9 @@
 #include "calendarwidget.h"
 
 
-CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *connectionManager) :
+CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<ConnectionManager> connectionManager) :
         QDialog(parent),
-        connectionManager(std::make_shared<ConnectionManager *>(connectionManager)),
+        connectionManager(connectionManager),
         ui(new Ui::CalendarChoiceDialog),
         groupBox(new QGroupBox("Calendars")),
         formLayout(new QFormLayout),
@@ -24,10 +24,6 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, ConnectionManager *c
 
 CalendarChoiceDialog::~CalendarChoiceDialog() {
     delete ui;
-}
-
-void CalendarChoiceDialog::setConnectionManager(ConnectionManager *connectionManager) {
-    this->connectionManager = std::make_shared<ConnectionManager *>(connectionManager);
 }
 
 void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
@@ -62,12 +58,15 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
 void CalendarChoiceDialog::checkBoxToggled(int state) {
     switch (state) {
         case 0:
+            // calendar unchecked
             calendarSelected--;
             if (calendarSelected == 0) {
+                // disable accept button if there are no calendars selected
                 pushButton->setEnabled(false);
             }
             break;
         case 2:
+            // calendar checked
             calendarSelected++;
             pushButton->setEnabled(true);
             break;

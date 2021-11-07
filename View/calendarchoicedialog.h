@@ -22,11 +22,9 @@ class CalendarChoiceDialog : public QDialog {
 Q_OBJECT
 
 public:
-    explicit CalendarChoiceDialog(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    explicit CalendarChoiceDialog(QWidget *parent = nullptr, std::shared_ptr<ConnectionManager> connectionManager = nullptr);
 
     ~CalendarChoiceDialog() override;
-
-    void setConnectionManager(ConnectionManager *connectionManager);
 
     QList<Calendar *> getSelectedCalendars();
 
@@ -39,7 +37,7 @@ public slots:
 private:
     Ui::CalendarChoiceDialog *ui;
 
-    std::shared_ptr<ConnectionManager *> connectionManager;
+    std::shared_ptr<ConnectionManager> connectionManager;
 
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
