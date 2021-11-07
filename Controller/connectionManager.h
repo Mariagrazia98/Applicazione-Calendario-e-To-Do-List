@@ -72,7 +72,8 @@ public:
 
     void setCalendar(Calendar *calendar);
 
-    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName, const QString &comment);
+    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName,
+                                  const QString &comment);
 
 private slots:
 
@@ -125,7 +126,7 @@ private:
     QString username;
     QString password;
     QUrl serverUrl;
-    QList<Calendar*> calendarsList;
+    QList<Calendar *> calendarsList;
 
     QMetaObject::Connection connectionToGetCtag;
     QMetaObject::Connection connectionToLogin;
@@ -141,8 +142,6 @@ private:
     void setup();
 
     void updateUrl();
-
-    void getUpdatedTasks();
 
     void parseAndUpdatectag(const QString &answerString);
 

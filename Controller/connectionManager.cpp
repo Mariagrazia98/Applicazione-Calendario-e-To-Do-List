@@ -160,10 +160,6 @@ void ConnectionManager::tryLogin() {
 }
  */
 
-void ConnectionManager::getUpdatedTasks() {
-
-}
-
 void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     const int startPosition = answerString.indexOf("<cs:getctag>");
     const int endPosition = answerString.indexOf("</cs:getctag>");
@@ -318,7 +314,8 @@ void ConnectionManager::setCalendar(Calendar *calendar) {
 }
 
 void
-ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName, const QString &comment) {
+ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName,
+                                            const QString &comment) {
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
