@@ -4,9 +4,9 @@
 #include <QMessageBox>
 #include <iostream>
 
-LoginForm::LoginForm(QWidget *parent, ConnectionManager *connectionManager) :
+LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connectionManager) :
         QDialog(parent),
-        connectionManager(std::make_shared<ConnectionManager*>(connectionManager)),
+        connectionManager(connectionManager),
         groupBox(new QGroupBox),
         formLayout(new QFormLayout),
         layout(new QGridLayout),
@@ -39,16 +39,12 @@ LoginForm::~LoginForm() {
 void LoginForm::onLoginButtonClicked() {
     dialogButtonBox->setDisabled(true);
     // set connection manager attributes
-    (*connectionManager.get())->setUsername(user->text());
-    (*connectionManager.get())->setPassword(password->text());
-    (*connectionManager.get())->getCalendarList();
-    connection = connect(*connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
+    connectionManager->setUsername(user->text());
+    connectionManager->setPassword(password->text());
+    // get the list of all calendars
+    connectionManager->getCalendarList();
+    connection = connect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 }
-
-void LoginForm::setConnectionManager(ConnectionManager *connectionManager) {
-    this->connectionManager = std::make_shared<ConnectionManager*>(connectionManager);
-}
-
 
 void LoginForm::responseHandler(QNetworkReply *reply) {
     disconnect(connection);

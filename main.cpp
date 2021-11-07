@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include <iostream>
+#include <memory>
 #include "View/loginform.h"
 #include "View/calendarwidget.h"
 #include "Controller/connectionManager.h"
@@ -28,8 +29,8 @@ int main(int argc, char *argv[]) {
 
     a.setWindowIcon(QIcon(":/resources/list.png"));
 
-    std::shared_ptr<ConnectionManager> connectionManager = std::shared_ptr<ConnectionManager>(new ConnectionManager());
-    LoginForm loginForm(nullptr, connectionManager.get());
+    std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>();
+    LoginForm loginForm(nullptr, connectionManager);
     CalendarWidget calendarWidget(nullptr);
     CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager.get());
     Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,

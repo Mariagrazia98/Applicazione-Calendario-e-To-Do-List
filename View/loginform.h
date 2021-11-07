@@ -11,6 +11,7 @@
 #include <QLineEdit>
 #include <QGroupBox>
 #include <QDialogButtonBox>
+#include <memory>
 #include "../Controller/connectionManager.h"
 #include "calendarchoicedialog.h"
 
@@ -27,12 +28,11 @@ class LoginForm : public QDialog {
 Q_OBJECT
 
 public:
-    explicit LoginForm(QWidget *parent = nullptr, ConnectionManager *connectionManager = nullptr);
+    explicit LoginForm(QWidget *parent = nullptr,
+                       std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>(
+                               ));
 
     ~LoginForm();
-
-    /// @brief set the ConnectionManager
-    void setConnectionManager(ConnectionManager *connectionManager);
 
 private
     slots:
@@ -47,7 +47,7 @@ private
 
 private:
     Ui::LoginForm *ui;
-    std::shared_ptr<ConnectionManager *> connectionManager;
+    std::shared_ptr<ConnectionManager> connectionManager;
 
     QGroupBox *groupBox;
     QGridLayout *layout;
