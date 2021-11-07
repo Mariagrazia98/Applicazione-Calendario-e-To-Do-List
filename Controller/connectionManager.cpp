@@ -22,6 +22,11 @@ void ConnectionManager::setup() {
             &ConnectionManager::authenticationRequired);
 }
 
+
+ConnectionManager::~ConnectionManager() {
+    delete calendar;
+}
+
 void ConnectionManager::getCalendarRequest() {
     QNetworkRequest networkRequest;
 
@@ -381,9 +386,5 @@ const QString &ConnectionManager::getUsername() const {
 const QString &ConnectionManager::getPassword() const {
     return password;
 }
-
-ConnectionManager::~ConnectionManager() {
-}
-
 
 
