@@ -25,7 +25,7 @@ add_executable(${PROJECT_NAME} main.cpp src.qrc
         View/calendarobjectwidget.h View/calendarobjectwidget.cpp View/calendarobjectwidget.ui
         Controller/connectionManager.cpp Controller/connectionManager.h Model/calendartodo.cpp
         Model/calendartodo.h View/calendarchoicedialog.cpp
-        View/calendarchoicedialog.h View/calendarchoicedialog.ui
+        View/calendarchoicedialog.h
         Model/calendar.cpp Model/calendar.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h
         View/CustomCalendarWidget.cpp View/CustomCalendarWidget.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h View/sharecalendarform.cpp View/sharecalendarform.h)
 

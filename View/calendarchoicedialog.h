@@ -14,30 +14,46 @@
 #include <QFormLayout>
 #include "../Controller/connectionManager.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class CalendarChoiceDialog; }
-QT_END_NAMESPACE
-
 class CalendarChoiceDialog : public QDialog {
 Q_OBJECT
 
 public:
+    /* Constructor */
+
+    /**
+     *
+     * @param parent the parent QWidget
+     * @param connectionManager the ConnectionManager used by this Widget
+     */
     explicit CalendarChoiceDialog(QWidget *parent = nullptr, std::shared_ptr<ConnectionManager> connectionManager = nullptr);
 
-    ~CalendarChoiceDialog() override;
+    /* Getter */
 
+    /**
+     *
+     * @return the list of selected Calendars
+     */
     QList<Calendar *> getSelectedCalendars();
 
 public slots:
 
+    /**
+     * setup the UI accordinglu to calendarsList
+     * @param calendarsList the list of selectable Calendars
+     */
     void setupUI(QList<Calendar *> calendarsList);
 
+    /**
+     * checkBox toggle callback
+     * @param state the CheckBox state
+     */
     void checkBoxToggled(int state);
 
 private:
-    Ui::CalendarChoiceDialog *ui;
 
-    std::shared_ptr<ConnectionManager> connectionManager;
+    std::shared_ptr<ConnectionManager> connectionManager; // shared pointer to the ConnectionManager
+
+    /* UI */
 
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
@@ -45,9 +61,9 @@ private:
     QList<QCheckBox *> checkBoxes;
     QPushButton *pushButton;
 
-    QList<Calendar *> calendarsList;
+    QList<Calendar *> calendarsList; // list of selectable Calendars
 
-    int calendarSelected;
+    int calendarSelected; // number of total Calendars Selected
 };
 
 

@@ -1,29 +1,20 @@
 //
-// Created by manue on 04/10/2021.
+// Created by manuel on 04/10/2021.
 //
 
-// You may need to build the project (run Qt uic code generator) to get "ui_CalendarChoiceDialog.h" resolved
-
 #include "calendarchoicedialog.h"
-#include "ui_CalendarChoiceDialog.h"
 #include "calendarwidget.h"
 
 
 CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<ConnectionManager> connectionManager) :
         QDialog(parent),
         connectionManager(connectionManager),
-        ui(new Ui::CalendarChoiceDialog),
         groupBox(new QGroupBox("Calendars")),
         formLayout(new QFormLayout),
         verticalLayout(new QVBoxLayout),
         pushButton(new QPushButton("Confirm")),
         calendarSelected(0) {
-    ui->setupUi(this);
     pushButton->setEnabled(false);
-}
-
-CalendarChoiceDialog::~CalendarChoiceDialog() {
-    delete ui;
 }
 
 void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
