@@ -58,8 +58,10 @@ private:
     void closeEvent(QCloseEvent *event) override;
 
 signals:
-
-    void closing();
+    /***
+     *@brief When closeShareCalendarForm signal is emitted, the CalendarWidget::onSharecalendarFormClosed slot connected to it is executed
+     */
+    void closeShareCalendarForm();
 
 private slots:
 

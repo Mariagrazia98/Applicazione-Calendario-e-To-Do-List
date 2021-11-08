@@ -68,7 +68,7 @@ private
 
     void reformatCalendarPage();
 
-    void addTaskButtonClicked();
+    void addCalendarObjectButtonClicked();
 
     void shareCalendarButtonClicked();
 
@@ -101,21 +101,23 @@ private:
     void parseToDo(const QString &calendarName);
 
     void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
-
     QString addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
-    QGroupBox *calendarGroupBox; // Calendar group box (left)
-    QGridLayout *calendarLayout;
-    CustomCalendarWidget *calendar;
 
-    QGroupBox *tasksGroupBox; // tasks group box (right)
+    /* Attributes */
+    QGroupBox *calendarGroupBox; /**< shows the calendar and button for sharing a calendar on the left side of the window */
+    QGridLayout *calendarLayout;
+    CustomCalendarWidget *calendar; /**< Custom calendar widget */
+
+    QGroupBox *tasksGroupBox; /**< shows the list of events and to-dos in the day selected and a button for adding a new calendar object.
+ * They are showed on the right side of the window */
     QVBoxLayout *tasksLayout;
 
     QDateEdit *currentDateEdit;
-    QTextBrowser *dateString;
+    QTextBrowser *dateString; /**< shows the current date selected on the top-right side of the window */
 
-    QPushButton *addTaskButton;
-    QPushButton *shareCalendarButton;
+    QPushButton *addCalendarObjectButton; /**< button for a adding a new calendarObject */
+    QPushButton *shareCalendarButton; /**< button for sharing a calendar */
 
     QTextStream *stream;
     QList<std::shared_ptr<CalendarObject>> calendarObjects;
@@ -125,7 +127,6 @@ private:
     QScrollArea *scrollArea;
     QVBoxLayout *taskViewLayout;
 
-    //std::shared_ptr<ConnectionManager *> connectionManager;
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
     QTimer *timer;

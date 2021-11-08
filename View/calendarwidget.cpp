@@ -83,11 +83,11 @@ void CalendarWidget::setupCalendar() {
 
     tasksLayout->addWidget(scrollArea);
 
-    addTaskButton = new QPushButton(tr("&Add"));
-    addTaskButton->setEnabled(true);
-    addTaskButton->setToolTip(tr("Add new task"));
-    connect(addTaskButton, &QPushButton::clicked, this, &CalendarWidget::addTaskButtonClicked);
-    tasksLayout->addWidget(addTaskButton);
+    addCalendarObjectButton = new QPushButton(tr("&Add"));
+    addCalendarObjectButton->setEnabled(true);
+    addCalendarObjectButton->setToolTip(tr("Add a new calendar object"));
+    connect(addCalendarObjectButton, &QPushButton::clicked, this, &CalendarWidget::addCalendarObjectButtonClicked);
+    tasksLayout->addWidget(addCalendarObjectButton);
 }
 
 void CalendarWidget::selectedDateChanged() {
@@ -571,8 +571,8 @@ QString CalendarWidget::addCompletedDatesToCalendarObject(CalendarToDo *calendar
     return value;
 }
 
-void CalendarWidget::addTaskButtonClicked() {
-    addTaskButton->setEnabled(false);
+void CalendarWidget::addCalendarObjectButtonClicked() {
+    addCalendarObjectButton->setEnabled(false);
     TaskForm *taskForm = new TaskForm(connectionManagers);
     taskForm->setDate(currentDateEdit->date());
     taskForm->show();
@@ -594,7 +594,7 @@ QDateTime CalendarWidget::getDateTimeFromString(const QString &string) {
 }
 
 void CalendarWidget::onTaskFormClosed() {
-    addTaskButton->setEnabled(true);
+    addCalendarObjectButton->setEnabled(true);
     // TODO: aggiornare widgets se ce n'è bisogno
 }
 
@@ -676,7 +676,7 @@ void CalendarWidget::shareCalendarButtonClicked() {
 
     ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(this, connectionManagers);
     sharecalendarForm->show();
-    connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
+    connect(sharecalendarForm, &ShareCalendarForm::closeShareCalendarForm, this, &CalendarWidget::onSharecalendarFormClosed);
 
 }
 

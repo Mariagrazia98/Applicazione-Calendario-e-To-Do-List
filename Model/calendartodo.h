@@ -63,8 +63,8 @@ public:
     void removeCompletedDate(const QDate& completedDate);
 
 private:
-    QList<QDate> completedDateList; //!< describes the dates in which the to-do has completed.
-                                    //!<  If the to-do has not repetition, it will contain only one element*/
+    QList<QDate> completedDateList; /*! < describes the dates in which the to-do has completed. */
+                                    /*!<  If the to-do has not repetition, it will contain only one element*/
     ToDoStatus status; /*!< define the status of the calendar to-do */
 };
 
