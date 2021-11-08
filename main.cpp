@@ -12,7 +12,7 @@
 
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
+    QApplication application(argc, argv);
 
     //Set the app style sheet
     /*
@@ -27,7 +27,8 @@ int main(int argc, char *argv[]) {
         std::cerr << "Could not open stylesheet file\n";
     }*/
 
-    a.setWindowIcon(QIcon(":/resources/list.png"));
+    // set the Application icon
+    application.setWindowIcon(QIcon(":/resources/list.png"));
 
     std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>();
     LoginForm loginForm(nullptr, connectionManager);
@@ -35,17 +36,19 @@ int main(int argc, char *argv[]) {
     CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager);
     Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,
                       &CalendarChoiceDialog::setupUI);
+    // when login is successful
     if (loginForm.exec() == QDialog::Accepted) {
         calendarChoiceDialog.show();
         if (calendarChoiceDialog.exec() == QDialog::Accepted) {
             QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
+            // creates a new ConnectionManager for each Calendar selected
             for (int i = 0; i < calendars.length(); ++i) {
-
                 ConnectionManager *connectionManager_ = new ConnectionManager(connectionManager->getUsername(),
                                                                               connectionManager->getPassword());
                 connectionManager_->setCalendar(calendars[i]);
                 calendarWidget.addConnectionManager(connectionManager_);
             }
+            // calendarWidget setups
             calendarWidget.setupConnection();
             calendarWidget.setupTimer();
             calendarWidget.show();
