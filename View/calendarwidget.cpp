@@ -2,11 +2,6 @@
 
 #include <memory>
 
-#define DAILY 1
-#define WEEKLY 2
-#define MONTHLY 3
-#define YEARLY 4
-
 CalendarWidget::CalendarWidget(QWidget *parent) :
         QMainWindow(parent),
         dateString(new QTextBrowser),
@@ -203,11 +198,11 @@ void CalendarWidget::showSelectedDateTasks() {
             if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
                 calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
                 addCalendarObjectWidget(calendarObjects[i]);
-            } else if (calendarEvent->getTypeRepetition() != -1 && calendarEvent->getNumRepetition() > 0) {
+            } else if (calendarEvent->getTypeRepetition() != CalendarObject::RepetitionType::NONE && calendarEvent->getNumRepetition() > 0) {
                 QDateTime start = calendarEvent->getStartDateTime();
                 QDateTime end = calendarEvent->getEndDateTime();
                 switch (calendarEvent->getTypeRepetition()) {
-                    case DAILY: {   //daily
+                    case CalendarObject::RepetitionType::DAILY: {   //daily
                         while (start.date() < calendar->selectedDate() &&
                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addDays(calendarEvent->getNumRepetition());
@@ -224,7 +219,7 @@ void CalendarWidget::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case WEEKLY: {      //weekly
+                    case CalendarObject::RepetitionType::WEEKLY: {      //weekly
                         while (start.date() < calendar->selectedDate() &&
                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addDays(7 * calendarEvent->getNumRepetition());
@@ -241,7 +236,7 @@ void CalendarWidget::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case MONTHLY: {      //monthly
+                    case CalendarObject::RepetitionType::MONTHLY: {      //monthly
                         while (start.date() < calendar->selectedDate() &&
                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addMonths(calendarEvent->getNumRepetition());
@@ -258,7 +253,7 @@ void CalendarWidget::showSelectedDateTasks() {
                         }
                         break;
                     }
-                    case YEARLY: {      //yearly
+                    case CalendarObject::RepetitionType::YEARLY: {      //yearly
                         while (start.date() < calendar->selectedDate() &&
                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addYears(calendarEvent->getNumRepetition());
@@ -289,7 +284,7 @@ void CalendarWidget::showSelectedDateTasks() {
                         //std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString() << '\n';
                         // TODO: non importa aggiungere giorni, basta importare l'orario ?
                         switch (calendarToDo->getTypeRepetition()) {
-                            case DAILY: {   // daily
+                            case CalendarObject::RepetitionType::DAILY: {   // daily
                                 while (start.date() < calendar->selectedDate() &&
                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addDays(calendarToDo->getNumRepetition());
@@ -304,7 +299,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 }
                                 break;
                             }
-                            case WEEKLY: {      //weekly
+                            case CalendarObject::RepetitionType::WEEKLY: {      //weekly
                                 while (start.date() < calendar->selectedDate() &&
                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addDays(7 * calendarToDo->getNumRepetition());
@@ -320,7 +315,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 }
                                 break;
                             }
-                            case MONTHLY: {      //monthly
+                            case CalendarObject::RepetitionType::MONTHLY: {      //monthly
                                 while (start.date() < calendar->selectedDate() &&
                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addMonths(calendarToDo->getNumRepetition());
@@ -336,7 +331,7 @@ void CalendarWidget::showSelectedDateTasks() {
                                 }
                                 break;
                             }
-                            case YEARLY: {      //yearly
+                            case CalendarObject::RepetitionType::YEARLY: {      //yearly
                                 while (start.date() < calendar->selectedDate() &&
                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addYears(calendarToDo->getNumRepetition());
@@ -429,15 +424,15 @@ void CalendarWidget::parseEvent(const QString &calendarName) {
 
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
             if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(DAILY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::DAILY);
             } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(WEEKLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::WEEKLY);
             } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(MONTHLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::MONTHLY);
             } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(YEARLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::YEARLY);
             } else {
-                calendarObject->setTypeRepetition(-1);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::NONE);
             }
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
@@ -524,15 +519,15 @@ void CalendarWidget::parseToDo(const QString &calendarName) {
 
             const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
             if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(DAILY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::DAILY);
             } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(WEEKLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::WEEKLY);
             } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(MONTHLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::MONTHLY);
             } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(YEARLY);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::YEARLY);
             } else {
-                calendarObject->setTypeRepetition(-1);
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::NONE);
             }
             const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
             const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
@@ -676,7 +671,6 @@ void CalendarWidget::shareCalendarButtonClicked() {
     ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(this, connectionManagers);
     sharecalendarForm->show();
     connect(sharecalendarForm, &ShareCalendarForm::closeShareCalendarForm, this, &CalendarWidget::onSharecalendarFormClosed);
-
 }
 
 void CalendarWidget::onSharecalendarFormClosed() {

@@ -4,11 +4,6 @@
 
 #include <iostream>
 
-#define DAILY 1
-#define WEEKLY 2
-#define MONTHLY 3
-#define YEARLY 4
-
 CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<CalendarObject> calendarObject,
                                            QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QWidget(parent),
@@ -196,19 +191,19 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         //std::cout << "deleting reccurence on " + recurrenceDate.toString("yyyyMMddT010000Z").toStdString() + '\n';
         requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
 
-        if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
+        if (calendarObject->getTypeRepetition() != CalendarObject::RepetitionType::NONE && calendarObject->getNumRepetition() > 0) {
             QString rrule = "RRULE:FREQ=";
             switch (calendarObject->getTypeRepetition()) {
-                case DAILY:
+                case CalendarObject::RepetitionType::DAILY:
                     rrule += "DAILY";
                     break;
-                case WEEKLY:
+                case CalendarObject::RepetitionType::WEEKLY:
                     rrule += "WEEKLY";
                     break;
-                case MONTHLY:
+                case CalendarObject::RepetitionType::MONTHLY:
                     rrule += "MONTHLY";
                     break;
-                case YEARLY:
+                case CalendarObject::RepetitionType::YEARLY:
                     rrule += "YEARLY";
                     break;
                 default:
@@ -335,19 +330,19 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     //}
 
-    if (calendarObject->getTypeRepetition() > 0 && calendarObject->getNumRepetition() != 0) {
+    if (calendarObject->getTypeRepetition() != CalendarObject::RepetitionType::NONE && calendarObject->getNumRepetition() > 0) {
         QString rrule = "RRULE:FREQ=";
         switch (calendarObject->getTypeRepetition()) {
-            case DAILY:
+            case CalendarObject::RepetitionType::DAILY:
                 rrule += "DAILY";
                 break;
-            case WEEKLY:
+            case CalendarObject::RepetitionType::WEEKLY:
                 rrule += "WEEKLY";
                 break;
-            case MONTHLY:
+            case CalendarObject::RepetitionType::MONTHLY:
                 rrule += "MONTHLY";
                 break;
-            case YEARLY:
+            case CalendarObject::RepetitionType::YEARLY:
                 rrule += "YEARLY";
                 break;
             default:

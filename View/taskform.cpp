@@ -2,11 +2,6 @@
 #include "ui_taskform.h"
 #include "../Model/calendartodo.h"
 
-#define DAILY 1
-#define WEEKLY 2
-#define MONTHLY 3
-#define YEARLY 4
-
 #include <iostream>
 
 TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
@@ -135,19 +130,19 @@ void TaskForm::on_buttonBox_accepted() {
                             ui->location->text() + "\r\n"
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
-    if (ui->typeRepetition->currentIndex() > 0 && ui->numRepetition->value() != 0) {
+    if (ui->typeRepetition->currentIndex() != CalendarObject::RepetitionType::NONE && ui->numRepetition->value() > 0) {
         QString rrule = "RRULE:FREQ=";
         switch (ui->typeRepetition->currentIndex()) {
-            case DAILY:
+            case CalendarObject::RepetitionType::DAILY:
                 rrule += "DAILY";
                 break;
-            case WEEKLY:
+            case CalendarObject::RepetitionType::WEEKLY:
                 rrule += "WEEKLY";
                 break;
-            case MONTHLY:
+            case CalendarObject::RepetitionType::MONTHLY:
                 rrule += "MONTHLY";
                 break;
-            case YEARLY:
+            case CalendarObject::RepetitionType::YEARLY:
                 rrule += "YEARLY";
                 break;
             default:

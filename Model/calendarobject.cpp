@@ -85,11 +85,11 @@ void CalendarObject::setNumRepetition(int numRepetition) {
     CalendarObject::numRepetition = numRepetition;
 }
 
-int CalendarObject::getTypeRepetition() const {
+CalendarObject::RepetitionType CalendarObject::getTypeRepetition() const {
     return typeRepetition;
 }
 
-void CalendarObject::setTypeRepetition(int typeRepetition) {
+void CalendarObject::setTypeRepetition(RepetitionType typeRepetition) {
     CalendarObject::typeRepetition = typeRepetition;
 }
 

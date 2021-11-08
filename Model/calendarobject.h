@@ -20,6 +20,17 @@ class CalendarObject : public QObject {
 Q_OBJECT
 public:
 
+    /**
+    * Defines the repetition type for CalendarObjects occurrences
+   */
+    enum RepetitionType {
+        NONE,
+        DAILY,
+        WEEKLY,
+        MONTHLY,
+        YEARLY
+    };
+
     /* Constructors */
 
     /**
@@ -99,7 +110,7 @@ public:
      *
      * @return the repetition type of this CalendarObject
      */
-    int getTypeRepetition() const;
+    RepetitionType getTypeRepetition() const;
 
     /**
      *
@@ -179,7 +190,7 @@ public:
      *
      * @param typeRepetition the new repetition type of this CalendarObject
      */
-    void setTypeRepetition(int typeRepetition);
+    void setTypeRepetition(RepetitionType typeRepetition);
 
     /**
      *
@@ -208,15 +219,7 @@ private:
     QString description; // CalendarObject description
     QString UID; // the UID of this CalendarObject, which is the same of his father if this is a recurrence
     int numRepetition; // number of future repetitions
-
-    /**
-     * describes the type of repetitions of this CalendarObject
-     * DAILY 1
-     * WEEKLY 2
-     * MONTHLY 3
-     * YEARLY 4
-     */
-    int typeRepetition;
+    RepetitionType typeRepetition; // describes the type of repetitions of this CalendarObject
     QDateTime creationDateTime; // when this CalendarObject is created
     unsigned int priority; // describes the CalendarObject priority [0-9]
     QDateTime startDateTime; // when this CalendarObject begins
