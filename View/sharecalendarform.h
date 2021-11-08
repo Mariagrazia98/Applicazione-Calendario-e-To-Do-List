@@ -50,15 +50,27 @@ private:
 
     void setupUI();
 
+    /***
+     * @brief close the QDialog
+     * @details This event handler is called with the given event when Qt receives a window close request for a top-level widget from the window system.
+     * @param event
+     */
     void closeEvent(QCloseEvent *event) override;
 
 signals:
-
-    void closing();
+    /***
+     *@brief When closeShareCalendarForm signal is emitted, the CalendarWidget::onSharecalendarFormClosed slot connected to it is executed
+     */
+    void closeShareCalendarForm();
 
 private slots:
- /*
-  * 
+
+ /***
+  * @brief calls the function makeShareCalendarRequest of connection manager in order to save the sharing information in the server
+  * @details This is called when the signal "accepted" connected to it is emitted.
+  * First of all, the function verifies if mandatory fields are filled in.
+  * If something misses, a QMessageBox will appear.
+  * Otherwise, the function makeShareCalendarRequest is called.
   */
     void onAcceptButtonClicked();
 };
