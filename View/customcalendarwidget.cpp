@@ -17,10 +17,6 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        if (calendarObjects[i]->getStartDateTime().date() == date) {
-            paintDate(painter, rect);
-            return;
-        }
         // check recurrencies
         if (calendarObjects[i]->getTypeRepetition() != CalendarObject::NONE &&
             calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRepetition() >= date) {
@@ -28,17 +24,16 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 QDate start = calendarObjects[i]->getStartDateTime().date();
                 while (start < date) {
                     switch (calendarObjects[i]->getTypeRepetition()) {
-                        case 1:
+                        case CalendarObject::RepetitionType::DAILY:
                             start = start.addDays(calendarObjects[i]->getNumRepetition());
                             break;
-                        case 2:
+                        case CalendarObject::RepetitionType::WEEKLY:
                             start = start.addDays(calendarObjects[i]->getNumRepetition() * 7);
                             break;
-                        case 3:
-                            // Monthly
+                        case CalendarObject::RepetitionType::MONTHLY:
                             start = start.addMonths(calendarObjects[i]->getNumRepetition());
                             break;
-                        case 4:
+                        case CalendarObject::RepetitionType::YEARLY:
                             start = start.addYears(calendarObjects[i]->getNumRepetition());
                             break;
                         default:
@@ -51,6 +46,10 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 }
             }
         } else {
+            if (calendarObjects[i]->getStartDateTime().date() == date) {
+                paintDate(painter, rect);
+                return;
+            }
             // multiple-day-long event checks
             auto calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
             if (calendarEvent.get() != nullptr) {
