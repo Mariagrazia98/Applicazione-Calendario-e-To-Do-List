@@ -74,7 +74,7 @@ private
 
     void parseEvent(const QString &calendarName);
 
-    void onSharecalendarFormClosed();
+    void onShareCalendarFormClosed();
 
     void onTaskFormClosed();
 

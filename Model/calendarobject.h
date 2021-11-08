@@ -9,7 +9,6 @@
 #include <QDateTime>
 #include <QString>
 
-
 /**
  *
  * @details CalendarObjects are 'iCalendar' formatted files. They can hold events and to-do's
@@ -182,9 +181,9 @@ public:
 
     /**
      *
-     * @param untilDateRipetition the new untilDateTime of this CalendarObject
+     * @param untilDateRepetition the new untilDateTime of this CalendarObject
      */
-    void setUntilDateRipetition(const QDate &untilDateRipetition);
+    void setUntilDateRepetition(const QDate &untilDateRepetition);
 
     /**
      *
@@ -223,7 +222,7 @@ private:
     QDateTime creationDateTime; // when this CalendarObject is created
     unsigned int priority; // describes the CalendarObject priority [0-9]
     QDateTime startDateTime; // when this CalendarObject begins
-    QDate untilDateRipetition; // last valid recurrence date. If the object has no recurrences, it coincides to startDateTime.
+    QDate untilDateRepetition; // last valid recurrence date. If the object has no recurrences, it coincides to startDateTime.
     QSet<QDate> exDates; // dates excluded by recurrence
     std::weak_ptr<CalendarObject> parent; // this CalendarObject parent, it's null if this is a recurrence
 

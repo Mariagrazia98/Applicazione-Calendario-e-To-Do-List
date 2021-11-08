@@ -38,12 +38,11 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         ui->comboBox->setDisabled(true);
 
         if (auto parent = calendarObject->getParent().lock()) {
-            // this is a reccurrence
+            // this is a recurrence
             ui->beginDateTime->setDateTime(parent->getStartDateTime());
         } else {
             ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
         }
-        //TODO: setCurrentIndex based on typeRepetitionn of calendarObject
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
             ui->comboBox->setCurrentIndex(0);

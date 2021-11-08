@@ -21,7 +21,7 @@ CalendarObject::CalendarObject(std::shared_ptr<CalendarObject> other) :
         priority(other->priority),
         startDateTime(other->startDateTime),
         exDates(other->exDates),
-        untilDateRipetition(other->untilDateRipetition) {
+        untilDateRepetition(other->untilDateRepetition) {
     parent = other;
 }
 
@@ -108,15 +108,15 @@ void CalendarObject::setPriority(unsigned int priority) {
 }
 
 const QDate &CalendarObject::getUntilDateRepetition() const {
-    return untilDateRipetition;
+    return untilDateRepetition;
 }
 
-void CalendarObject::setUntilDateRipetition(const QDate &untilDateRipetition) {
+void CalendarObject::setUntilDateRepetition(const QDate &untilDateRepetition) {
 
-    if (untilDateRipetition < startDateTime.date()) {
-        this->untilDateRipetition = startDateTime.date();
+    if (untilDateRepetition < startDateTime.date()) {
+        this->untilDateRepetition = startDateTime.date();
     } else {
-        this->untilDateRipetition = untilDateRipetition;
+        this->untilDateRepetition = untilDateRepetition;
     }
 }
 
