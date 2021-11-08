@@ -674,7 +674,7 @@ QDate CalendarWidget::getCurrentDateSelected() {
 void CalendarWidget::shareCalendarButtonClicked() {
     shareCalendarButton->setEnabled(false);
 
-    ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(nullptr, connectionManagers);
+    ShareCalendarForm *sharecalendarForm = new ShareCalendarForm(this, connectionManagers);
     sharecalendarForm->show();
     connect(sharecalendarForm, &ShareCalendarForm::closing, this, &CalendarWidget::onSharecalendarFormClosed);
 

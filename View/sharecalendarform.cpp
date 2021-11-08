@@ -5,6 +5,7 @@
 
 #include "sharecalendarform.h"
 
+
 ShareCalendarForm::ShareCalendarForm(QWidget *parent,
                                      QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QDialog(parent),
@@ -39,23 +40,28 @@ void ShareCalendarForm::setupUI() {
     formLayout->addWidget(dialogButtonBox);
 
     groupBox->setLayout(formLayout);
+
     layout->addWidget(groupBox);
     layout->setAlignment(Qt::AlignCenter);
     this->setLayout(layout);
+
     connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &ShareCalendarForm::onAcceptButtonClicked);
     connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &ShareCalendarForm::close);
 }
 
 void ShareCalendarForm::closeEvent(QCloseEvent *event) {
+    std::cout<<"close event\n";
     emit(closing());
 }
 
 
 void ShareCalendarForm::onAcceptButtonClicked() {
+    /* Control if the mail has been inserted. It is mandatory */
     if (email->text().isEmpty()) {
         QMessageBox::warning(this, "Error", "Insert an email");
         return;
     }
+    /* Control if the name has been inserted. It is mandatory */
     if (name->text().isEmpty()){
     QMessageBox::warning(this, "Error", "Insert a name");
     return;

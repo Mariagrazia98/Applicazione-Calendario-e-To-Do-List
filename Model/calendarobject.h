@@ -8,6 +8,11 @@
 #include <QObject>
 #include <QDateTime>
 #include <QString>
+/**
+ *
+ * @details Calendar objects are 'iCalendar' formatted files. They can hold events and todo's
+ * Generally they only hold one event each, but in the case of a recurring event with exceptions, they can hold multiple.
+ */
 
 class CalendarObject : public QObject {
 Q_OBJECT

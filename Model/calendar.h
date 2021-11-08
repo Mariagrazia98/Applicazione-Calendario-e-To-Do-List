@@ -9,33 +9,68 @@
 #include <QObject>
 #include <QString>
 
-struct Calendar : public QObject {
+/***
+ * @brief used to store general information about the calendar.
+ */
+
+class Calendar : public QObject {
 Q_OBJECT
 public:
 
+    /**
+     * Constructor
+     * @param href
+     * @param name
+     * @param ctag
+     */
     Calendar(const QString &href = "", const QString &name = "", const int ctag = -1);
 
-    // copy constructor
+    /**
+     * Copy constructor
+     * @param other calendar
+     */
     Calendar(const Calendar &other);
 
+    /**
+     * Setter
+     * @param href
+     */
     void setHref(const QString &href);
 
+    /**
+     * Setter
+     * @param name
+     */
     void setName(const QString &name);
 
+    /**
+     * Setter
+     * @param ctag
+     */
     void setCtag(int ctag);
 
+    /**
+     * Getter
+     * @return calendar href
+     */
     const QString &getHref() const;
 
+    /**
+     * Getter
+     * @return calendar name
+     */
     const QString &getName() const;
 
+    /**
+     * Getter
+     * @return calendar ctag
+     */
     int getCtag() const;
 
 private:
-    QString href;
-    QString name;
-    int ctag;
-
+    QString name; /**< name of the calendar */
+    QString href; /**< indicates the URL */
+    int ctag; /**< ctag works like a change id. Every time the ctag has changed, something in the calendar has changed too. */
 };
-
 
 #endif //APPLICAZIONE_CALENDARIO_E_TO_DO_LIST_ALL_IN_ONE_CALENDAR_H

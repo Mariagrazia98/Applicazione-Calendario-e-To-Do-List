@@ -8,6 +8,8 @@
 
 CalendarToDo::CalendarToDo() {}
 
+
+
 CalendarToDo::CalendarToDo(std::shared_ptr<CalendarToDo> other) :
         CalendarObject(other),
         status(other->status) {
@@ -19,7 +21,7 @@ QList<QDate> &CalendarToDo::getCompletedDate() {
     return completedDateList;
 }
 
-void CalendarToDo::addCompletedDate(const QDate completedDate) {
+void CalendarToDo::addCompletedDate(const QDate& completedDate) {
     this->completedDateList.append(completedDate);
 }
 
@@ -31,6 +33,6 @@ void CalendarToDo::setStatus(ToDoStatus status) {
     CalendarToDo::status = status;
 }
 
-void CalendarToDo::removeCompletedDate(const QDate completedDate) {
+void CalendarToDo::removeCompletedDate(const QDate& completedDate) {
     completedDateList.removeAll(completedDate);
 }
