@@ -50,7 +50,7 @@ void ShareCalendarForm::setupUI() {
 }
 
 void ShareCalendarForm::closeEvent(QCloseEvent *event) {
-    std::cout<<"close event\n";
+    /* emit signal */
     emit(closing());
 }
 
