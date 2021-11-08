@@ -42,6 +42,8 @@ private
 private:
     std::shared_ptr<ConnectionManager> connectionManager;
 
+    /* UI */
+
     QGroupBox *groupBox;
     QGridLayout *layout;
     QFormLayout *formLayout;
@@ -51,8 +53,6 @@ private:
     QLabel *passwordLabel;
     QLineEdit *password;
     QDialogButtonBox *dialogButtonBox;
-
-    QMetaObject::Connection connection;
 };
 
 #endif // LOGINFORM_H

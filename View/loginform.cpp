@@ -35,11 +35,11 @@ void LoginForm::onLoginButtonClicked() {
     connectionManager->setPassword(password->text());
     // get the list of all calendars
     connectionManager->getCalendarList();
-    connection = connect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
+    connect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
 }
 
 void LoginForm::responseHandler(QNetworkReply *reply) {
-    disconnect(connection);
+    disconnect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
     QByteArray answer = reply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();
@@ -50,5 +50,6 @@ void LoginForm::responseHandler(QNetworkReply *reply) {
         accept();
     }
     dialogButtonBox->setDisabled(false);
+    reply->deleteLater();
 }
 
