@@ -15,6 +15,8 @@ LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connect
         password(new QLineEdit),
         dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)){
 
+    /* Setup UI */
+
     formLayout->addRow(userLabel, user);
     formLayout->addRow(passwordLabel, password);
     password->setEchoMode(QLineEdit::Password);
@@ -24,12 +26,14 @@ LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connect
     layout->addWidget(groupBox);
     layout->setAlignment(Qt::AlignCenter);
     setLayout(layout);
+
+    /* Connects */
     connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &LoginForm::onLoginButtonClicked);
     connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &LoginForm::close);
 }
 
 void LoginForm::onLoginButtonClicked() {
-    dialogButtonBox->setDisabled(true);
+    dialogButtonBox->setDisabled(true); // disable the button to prevent multiple events
     // set connection manager attributes
     connectionManager->setUsername(user->text());
     connectionManager->setPassword(password->text());
@@ -41,15 +45,15 @@ void LoginForm::onLoginButtonClicked() {
 void LoginForm::responseHandler(QNetworkReply *reply) {
     disconnect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
     QByteArray answer = reply->readAll();
-    QString answerString = QString::fromUtf8(answer);
+    //QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();
-    const QString &errorString = reply->errorString();
     if (error != QNetworkReply::NoError) {
+        const QString &errorString = reply->errorString();
         QMessageBox::warning(this, "Error", errorString);
     } else {
         accept();
     }
-    dialogButtonBox->setDisabled(false);
+    dialogButtonBox->setDisabled(false); // enable the button
     reply->deleteLater();
 }
 
