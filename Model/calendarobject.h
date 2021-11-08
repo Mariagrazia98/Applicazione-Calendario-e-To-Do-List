@@ -8,86 +8,221 @@
 #include <QObject>
 #include <QDateTime>
 #include <QString>
+
+
 /**
  *
- * @details Calendar objects are 'iCalendar' formatted files. They can hold events and todo's
- * Generally they only hold one event each, but in the case of a recurring event with exceptions, they can hold multiple.
+ * @details CalendarObjects are 'iCalendar' formatted files. They can hold events and to-do's
+ * Generally they only hold one event each, but in the case of a recurring event with exceptions, they can hold multiple with the parent attribute.
  */
 
 class CalendarObject : public QObject {
 Q_OBJECT
 public:
 
+    /* Constructors */
+
+    /**
+     * Default constructor
+     */
     CalendarObject();
 
+    /**
+     * Custom copy constructor
+     *
+     * @param other
+     *
+     * @brief copy constructor and set other as parent of this
+     */
     CalendarObject(std::shared_ptr<CalendarObject> other);
 
+    /* Destructor */
+
+    /**
+     * Default destructor
+     */
     virtual ~CalendarObject() = 0;
 
+    /* Getters */
+
+    /**
+     *
+     * @return the name of the calendar this CalendarObject relates
+     */
     const QString &getCalendarName() const;
 
-    void setCalendarName(const QString &calendarName);
-
+    /**
+     *
+     * @return the name of this CalendarObject
+     */
     const QString &getName() const;
 
-    void setName(const QString &name);
-
+    /**
+     *
+     * @return the location of this CalendarObject
+     */
     const QString &getLocation() const;
 
-    void setLocation(const QString location);
-
+    /**
+     *
+     * @return the description of this CalendarObject
+     */
     const QString &getDescription() const;
 
-    void setDescription(const QString &description);
-
+    /**
+     *
+     * @return the UID of this CalendarObject
+     *
+     * @brief returns the UID of this CalendarObject, which is the same of his father if this is a recurrence
+     */
     const QString &getUID() const;
 
-    void setUID(const QString &uid);
-
+    /**
+     *
+     * @return the creationDateTime of this CalendarObject
+     */
     const QDateTime &getCreationDateTime() const;
 
-    void setCreationDateTime(const QDateTime &creationDateTime);
-
+    /**
+     *
+     * @return the startDateTime of this CalendarObject
+     */
     const QDateTime &getStartDateTime() const;
 
-    void setStartDateTime(const QDateTime &startDateTime);
+    /**
+     *
+     * @return the untilDateRepetition of this CalendarObject
+     */
+    const QDate &getUntilDateRepetition() const;
 
-    const  QDate &getUntilDateRipetition() const;
-
-    void setUntilDateRipetition(const QDate &untilDateRipetition);
-
+    /**
+     *
+     * @return the repetition type of this CalendarObject
+     */
     int getTypeRepetition() const;
 
-    void setTypeRepetition(int typeRepetition);
-
+    /**
+     *
+     * @return the numbers of repetitions this CalendarObject has
+     */
     int getNumRepetition() const;
 
-    void setNumRepetition(int numRepetition);
-
+    /**
+     *
+     * @return the priority of this CalendarObject
+     */
     unsigned int getPriority() const;
 
+    /**
+     * @brief return the original CalendarObject this CalendarObject refers to if this is a recurrence
+     * @return the original CalendarObject this CalendarObject refers to
+     */
+    std::weak_ptr<CalendarObject> getParent() const;
+
+    /**
+     *
+     * @return the list of the dates to exclude from this CalendarObject recurrences
+     */
+    const QSet<QDate> &getExDates() const;
+
+    /* Setters */
+
+    /**
+     *
+     * @param calendarName the new name of the calendar this CalendarObject refers to
+     */
+    void setCalendarName(const QString &calendarName);
+
+    /**
+     *
+     * @param name the new name of this CalendarObject
+     */
+    void setName(const QString &name);
+
+    /**
+     *
+     * @param location the new location of this CalendarObject
+     */
+    void setLocation(const QString location);
+
+    /**
+     *
+     * @param description the new description of this CalendarObject
+     */
+    void setDescription(const QString &description);
+
+    /**
+     *
+     * @param uid the new UID of this CalendarObject
+     */
+    void setUID(const QString &uid);
+
+    /**
+     *
+     * @param creationDateTime the new creationDateTime of this CalendarObject
+     */
+    void setCreationDateTime(const QDateTime &creationDateTime);
+
+    /**
+     *
+     * @param startDateTime the new startDateTime of this CalendarObject
+     */
+    void setStartDateTime(const QDateTime &startDateTime);
+
+    /**
+     *
+     * @param untilDateRipetition the new untilDateTime of this CalendarObject
+     */
+    void setUntilDateRipetition(const QDate &untilDateRipetition);
+
+    /**
+     *
+     * @param typeRepetition the new repetition type of this CalendarObject
+     */
+    void setTypeRepetition(int typeRepetition);
+
+    /**
+     *
+     * @param numRepetition the new number of repetitions of this CalendarObject recurrences
+     */
+    void setNumRepetition(int numRepetition);
+
+    /**
+     * @brief sets the new priority of this CalendarObject clamping from 0 to 9
+     * @param priority the new priority of this CalendarObject
+     */
     void setPriority(unsigned int priority);
 
-    std::weak_ptr< CalendarObject> getParent() const;
+    /* Other */
 
-    const QSet<QDate> & getExDates() const;
-
+    /**
+     * add a new Date in exDates
+     * @param exDate the date to add to exDates
+     */
     void addExDate(QDate exDate);
 
 private:
-    QString calendarName;
-    QString name;
-    QString location;
-    QString description;
-    QString UID;
-    int numRepetition;
+    QString calendarName; // the of the calendar this CalendarObject refers
+    QString name; // CalendarObject name
+    QString location; // CalendarObject location
+    QString description; // CalendarObject description
+    QString UID; // the UID of this CalendarObject, which is the same of his father if this is a recurrence
+    int numRepetition; // number of future repetitions
+
+    /**
+     * describes the type of repetitions of this CalendarObject
+     * DAILY 1
+     * WEEKLY 2
+     * MONTHLY 3
+     * YEARLY 4
+     */
     int typeRepetition;
-    QDateTime creationDateTime;
-    unsigned int priority; // [0-9]
-    QDateTime startDateTime;
-    QDate untilDateRipetition;    // last valid recurrence date. If the object has not recurrencs, it coincides to startDateTime.
-    QSet<QDate> exDates;
-    std::weak_ptr<CalendarObject> parent;
+    QDateTime creationDateTime; // when this CalendarObject is created
+    unsigned int priority; // describes the CalendarObject priority [0-9]
+    QDateTime startDateTime; // when this CalendarObject begins
+    QDate untilDateRipetition; // last valid recurrence date. If the object has no recurrences, it coincides to startDateTime.
+    QSet<QDate> exDates; // dates excluded by recurrence
+    std::weak_ptr<CalendarObject> parent; // this CalendarObject parent, it's null if this is a recurrence
 
 };
 

@@ -131,6 +131,10 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
     if (type == 0) { // delete all recurrences
         deleteCalendarObject();
     } else if (type == 1) { // delete only one recurrence
+        calendarObject->addExDate(calendarObject->getStartDateTime().date());
+        if (auto parent = calendarObject->getParent().lock()) {
+            parent->addExDate(calendarObject->getStartDateTime().date());
+        }
         QString objectType;
         std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
         if (calendarToDo.get()) {
@@ -217,7 +221,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 
         requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-        requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMdd") +
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMdd") +
                              "\r\n");
 
 
@@ -293,21 +297,30 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                             "\r\n""TRANSP:OPAQUE\r\n";
 
     if (auto parent = calendarObject->getParent().lock()) {
+        // è un'occorrenza
+        // devo salvare la data di inizio del padre
         requestString.append(
                 "DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") +
                 "\r\n");
     } else {
+        // non è un'occorrenza
         requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
     }
 
+    requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
 
-    requestString.append("UNTIL:" + calendarObject->getUntilDateRipetition().toString("yyyyMMddT000000Z") + "\r\n");
+    // insert exDates
+    QSet<QDate> exDates = calendarObject->getExDates();
+    requestString.append("EXDATE:");
+    QSet<QDate>::const_iterator i = exDates.constBegin();
+    while (i != exDates.constEnd()) {
+        requestString.append(i->toString("yyyyMMddT010000Z"));
+        i++;
+        if (i != exDates.constEnd()) {
+            requestString.append(',');
+        }
+    }
 
-    /*
-    if (calendarToDo->getParent().lock()) {
-        requestString.append();
-    } else {
-     */
     if (!calendarToDo->getCompletedDate().isEmpty()) {
         QList<QDate> completedDates = calendarToDo->getCompletedDate();
         requestString.append("COMPLETED:");

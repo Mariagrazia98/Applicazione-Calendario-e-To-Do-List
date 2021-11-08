@@ -209,11 +209,11 @@ void CalendarWidget::showSelectedDateTasks() {
                 switch (calendarEvent->getTypeRepetition()) {
                     case DAILY: {   //daily
                         while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRipetition()) {
+                               start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addDays(calendarEvent->getNumRepetition());
                             end = end.addDays(calendarEvent->getNumRepetition());
                             if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRipetition()) {
+                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                                 std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                         calendarEvent);
                                 calendarEvent_->setStartDateTime(start);
@@ -226,11 +226,11 @@ void CalendarWidget::showSelectedDateTasks() {
                     }
                     case WEEKLY: {      //weekly
                         while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRipetition()) {
+                               start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addDays(7 * calendarEvent->getNumRepetition());
                             end = end.addDays(7 * calendarEvent->getNumRepetition());
                             if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRipetition()) {
+                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                                 std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                         calendarEvent);
                                 calendarEvent_->setStartDateTime(start);
@@ -243,11 +243,11 @@ void CalendarWidget::showSelectedDateTasks() {
                     }
                     case MONTHLY: {      //monthly
                         while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRipetition()) {
+                               start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addMonths(calendarEvent->getNumRepetition());
                             end = end.addMonths(calendarEvent->getNumRepetition());
                             if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRipetition()) {
+                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                                 std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                         calendarEvent);
                                 calendarEvent_->setStartDateTime(start);
@@ -260,11 +260,11 @@ void CalendarWidget::showSelectedDateTasks() {
                     }
                     case YEARLY: {      //yearly
                         while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRipetition()) {
+                               start.date() <= calendarEvent->getUntilDateRepetition()) {
                             start = start.addYears(calendarEvent->getNumRepetition());
                             end = end.addYears(calendarEvent->getNumRepetition());
                             if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRipetition()) {
+                                start.date() <= calendarEvent->getUntilDateRepetition()) {
                                 std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                         calendarEvent);
                                 calendarEvent_->setStartDateTime(start);
@@ -285,20 +285,19 @@ void CalendarWidget::showSelectedDateTasks() {
                 if (start.date() == calendar->selectedDate()) {
                     addCalendarObjectWidget(calendarToDo);
                 } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
-                    if (calendarToDo->getUntilDateRipetition() >= calendar->selectedDate()) {
+                    if (calendarToDo->getUntilDateRepetition() >= calendar->selectedDate()) {
                         //std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString() << '\n';
                         // TODO: non importa aggiungere giorni, basta importare l'orario ?
                         switch (calendarToDo->getTypeRepetition()) {
                             case DAILY: {   // daily
                                 while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addDays(calendarToDo->getNumRepetition());
                                     if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
-                                        /* TODO calendarToDo_->addCompletedDate(calendarToDo->getCompletedDate()); */
                                         addCalendarObjectWidget(calendarToDo_);
                                         break;
                                     }
@@ -307,10 +306,10 @@ void CalendarWidget::showSelectedDateTasks() {
                             }
                             case WEEKLY: {      //weekly
                                 while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addDays(7 * calendarToDo->getNumRepetition());
                                     if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                         std::shared_ptr<CalendarObject> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
@@ -323,10 +322,10 @@ void CalendarWidget::showSelectedDateTasks() {
                             }
                             case MONTHLY: {      //monthly
                                 while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addMonths(calendarToDo->getNumRepetition());
                                     if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);
@@ -339,10 +338,10 @@ void CalendarWidget::showSelectedDateTasks() {
                             }
                             case YEARLY: {      //yearly
                                 while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
                                     start = start.addYears(calendarToDo->getNumRepetition());
                                     if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRipetition()) {
+                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
                                         std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
                                                 calendarToDo);
                                         calendarToDo_->setStartDateTime(start);

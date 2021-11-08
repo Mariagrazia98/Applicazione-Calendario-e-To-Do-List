@@ -107,7 +107,7 @@ void CalendarObject::setPriority(unsigned int priority) {
     }
 }
 
-const QDate &CalendarObject::getUntilDateRipetition() const {
+const QDate &CalendarObject::getUntilDateRepetition() const {
     return untilDateRipetition;
 }
 

@@ -38,7 +38,7 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         if (calendarObject->getNumRepetition() >= 1) {
             ui->untilDate->setVisible(true);
             ui->untilLabel->setVisible(true);
-            ui->untilDate->setDate(calendarObject->getUntilDateRipetition());
+            ui->untilDate->setDate(calendarObject->getUntilDateRepetition());
         }
         ui->comboBox->setDisabled(true);
 

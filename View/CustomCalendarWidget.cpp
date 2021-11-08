@@ -17,7 +17,7 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        if (calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRipetition() >= date) {
+        if (calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRepetition() >= date) {
             if (!calendarObjects[i]->getExDates().contains(date)) {
                 QDate start = calendarObjects[i]->getStartDateTime().date();
                 while (start < date) {
