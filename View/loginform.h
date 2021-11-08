@@ -16,7 +16,7 @@
 #include "calendarchoicedialog.h"
 
 /**
- *  @brief Form to log in the calendarName server
+ *  @brief Form to log in the iCalendar server
  *
  */
 
@@ -24,6 +24,13 @@ class LoginForm : public QDialog {
 Q_OBJECT
 
 public:
+    /* Constructor */
+
+    /**
+     *
+     * @param parent the parent QWidget
+     * @param connectionManager the ConnectionManager used by this Widget
+     */
     explicit LoginForm(QWidget *parent = nullptr,
                        std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>());
 
@@ -34,13 +41,14 @@ private
     /// @brief buttonClicked callback
     void onLoginButtonClicked();
 
-    /** @brief checks the login reply
+    /**
+     * @brief checks the login reply
      * @details if the reply has no errors, accept and close the widget
      */
     void responseHandler(QNetworkReply *reply);
 
 private:
-    std::shared_ptr<ConnectionManager> connectionManager;
+    std::shared_ptr<ConnectionManager> connectionManager; // the ConnectionManager used by this Widget
 
     /* UI */
 
