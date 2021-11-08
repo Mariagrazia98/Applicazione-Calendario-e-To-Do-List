@@ -1,5 +1,4 @@
 #include "loginform.h"
-#include "ui_loginform.h"
 
 #include <QMessageBox>
 #include <iostream>
@@ -14,10 +13,7 @@ LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connect
         user(new QLineEdit),
         passwordLabel(new QLabel("Password")),
         password(new QLineEdit),
-
-        dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)),
-        ui(new Ui::LoginForm) {
-    ui->setupUi(this);
+        dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)){
 
     formLayout->addRow(userLabel, user);
     formLayout->addRow(passwordLabel, password);
@@ -27,13 +23,9 @@ LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connect
     groupBox->setLayout(formLayout);
     layout->addWidget(groupBox);
     layout->setAlignment(Qt::AlignCenter);
-    this->setLayout(layout);
+    setLayout(layout);
     connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &LoginForm::onLoginButtonClicked);
     connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &LoginForm::close);
-}
-
-LoginForm::~LoginForm() {
-    delete ui;
 }
 
 void LoginForm::onLoginButtonClicked() {

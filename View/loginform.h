@@ -15,10 +15,6 @@
 #include "../Controller/connectionManager.h"
 #include "calendarchoicedialog.h"
 
-namespace Ui {
-    class LoginForm;
-}
-
 /**
  *  @brief Form to log in the calendarName server
  *
@@ -29,10 +25,8 @@ Q_OBJECT
 
 public:
     explicit LoginForm(QWidget *parent = nullptr,
-                       std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>(
-                               ));
+                       std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>());
 
-    ~LoginForm();
 
 private
     slots:
@@ -46,7 +40,6 @@ private
     void responseHandler(QNetworkReply *reply);
 
 private:
-    Ui::LoginForm *ui;
     std::shared_ptr<ConnectionManager> connectionManager;
 
     QGroupBox *groupBox;
