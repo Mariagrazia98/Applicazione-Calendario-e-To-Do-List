@@ -17,8 +17,9 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<Conn
     pushButton->setEnabled(false);
 }
 
-void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
-    this->calendarsList = calendarsList;
+void CalendarChoiceDialog::setupUI(QList<Calendar *> list) {
+    calendarsList.clear();
+    this->calendarsList = list;
     for (int i = 0; i < calendarsList.length(); ++i) {
         Calendar *calendar = calendarsList[i];
         if (calendar) {
@@ -39,9 +40,6 @@ void CalendarChoiceDialog::setupUI(QList<Calendar *> calendarsList) {
     setLayout(verticalLayout);
     connect(pushButton, &QPushButton::pressed,
             this, &CalendarChoiceDialog::accept);
-
-    //this->adjustSize();
-    //this->setMinimumSize(400,300);
 
     setLayout(verticalLayout);
 }

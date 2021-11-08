@@ -38,10 +38,10 @@ public:
 public slots:
 
     /**
-     * setup the UI accordinglu to calendarsList
-     * @param calendarsList the list of selectable Calendars
+     * setup the UI accordinglu to list
+     * @param list the list of selectable Calendars
      */
-    void setupUI(QList<Calendar *> calendarsList);
+    void setupUI(QList<Calendar *> list);
 
     /**
      * checkBox toggle callback
