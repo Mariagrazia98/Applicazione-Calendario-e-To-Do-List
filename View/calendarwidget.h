@@ -33,7 +33,7 @@
 #include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
 #include "../Controller/connectionManager.h"
-#include "CustomCalendarWidget.h"
+#include "customcalendarwidget.h"
 #include "sharecalendarform.h"
 
 class CalendarWidget : public QMainWindow {

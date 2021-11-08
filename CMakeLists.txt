@@ -18,7 +18,7 @@ set(CMAKE_PREFIX_PATH "C:/Qt/6.1.3/msvc2019_64/lib/cmake")
 add_executable(${PROJECT_NAME} main.cpp src.qrc
         View/loginform.h View/loginform.cpp View/loginform.ui
         View/calendarwidget.h View/calendarwidget.cpp
-        View/customCalendarWidget.cpp View/customCalendarWidget.h
+        View/customcalendarwidget.cpp View/customcalendarwidget.h
         View/taskform.h View/taskform.cpp View/taskform.ui
         Model/calendarobject.cpp Model/calendarobject.h
         Model/calendarevent.cpp Model/calendarevent.h
@@ -27,7 +27,7 @@ add_executable(${PROJECT_NAME} main.cpp src.qrc
         Model/calendartodo.h View/calendarchoicedialog.cpp
         View/calendarchoicedialog.h
         Model/calendar.cpp Model/calendar.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h
-        View/CustomCalendarWidget.cpp View/CustomCalendarWidget.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h View/sharecalendarform.cpp View/sharecalendarform.h)
+        View/customcalendarwidget.cpp View/customcalendarwidget.h View/eliminationtaskdialog.cpp View/eliminationtaskdialog.h View/sharecalendarform.cpp View/sharecalendarform.h)
 
 if (NOT CMAKE_PREFIX_PATH)
     message(WARNING "CMAKE_PREFIX_PATH is not defined, you may need to set it "

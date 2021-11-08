@@ -1,9 +1,9 @@
 //
-// Created by manue on 09/10/2021.
+// Created by manuel on 09/10/2021.
 //
 
 #include <iostream>
-#include "CustomCalendarWidget.h"
+#include "customcalendarwidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
 
@@ -17,7 +17,13 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        if (calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRepetition() >= date) {
+        if (calendarObjects[i]->getStartDateTime().date() == date) {
+            paintDate(painter, rect);
+            return;
+        }
+        // check recurrencies
+        if (calendarObjects[i]->getTypeRepetition() != CalendarObject::NONE &&
+            calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRepetition() >= date) {
             if (!calendarObjects[i]->getExDates().contains(date)) {
                 QDate start = calendarObjects[i]->getStartDateTime().date();
                 while (start < date) {
@@ -45,6 +51,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 }
             }
         } else {
+            // multiple-day-long event checks
             auto calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
             if (calendarEvent.get() != nullptr) {
                 if (calendarEvent->getStartDateTime().date() <= date &&
@@ -52,10 +59,6 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                     paintDate(painter, rect);
                     return;
                 }
-            }
-            if (calendarObjects[i]->getStartDateTime().date() == date) {
-                paintDate(painter, rect);
-                return;
             }
         }
     }
@@ -70,7 +73,6 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
     brush.setStyle(Qt::SolidPattern);
     brush.setColor(QColorConstants::Red);
     painter->setBrush(brush);
-    //painter->drawRect(rect.adjusted(rect.width() - 10, 0, 0, -rect.height() + 10));
     painter->drawRect(rect.adjusted(0, 0, -1, -1));
     painter->setOpacity(1);
 }
