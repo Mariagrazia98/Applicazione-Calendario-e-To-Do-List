@@ -212,7 +212,7 @@ public:
     void addExDate(QDate exDate);
 
 private:
-    QString calendarName; // the of the calendar this CalendarObject refers
+    QString calendarName; // the name of the calendar this CalendarObject refers
     QString name; // CalendarObject name
     QString location; // CalendarObject location
     QString description; // CalendarObject description

@@ -2,9 +2,8 @@
 // Created by mary_ on 11/10/2021.
 //
 
-// You may need to build the project (run Qt uic code generator) to get "ui_EliminationTaskDialog.h" resolved
-
 #include "eliminationtaskdialog.h"
+
 
 EliminationTaskDialog::EliminationTaskDialog(QWidget *parent) :
         QDialog(parent),
@@ -22,14 +21,17 @@ EliminationTaskDialog::EliminationTaskDialog(QWidget *parent) :
 }
 
 void EliminationTaskDialog::onAccept(){
+    // 'OK' button pressed
     if(allRepetition->isChecked()){
+        // user wants to delete all the repetitions
         emit(eliminateRecurrences(0));
     }
     else if(onlyThisRepetition->isChecked())
-    {
+    {   //user wants to delete only this repetition
         emit(eliminateRecurrences(1));
     }
     else{
+        // nothing happens, equivalent to 'Close' button
         emit(eliminateRecurrences(-1));
     }
     close();

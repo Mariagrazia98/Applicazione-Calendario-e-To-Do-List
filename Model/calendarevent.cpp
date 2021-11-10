@@ -9,10 +9,10 @@ CalendarEvent::CalendarEvent() {
 
 }
 
-CalendarEvent::CalendarEvent(std::shared_ptr<CalendarEvent> other) : CalendarObject(other),
-                                                                           endDateTime(other->endDateTime) {
+CalendarEvent::CalendarEvent(std::shared_ptr<CalendarEvent> other) :
+    CalendarObject(other),
+    endDateTime(other->endDateTime) {
 }
-
 
 const QDateTime &CalendarEvent::getEndDateTime() const {
     return endDateTime;
@@ -21,5 +21,3 @@ const QDateTime &CalendarEvent::getEndDateTime() const {
 void CalendarEvent::setEndDateTime(const QDateTime &endDateTime) {
     CalendarEvent::endDateTime = endDateTime;
 }
-
-
