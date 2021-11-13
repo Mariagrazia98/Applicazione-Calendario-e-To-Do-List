@@ -51,7 +51,7 @@ void ShareCalendarForm::setupUI() {
 
 void ShareCalendarForm::closeEvent(QCloseEvent *event) {
     /* emit signal */
-    emit(closeShareCalendarForm());
+    emit(shareCalendarFormClosed());
 }
 
 

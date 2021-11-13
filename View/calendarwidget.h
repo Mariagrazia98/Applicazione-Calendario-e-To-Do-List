@@ -40,69 +40,144 @@ class CalendarWidget : public QMainWindow {
 Q_OBJECT
 
 public:
+    /**
+    * Constructor
+    * @brief set up widget
+    */
     explicit CalendarWidget(QWidget *parent = nullptr);
 
     ~CalendarWidget();
 
+    /**
+    * @brief setup connection manager
+    * Each connection manager makes a get for a calendar
+    */
     void setupConnection();
 
+    /*TODO: NON HO CAPITO*/
     void addConnectionManager(ConnectionManager *connectionManager);
 
+    /**
+     * @brief get the calendar
+     * @details When the timer expires, the connection manager, associated to a certain calendar, makes the request
+     * @param Name of the calendar to get
+     */
     void getCalendarRequest(const QString calendarName);
 
     void setupTimer();
 
-    QDate getCurrentDateSelected();
 
-public
-    slots:
+public slots:
 
     void parseCalendar(QString calendar);
 
+    /***
+     * @brief calls the function parseCalendar in order to parse the calendar and starts timer
+     * @details This is called when the signal "calendarReady" connected to the slot is emitted by the ConnectionManager object .
+     * First of all, the function verifies if everything went well.
+     * If there were not error, it calls the parseCalendar function and starts timer
+     * Otherwise, a QMessageBox will appear
+     */
     void onCalendarReady(QNetworkReply *reply);
 
-private
-    slots:
+private slots:
 
+    /***
+    * @brief update the variable currentDateEdit that stores the current date selected and dateString that visualizes the current date selected
+    * @details This is called when the signal "selectionChanged" connected to the slot is emitted by QCalendarWidget object.
+    * The signal is emitted when the currently selected date of the calendar changes.
+    */
     void selectedDateChanged();
 
-    void reformatCalendarPage();
-
+    /***
+    * @brief shows the TaskForm
+    * @details This is called when the signal "QPushButton::clicked" connected to the slot is emitted by addCalendarObjectButton.
+    */
     void addCalendarObjectButtonClicked();
 
+    /***
+    * @brief shows the ShareCalendarForm
+    * @details This is called when the signal "QPushButton::clicked" connected to the slot is emitted by shareCalendarButton.
+    */
     void shareCalendarButtonClicked();
 
-    void parseEvent(const QString &calendarName);
 
+    /***
+     * @brief enables shareCalendarButton
+     * @details This is called when the signal "shareCalendarFormClosed" connected to the slot is emitted by shareCalendarForm.
+     */
     void onShareCalendarFormClosed();
 
+    /***
+     * @brief enables addCalendarObjectButton
+     * @details This is called when the signal "taskFormClosed" connected to the slot is emitted by taskForm.
+     */
     void onTaskFormClosed();
 
+    /***
+     * @brief stops the timer calls the function getctag
+     * @details This is called when the signal "taskUploaded" connected to the slot is emitted by taskForm.
+     * Todo: perchè ci sono due segnali connessi a questo slot?TaskForm e calendarObjectWidget?
+     * Todo: Perchè è uguale a on TaskDeleted?
+     */
     void onTaskModified(const QString calendarName);
 
+    /***
+     * @brief stops the timer and calls the function getctag
+     * @details This is called when the signal "taskDeleted" connected to the slot is emitted by CalendarObjectWidget.
+     */
     void onTaskDeleted(CalendarObject &obj);
 
+    /***
+    * @brief each connection manager calls the function getctag
+    * @details This is called when the signal "timeout" connected to the slot is emitted by the timer.
+    * The signal is emitted when the timer times out.
+    */
     void onTimeout();
-
 
 private:
     void setupCalendar();
-
-    void setupWeek();
-
-    void createCalendarGroupBox();
-
+    void parseEvent(const QString &calendarName);
+    void parseToDo(const QString &calendarName);
     void showSelectedDateTasks();
 
-    QComboBox *createColorComboBox();
 
+    /**
+      * Getter
+      * @brief return the current date selected
+      */
+    QDate getCurrentDateSelected();
+
+    /**
+    * @brief setup CalendarBox and shareCalendarButton
+    */
+    void createCalendarGroupBox();
+
+    /**
+     * @brief get a QDateTime from a QString
+     * @param a Qstring date
+     * @return QDateTime date
+     */
     QDateTime getDateTimeFromString(const QString &string);
 
-    void parseToDo(const QString &calendarName);
-
+    /**
+    * @brief add a new calendarObjectWidget to taskViewLayout
+    * @param the shared pointer to a calendar object
+    * @details create a new CalendarObjectWidget object and adds it to taskViewLayout in order to visualize it
+    */
     void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
+
+    /**
+    * @brief parses the Qstring value received as param and for each exDate calls the function addExDate of calendarObject
+    * @param the pointer to a calendar object and the list of exDates in a QString format
+    */
     QString addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
 
+    /**
+     * @brief parses the Qstring value received as param and for each completeDate calls the function addCompleteDate of calendarToDo
+     * @param the pointer to a calendar to-do object and the list of completeDate in a QString format
+     */
+    QString addCompletedDatesToCalendarObject(CalendarToDo *calendarTodo, QString &value);
 
     /* Attributes */
     QGroupBox *calendarGroupBox; /**< shows the calendar and button for sharing a calendar on the left side of the window */
@@ -113,15 +188,14 @@ private:
  * They are showed on the right side of the window */
     QVBoxLayout *tasksLayout;
 
-    QDateEdit *currentDateEdit;
+    QDateEdit *currentDateEdit; /**< shows the current date selected on the top-right side of the window */
     QTextBrowser *dateString; /**< shows the current date selected on the top-right side of the window */
 
     QPushButton *addCalendarObjectButton; /**< button for a adding a new calendarObject */
     QPushButton *shareCalendarButton; /**< button for sharing a calendar */
 
     QTextStream *stream;
-    QList<std::shared_ptr<CalendarObject>> calendarObjects;
-    QString addCompletedDatesToCalendarObject(CalendarToDo* calendarTodo, QString &value);
+    QList<std::shared_ptr<CalendarObject>> calendarObjects; /** list of calendar objects*/
 
     QWidget *taskScrollWidget;
     QScrollArea *scrollArea;
@@ -129,7 +203,7 @@ private:
 
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
-    QTimer *timer;
+    QTimer *timer;  /**< When the timer expires, check whether the ctag of a calendar has changed */
     const unsigned int timerInterval;
 
 

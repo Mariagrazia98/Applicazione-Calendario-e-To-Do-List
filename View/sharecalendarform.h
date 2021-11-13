@@ -59,9 +59,9 @@ private:
 
 signals:
     /***
-     *@brief When closeShareCalendarForm signal is emitted, the CalendarWidget::onShareCalendarFormClosed slot connected to it is executed
+     *@brief When shareCalendarFormClosed signal is emitted, the CalendarWidget::onShareCalendarFormClosed slot connected to it is executed
      */
-    void closeShareCalendarForm();
+    void shareCalendarFormClosed();
 
 private slots:
 

@@ -8,28 +8,21 @@ CalendarWidget::CalendarWidget(QWidget *parent) :
         stream(new QTextStream()),
         shareCalendarButton(new QPushButton("Share Calendar")),
         timerInterval(10000) {
+
+
     createCalendarGroupBox();
     setupCalendar();
 
-
-    calendarGroupBox->setMinimumSize(calendar->sizeHint());
     setCentralWidget(calendarGroupBox);
+    calendarGroupBox->setMinimumSize(calendar->sizeHint());
+    tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
+
     QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
     dockWidget->setAllowedAreas(Qt::RightDockWidgetArea);
-    tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
     dockWidget->setWidget(tasksGroupBox);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
-    //layout->setSizeConstraint(QLayout::SetFixedSize);
-    //setLayout(layout);
-
-    /* layout->setRowMinimumHeight(0, calendar->sizeHint().height());
-     layout->setColumnMinimumWidth(0, calendar->sizeHint().width());
-     layout->setColumnMinimumWidth(1, calendar->sizeHint().width() * 1.5);ù
-     */
-
     setMinimumHeight(480);
-
     setWindowTitle(tr("Calendar Application"));
 
 }
@@ -48,7 +41,7 @@ void CalendarWidget::setupCalendar() {
     currentDateEdit->setDateRange(calendar->minimumDate(),
                                   calendar->maximumDate());
 
-    setupWeek();
+
     connect(calendar, &QCalendarWidget::selectionChanged,
             this, &CalendarWidget::selectedDateChanged);
     tasksGroupBox = new QGroupBox(tr("Tasks"));
@@ -89,7 +82,6 @@ void CalendarWidget::selectedDateChanged() {
     if (currentDateEdit->date() != calendar->selectedDate()) {
         currentDateEdit->setDate(calendar->selectedDate());
         QDate date = currentDateEdit->date();
-        //QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
         QString englishDate = date.toString("dddd, yyyy/MM/d");
         dateString->setText(englishDate);
         dateString->setAlignment(Qt::AlignCenter);
@@ -97,45 +89,16 @@ void CalendarWidget::selectedDateChanged() {
     }
 }
 
-void CalendarWidget::setupWeek() {
-    QTextCharFormat format;
 
-    format.setForeground(Qt::black);
-    calendar->setWeekdayTextFormat(Qt::Monday, format);
-    calendar->setWeekdayTextFormat(Qt::Tuesday, format);
-    calendar->setWeekdayTextFormat(Qt::Wednesday, format);
-    calendar->setWeekdayTextFormat(Qt::Thursday, format);
-    calendar->setWeekdayTextFormat(Qt::Friday, format);
-    calendar->setWeekdayTextFormat(Qt::Saturday, format);
-    format.setForeground(Qt::red);
-    calendar->setWeekdayTextFormat(Qt::Sunday, format);
-}
 
-void CalendarWidget::reformatCalendarPage() {
-    QTextCharFormat mayFirstFormat;
-    const QDate mayFirst(calendar->yearShown(), 5, 1);
-
-    QTextCharFormat firstFridayFormat;
-    QDate firstFriday(calendar->yearShown(), calendar->monthShown(), 1);
-    while (firstFriday.dayOfWeek() != Qt::Friday)
-        firstFriday = firstFriday.addDays(1);
-
-    calendar->setDateTextFormat(firstFriday, firstFridayFormat);
-    calendar->setDateTextFormat(mayFirst, mayFirstFormat);
-}
 
 void CalendarWidget::createCalendarGroupBox() {
     calendarGroupBox = new QGroupBox(tr("CalendarWidget"));
 
     calendar = new CustomCalendarWidget();
 
-
-    connect(calendar, &QCalendarWidget::currentPageChanged,
-            this, &CalendarWidget::reformatCalendarPage);
-
     calendarLayout = new QGridLayout;
     calendarLayout->addWidget(calendar);
-
 
     shareCalendarButton->setEnabled(true);
     shareCalendarButton->setToolTip(tr("Share current calendar"));
@@ -354,6 +317,7 @@ void CalendarWidget::showSelectedDateTasks() {
 
 void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject) {
     const QString calendarName = calendarObject->getCalendarName();
+
     // get connectionManager relative to the calendarObject calendar
     if (!connectionManagers.contains(calendarName)) {
         std::cerr << "Cannot find a connection for calendar " << calendarName.toStdString() << '\n';
@@ -548,7 +512,6 @@ QString CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObjec
 }
 
 QString CalendarWidget::addCompletedDatesToCalendarObject(CalendarToDo *calendarTodo, QString &value) {
-    //std::cout << "completedDates to parse: " << value.toStdString() << '\n';
     int endDeliminatorPosition = value.indexOf(QLatin1Char('Z'));
     while (endDeliminatorPosition > 0 && !value.isEmpty()) {
         const QString completedDateString = value.mid(0, endDeliminatorPosition + 1);
@@ -565,7 +528,7 @@ void CalendarWidget::addCalendarObjectButtonClicked() {
     TaskForm *taskForm = new TaskForm(connectionManagers);
     taskForm->setDate(currentDateEdit->date());
     taskForm->show();
-    connect(taskForm, &TaskForm::closing, this, &CalendarWidget::onTaskFormClosed);
+    connect(taskForm, &TaskForm::taskFormClosed, this, &CalendarWidget::onTaskFormClosed);
     connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);
 }
 
@@ -582,15 +545,6 @@ QDateTime CalendarWidget::getDateTimeFromString(const QString &string) {
     return dateTime;
 }
 
-void CalendarWidget::onTaskFormClosed() {
-    addCalendarObjectButton->setEnabled(true);
-}
-
-void CalendarWidget::onTaskModified(const QString calendarName) {
-    timer->stop();
-    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
-    connectionManager->getctag();
-}
 
 void CalendarWidget::addConnectionManager(ConnectionManager *connectionManager) {
     QString calendarName = connectionManager->getCalendarName();
@@ -599,30 +553,14 @@ void CalendarWidget::addConnectionManager(ConnectionManager *connectionManager) 
     }
 }
 
-void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
-    if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
-        QNetworkReply::NetworkError error = reply->error();
-        if (error == QNetworkReply::NoError) {
-            parseCalendar(answerString);
-        } else {
-            // error
-            const QString &errorString = reply->errorString();
-            std::cerr << errorString.toStdString() << '\n';
-            QMessageBox::warning(this, "Error", "Could not get selected calendar");
-        }
-        reply->deleteLater();
-    } else {
-        //std::cerr << "null reply\n";
-        QMessageBox::warning(this, "Error", "Something went wrong");
-    }
-    timer->start(timerInterval);
-}
 
 void CalendarWidget::getCalendarRequest(const QString calendarName) {
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
     connectionManager->getCalendarRequest();
+}
+
+QDate CalendarWidget::getCurrentDateSelected() {
+    return currentDateEdit->date();
 }
 
 void CalendarWidget::setupConnection() {
@@ -643,10 +581,24 @@ void CalendarWidget::setupTimer() {
     timer->start(timerInterval);
 }
 
-void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
-    timer->stop();
-    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[obj.getCalendarName()];
-    connectionManager->getctag();
+void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
+    if (reply != nullptr) {
+        QByteArray answer = reply->readAll();
+        QString answerString = QString::fromUtf8(answer);
+        QNetworkReply::NetworkError error = reply->error();
+        if (error == QNetworkReply::NoError) {
+            parseCalendar(answerString);
+        } else {
+            // error
+            const QString &errorString = reply->errorString();
+            std::cerr << errorString.toStdString() << '\n';
+            QMessageBox::warning(this, "Error", "Could not get selected calendar");
+        }
+        reply->deleteLater();
+    } else {
+        QMessageBox::warning(this, "Error", "Something went wrong");
+    }
+    timer->start(timerInterval);
 }
 
 void CalendarWidget::onTimeout() {
@@ -654,21 +606,35 @@ void CalendarWidget::onTimeout() {
             connectionManager->getctag();
         };
 }
-
-QDate CalendarWidget::getCurrentDateSelected() {
-    return currentDateEdit->date();
+void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
+    timer->stop();
+    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[obj.getCalendarName()];
+    connectionManager->getctag();
 }
+
+
+
 
 void CalendarWidget::shareCalendarButtonClicked() {
     shareCalendarButton->setEnabled(false);
 
     ShareCalendarForm *shareCalendarForm = new ShareCalendarForm(this, connectionManagers);
     shareCalendarForm->show();
-    connect(shareCalendarForm, &ShareCalendarForm::closeShareCalendarForm, this,
+    connect(shareCalendarForm, &ShareCalendarForm::shareCalendarFormClosed, this,
             &CalendarWidget::onShareCalendarFormClosed);
 }
 
 void CalendarWidget::onShareCalendarFormClosed() {
     shareCalendarButton->setEnabled(true);
+}
+
+void CalendarWidget::onTaskFormClosed() {
+    addCalendarObjectButton->setEnabled(true);
+}
+
+void CalendarWidget::onTaskModified(const QString calendarName) {
+    timer->stop();
+    std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
+    connectionManager->getctag();
 }
 

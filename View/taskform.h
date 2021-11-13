@@ -49,7 +49,7 @@ private
 
 signals:
 
-    void closing();
+    void taskFormClosed();
 
     void taskUploaded(const QString calendarName);
 

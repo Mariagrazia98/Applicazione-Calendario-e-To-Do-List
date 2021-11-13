@@ -249,7 +249,7 @@ void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
 }
 
 void TaskForm::closeEvent(QCloseEvent *event) {
-    emit(closing());
+    emit(taskFormClosed());
 }
 
 void TaskForm::setDate(const QDate &date) {
