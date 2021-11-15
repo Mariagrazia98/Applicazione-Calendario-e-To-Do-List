@@ -32,7 +32,6 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>();
     LoginForm loginForm(nullptr, connectionManager);
-    CalendarWidget calendarWidget(nullptr);
     CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager);
     Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,
                       &CalendarChoiceDialog::setupUI);
@@ -40,6 +39,7 @@ int main(int argc, char *argv[]) {
     if (loginForm.exec() == QDialog::Accepted) {
         calendarChoiceDialog.show();
         if (calendarChoiceDialog.exec() == QDialog::Accepted) {
+            CalendarWidget calendarWidget(nullptr);
             QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
             // creates a new ConnectionManager for each Calendar selected
             for (int i = 0; i < calendars.length(); ++i) {
@@ -52,7 +52,8 @@ int main(int argc, char *argv[]) {
             calendarWidget.setupConnection();
             calendarWidget.setupTimer();
             calendarWidget.show();
+            return QApplication::exec();
         }
     }
-    return QApplication::exec();
+    return 0;
 }
