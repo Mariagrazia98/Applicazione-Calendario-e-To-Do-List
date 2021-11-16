@@ -85,11 +85,9 @@ void CalendarWidget::selectedDateChanged() {
         QString englishDate = date.toString("dddd, yyyy/MM/d");
         dateString->setText(englishDate);
         dateString->setAlignment(Qt::AlignCenter);
-        showSelectedDateTasks();
+        showSelectedDateCalendarObjects();
     }
 }
-
-
 
 
 void CalendarWidget::createCalendarGroupBox() {
@@ -127,9 +125,11 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             }
         }
         if (line.contains("BEGIN:VEVENT")) {
-            parseEvent(calendarName);
+            parseCalendarObject(calendarName, 0);
+            //parseEvent(calendarName);
         } else if (line.contains("BEGIN:VTODO")) {
-            parseToDo(calendarName);
+            parseCalendarObject(calendarName, 1);
+            //parseToDo(calendarName);
         }
     }
 
@@ -142,11 +142,13 @@ void CalendarWidget::parseCalendar(QString calendarString) {
     stream->seek(0);
 
     this->calendar->setCalendarObjects(calendarObjects);
-    showSelectedDateTasks();
+    showSelectedDateCalendarObjects();
 
 }
 
-void CalendarWidget::showSelectedDateTasks() {
+
+
+void CalendarWidget::showSelectedDateCalendarObjects() {
     QLayoutItem *item;
     while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
         delete item->widget();
@@ -161,76 +163,43 @@ void CalendarWidget::showSelectedDateTasks() {
             if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
                 calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
                 addCalendarObjectWidget(calendarObjects[i]);
-            } else if (calendarEvent->getTypeRepetition() != CalendarObject::RepetitionType::NONE && calendarEvent->getNumRepetition() > 0) {
+            } else if (calendarEvent->getTypeRepetition() != CalendarObject::RepetitionType::NONE &&
+                       calendarEvent->getNumRepetition() > 0) {
                 QDateTime start = calendarEvent->getStartDateTime();
                 QDateTime end = calendarEvent->getEndDateTime();
-                switch (calendarEvent->getTypeRepetition()) {
-                    case CalendarObject::RepetitionType::DAILY: {   //daily
-                        while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRepetition()) {
+
+                while (start.date() < calendar->selectedDate() &&
+                       start.date() <= calendarEvent->getUntilDateRepetition()) {
+
+                    switch (calendarEvent->getTypeRepetition()) {
+                        case CalendarObject::RepetitionType::DAILY: {   //daily
                             start = start.addDays(calendarEvent->getNumRepetition());
                             end = end.addDays(calendarEvent->getNumRepetition());
-                            if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRepetition()) {
-                                std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
-                                        calendarEvent);
-                                calendarEvent_->setStartDateTime(start);
-                                calendarEvent_->setEndDateTime(end);
-                                addCalendarObjectWidget(calendarEvent_);
-                                break;
-                            }
+                            break;
                         }
-                        break;
-                    }
-                    case CalendarObject::RepetitionType::WEEKLY: {      //weekly
-                        while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRepetition()) {
+                        case CalendarObject::RepetitionType::WEEKLY: {
                             start = start.addDays(7 * calendarEvent->getNumRepetition());
                             end = end.addDays(7 * calendarEvent->getNumRepetition());
-                            if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRepetition()) {
-                                std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
-                                        calendarEvent);
-                                calendarEvent_->setStartDateTime(start);
-                                calendarEvent_->setEndDateTime(end);
-                                addCalendarObjectWidget(calendarEvent_);
-                                break;
-                            }
+                            break;
                         }
-                        break;
-                    }
-                    case CalendarObject::RepetitionType::MONTHLY: {      //monthly
-                        while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRepetition()) {
+                        case CalendarObject::RepetitionType::MONTHLY: {
                             start = start.addMonths(calendarEvent->getNumRepetition());
                             end = end.addMonths(calendarEvent->getNumRepetition());
-                            if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRepetition()) {
-                                std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
-                                        calendarEvent);
-                                calendarEvent_->setStartDateTime(start);
-                                calendarEvent_->setEndDateTime(end);
-                                addCalendarObjectWidget(calendarEvent_);
-                                break;
-                            }
+                            break;
                         }
-                        break;
-                    }
-                    case CalendarObject::RepetitionType::YEARLY: {      //yearly
-                        while (start.date() < calendar->selectedDate() &&
-                               start.date() <= calendarEvent->getUntilDateRepetition()) {
+                        case CalendarObject::RepetitionType::YEARLY: {      //yearly
                             start = start.addYears(calendarEvent->getNumRepetition());
                             end = end.addYears(calendarEvent->getNumRepetition());
-                            if (start.date() == calendar->selectedDate() &&
-                                start.date() <= calendarEvent->getUntilDateRepetition()) {
-                                std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
-                                        calendarEvent);
-                                calendarEvent_->setStartDateTime(start);
-                                calendarEvent_->setEndDateTime(end);
-                                addCalendarObjectWidget(calendarEvent_);
-                                break;
-                            }
+                            break;
                         }
+                    }
+                    if ( start.date() <= calendar->selectedDate() &&
+                        end.date() >= calendar->selectedDate() &&
+                        start.date() <= calendarEvent->getUntilDateRepetition()) {
+                        std::shared_ptr<CalendarEvent> calendarEvent_= std::make_shared<CalendarEvent>(
+                                calendarEvent);
+                        calendarEvent_->setStartDateTime(start);
+                        addCalendarObjectWidget( calendarEvent_);
                         break;
                     }
                 }
@@ -244,76 +213,45 @@ void CalendarWidget::showSelectedDateTasks() {
                     addCalendarObjectWidget(calendarToDo);
                 } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
                     if (calendarToDo->getUntilDateRepetition() >= calendar->selectedDate()) {
-                        //std::cout << "Checking recurrences for " << calendarToDo->getName().toStdString() << '\n';
-                        switch (calendarToDo->getTypeRepetition()) {
-                            case CalendarObject::RepetitionType::DAILY: {   // daily
-                                while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
+                        while (start.date() < calendar->selectedDate() &&
+                               start.date() <= calendarToDo->getUntilDateRepetition()) {
+
+                            switch (calendarToDo->getTypeRepetition()) {
+                                case CalendarObject::RepetitionType::DAILY: {   // daily
                                     start = start.addDays(calendarToDo->getNumRepetition());
-                                    if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
-                                        std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
-                                                calendarToDo);
-                                        calendarToDo_->setStartDateTime(start);
-                                        addCalendarObjectWidget(calendarToDo_);
-                                        break;
-                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            case CalendarObject::RepetitionType::WEEKLY: {      //weekly
-                                while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
+                                case CalendarObject::RepetitionType::WEEKLY: {      //weekly
                                     start = start.addDays(7 * calendarToDo->getNumRepetition());
-                                    if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
-                                        std::shared_ptr<CalendarObject> calendarToDo_ = std::make_shared<CalendarToDo>(
-                                                calendarToDo);
-                                        calendarToDo_->setStartDateTime(start);
-                                        addCalendarObjectWidget(calendarToDo_);
-                                        break;
-                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            case CalendarObject::RepetitionType::MONTHLY: {      //monthly
-                                while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
+                                case CalendarObject::RepetitionType::MONTHLY: {      //monthly
                                     start = start.addMonths(calendarToDo->getNumRepetition());
-                                    if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
-                                        std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
-                                                calendarToDo);
-                                        calendarToDo_->setStartDateTime(start);
-                                        addCalendarObjectWidget(calendarToDo_);
-                                        break;
-                                    }
+                                    break;
                                 }
-                                break;
-                            }
-                            case CalendarObject::RepetitionType::YEARLY: {      //yearly
-                                while (start.date() < calendar->selectedDate() &&
-                                       start.date() <= calendarToDo->getUntilDateRepetition()) {
+                                case CalendarObject::RepetitionType::YEARLY: {      //yearly
                                     start = start.addYears(calendarToDo->getNumRepetition());
-                                    if (start.date() == calendar->selectedDate() &&
-                                        start.date() <= calendarToDo->getUntilDateRepetition()) {
-                                        std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
-                                                calendarToDo);
-                                        calendarToDo_->setStartDateTime(start);
-                                        addCalendarObjectWidget(calendarToDo_);
-                                        break;
-                                    }
+                                    break;
                                 }
+                            }
+                            if (start.date() == calendar->selectedDate() &&
+                                start.date() <= calendarToDo->getUntilDateRepetition()) {
+                                std::shared_ptr<CalendarToDo> calendarToDo_ = std::make_shared<CalendarToDo>(
+                                        calendarToDo);
+                                calendarToDo_->setStartDateTime(start);
+                                addCalendarObjectWidget(calendarToDo_);
                                 break;
                             }
                         }
                     }
-
                 }
+
             }
         }
     }
 }
+
+
 
 void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject) {
     const QString calendarName = calendarObject->getCalendarName();
@@ -335,168 +273,6 @@ void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> cal
             &CalendarWidget::onTaskDeleted);
 }
 
-void CalendarWidget::parseEvent(const QString &calendarName) {
-    QString line;
-    QString lastKey = "";
-    QString lastLine = "";
-    std::shared_ptr<CalendarObject> calendarObject = std::make_shared<CalendarEvent>();
-    while (stream->readLineInto(&line)) {
-        if (line.contains(QByteArray("END:VEVENT"))) {
-            if (calendarObject->getName() != "") {
-                calendarObject->setCalendarName(calendarName);
-                calendarObjects.append(calendarObject);
-            }
-            return;
-        }
-        const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
-        const QString key = line.mid(0, deliminatorPosition);
-        QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
-        if (key.startsWith(QLatin1String("DTSTAMP"))) {
-            calendarObject->setCreationDateTime(
-                    getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("DTSTART"))) {
-            (std::dynamic_pointer_cast<CalendarEvent>(calendarObject))->setStartDateTime(
-                    getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("DTEND"))) {
-            (std::dynamic_pointer_cast<CalendarEvent>(calendarObject))->setEndDateTime(
-                    getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("UNTIL"))) {
-            calendarObject->setUntilDateRepetition(getDateTimeFromString(value).date());
-        } else if (key == QLatin1String("SUMMARY")) {
-            calendarObject->setName(value);
-        } else if (key == QLatin1String("LOCATION")) {
-            calendarObject->setLocation(value);
-        } else if (key == QLatin1String("PRIORITY")) {
-            calendarObject->setPriority(value.toInt());
-        } else if (key == QLatin1String("UID")) {
-            calendarObject->setUID(value);
-        } else if (key == QLatin1String("DESCRIPTION")) {
-            lastKey = "DESCRIPTION";
-            calendarObject->setDescription(value);
-        } else if (key == QLatin1String("RRULE")) {
-            const QString rrule = value;
-
-            const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
-            const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
-
-            const QString numRepString = rrule.mid(deliminatorPosition2 + 1, -1);
-            const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
-
-            const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
-            if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::DAILY);
-            } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::WEEKLY);
-            } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::MONTHLY);
-            } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::YEARLY);
-            } else {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::NONE);
-            }
-            const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
-            const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
-            calendarObject->setNumRepetition(numRepetition);
-        } else if (key == "EXDATE") {
-            lastKey = "EXDATE";
-            lastLine = addExDatesToCalendarObject(calendarObject.get(), value);
-        } else if (deliminatorPosition == -1) {
-            if (lastKey == "DESCRIPTION") {
-                QString description = calendarObject->getDescription();
-                description.append(value);
-                calendarObject->setDescription(description);
-            } else if (lastKey == "EXDATE") {
-                lastLine = addExDatesToCalendarObject(calendarObject.get(), lastLine.append(value).replace(" ", ""));
-            }
-        }
-    }
-}
-
-void CalendarWidget::parseToDo(const QString &calendarName) {
-    QString line;
-    std::shared_ptr<CalendarObject> calendarObject(new CalendarToDo());
-    QString lastKey = "";
-    QString lastLine = "";
-    while (stream->readLineInto(&line)) {
-        //std::cout << line.toStdString()<<'\n';
-        if (line.contains(QByteArray("END:VTODO"))) {
-            if (calendarObject->getName() != "") {
-                calendarObject->setCalendarName(calendarName);
-                calendarObjects.append(std::shared_ptr<CalendarObject>(calendarObject));
-            }
-            return;
-        }
-        const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
-        const QString key = line.mid(0, deliminatorPosition);
-        QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
-        if (key.startsWith(QLatin1String("DTSTAMP"))) {
-            calendarObject->setCreationDateTime(
-                    getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("DTSTART"))) {
-            (std::dynamic_pointer_cast<CalendarToDo>(calendarObject))->setStartDateTime(
-                    getDateTimeFromString(value).toLocalTime());
-        } else if (key.startsWith(QLatin1String("UNTIL"))) {
-            calendarObject->setUntilDateRepetition(getDateTimeFromString(value).date());
-        } else if (key == QLatin1String("SUMMARY")) {
-            calendarObject->setName(value);
-        } else if (key == QLatin1String("LOCATION")) {
-            calendarObject->setLocation(value);
-        } else if (key == QLatin1String("UID")) {
-            calendarObject->setUID(value);
-        } else if (key == QLatin1String("DESCRIPTION")) {
-            calendarObject->setDescription(value);
-            lastKey = "DESCRIPTION";
-        } else if (deliminatorPosition == -1) {
-            if (lastKey == "DESCRIPTION") {
-                QString description = calendarObject->getDescription();
-                description.append(value);
-                calendarObject->setDescription(description);
-            } else if (lastKey == "EXDATE") {
-                lastLine = addExDatesToCalendarObject(calendarObject.get(),
-                                                      lastLine.append(value).replace(" ", ""));
-            } else if (lastKey == "COMPLETED") {
-                lastLine = addCompletedDatesToCalendarObject(
-                        std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
-                        lastLine.append(value).replace(" ", ""));
-            }
-
-        } else if (key == QLatin1String("PRIORITY")) {
-            calendarObject->setPriority(value.toInt());
-        } else if (key == QLatin1String("COMPLETED")) {
-            lastLine = addCompletedDatesToCalendarObject(
-                    std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
-                    value);
-            lastKey = "COMPLETED";
-        } else if (key == QLatin1String("RRULE")) {
-            QString rrule = value;
-
-            const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
-            const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
-
-            const QString numRepString = rrule.mid(deliminatorPosition2 + 1, -1);
-            const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
-
-            const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
-            if (typeRepetition == "DAILY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::DAILY);
-            } else if (typeRepetition == "WEEKLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::WEEKLY);
-            } else if (typeRepetition == "MONTHLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::MONTHLY);
-            } else if (typeRepetition == "YEARLY") {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::YEARLY);
-            } else {
-                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::NONE);
-            }
-            const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
-            const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
-            calendarObject->setNumRepetition(numRepetition);
-        } else if (key == QLatin1String("EXDATE")) {
-            addExDatesToCalendarObject(calendarObject.get(), value);
-            lastKey = "EXDATE";
-        }
-    }
-}
 
 QString CalendarWidget::addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value) {
     int endDeliminatorPosition = value.indexOf(QLatin1Char('Z'));
@@ -606,13 +382,12 @@ void CalendarWidget::onTimeout() {
             connectionManager->getctag();
         };
 }
+
 void CalendarWidget::onTaskDeleted(CalendarObject &obj) {
     timer->stop();
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[obj.getCalendarName()];
     connectionManager->getctag();
 }
-
-
 
 
 void CalendarWidget::shareCalendarButtonClicked() {
@@ -636,5 +411,105 @@ void CalendarWidget::onTaskModified(const QString calendarName) {
     timer->stop();
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
     connectionManager->getctag();
+}
+
+//0 for event
+//1 for todo
+void CalendarWidget::parseCalendarObject(const QString &calendarName, int type) {
+    QString line;
+    QString lastKey = "";
+    QString lastLine = "";
+    std::shared_ptr<CalendarObject> calendarObject;
+    if (type == 0) {
+        //event
+        calendarObject = std::make_shared<CalendarEvent>();
+    } else {
+        calendarObject = std::make_shared<CalendarToDo>();
+    }
+    while (stream->readLineInto(&line)) {
+        if (line.contains(QByteArray("END:VEVENT")) || line.contains(QByteArray("END:VTODO"))) {
+            if (calendarObject->getName() != "") {
+                calendarObject->setCalendarName(calendarName);
+                calendarObjects.append(calendarObject);
+            }
+            return;
+        }
+        const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
+        const QString key = line.mid(0, deliminatorPosition);
+        QString value = (line.mid(deliminatorPosition + 1, -1).replace("\\n", "\n")); //.toLatin1();
+        if (key.startsWith(QLatin1String("DTSTAMP"))) {
+            calendarObject->setCreationDateTime(
+                    getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("DTSTART"))) {
+            if (type == 0) {
+                (std::dynamic_pointer_cast<CalendarEvent>(calendarObject))->setStartDateTime(
+                        getDateTimeFromString(value).toLocalTime());
+            } else {
+                (std::dynamic_pointer_cast<CalendarToDo>(calendarObject))->setStartDateTime(
+                        getDateTimeFromString(value).toLocalTime());
+            }
+        } else if (key.startsWith(QLatin1String("DTEND")) && type == 0) { //Only for event
+            (std::dynamic_pointer_cast<CalendarEvent>(calendarObject))->setEndDateTime(
+                    getDateTimeFromString(value).toLocalTime());
+        } else if (key.startsWith(QLatin1String("UNTIL"))) {
+            calendarObject->setUntilDateRepetition(getDateTimeFromString(value).date());
+        } else if (key == QLatin1String("SUMMARY")) {
+            calendarObject->setName(value);
+        } else if (key == QLatin1String("LOCATION")) {
+            calendarObject->setLocation(value);
+        } else if (key == QLatin1String("PRIORITY")) {
+            calendarObject->setPriority(value.toInt());
+        } else if (key == QLatin1String("UID")) {
+            calendarObject->setUID(value);
+        } else if (key == QLatin1String("DESCRIPTION")) {
+            lastKey = "DESCRIPTION";
+            calendarObject->setDescription(value);
+        } else if (key == QLatin1String("RRULE")) {
+            const QString rrule = value;
+
+            const int deliminatorPosition2 = rrule.indexOf(QLatin1Char(';'));
+            const QString typeRepString = rrule.mid(1, deliminatorPosition2 - 1);
+
+            const QString numRepString = rrule.mid(deliminatorPosition2 + 1, -1);
+            const int deliminatorPosition3 = typeRepString.indexOf(QLatin1Char('='));
+
+            const QString typeRepetition = typeRepString.mid(deliminatorPosition3 + 1, -1);
+            if (typeRepetition == "DAILY") {
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::DAILY);
+            } else if (typeRepetition == "WEEKLY") {
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::WEEKLY);
+            } else if (typeRepetition == "MONTHLY") {
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::MONTHLY);
+            } else if (typeRepetition == "YEARLY") {
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::YEARLY);
+            } else {
+                calendarObject->setTypeRepetition(CalendarObject::RepetitionType::NONE);
+            }
+            const int deliminatorPosition4 = numRepString.indexOf(QLatin1Char('='));
+            const int numRepetition = numRepString.mid(deliminatorPosition4 + 1, -1).toInt();
+            calendarObject->setNumRepetition(numRepetition);
+        } else if (key == "EXDATE") {
+            lastKey = "EXDATE";
+            lastLine = addExDatesToCalendarObject(calendarObject.get(), value);
+        } else if (key == QLatin1String("COMPLETED") && type == 1) {
+            lastLine = addCompletedDatesToCalendarObject(
+                    std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
+                    value);
+            lastKey = "COMPLETED";
+        } else if (deliminatorPosition == -1) {
+            if (lastKey == "DESCRIPTION") {
+                QString description = calendarObject->getDescription();
+                description.append(value);
+                calendarObject->setDescription(description);
+            } else if (lastKey == "EXDATE") {
+                lastLine = addExDatesToCalendarObject(calendarObject.get(),
+                                                      lastLine.append(value).replace(" ", ""));
+            } else if (lastKey == "COMPLETED" && type == 1) {
+                lastLine = addCompletedDatesToCalendarObject(
+                        std::dynamic_pointer_cast<CalendarToDo>(calendarObject).get(),
+                        lastLine.append(value).replace(" ", ""));
+            }
+        }
+    }
 }
 

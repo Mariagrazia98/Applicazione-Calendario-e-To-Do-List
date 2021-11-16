@@ -137,9 +137,8 @@ private slots:
 
 private:
     void setupCalendar();
-    void parseEvent(const QString &calendarName);
-    void parseToDo(const QString &calendarName);
-    void showSelectedDateTasks();
+
+    void parseCalendarObject(const QString &calendarName, int type);
 
 
     /**
@@ -159,6 +158,11 @@ private:
      * @return QDateTime date
      */
     QDateTime getDateTimeFromString(const QString &string);
+
+    /**
+    * @brief shows all the calendar objects in the data selected
+    */
+    void showSelectedDateCalendarObjects();
 
     /**
     * @brief add a new calendarObjectWidget to taskViewLayout
