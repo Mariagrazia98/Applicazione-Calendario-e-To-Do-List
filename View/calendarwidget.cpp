@@ -49,13 +49,11 @@ void CalendarWidget::setupCalendar() {
     tasksLayout = new QVBoxLayout;
 
     QDate date = currentDateEdit->date();
-    //QLocale locale = QLocale(QLocale::Italian, QLocale::Italy); // set the locale you want here
     QString englishDate = date.toString("dddd, yyyy/MM/d");
 
     dateString->setText(englishDate);
     tasksLayout->addWidget(dateString);
 
-    //QSize size = dateString->document()->size().toSize();
     dateString->setFixedHeight(30);
     dateString->setAlignment(Qt::AlignCenter);
 
@@ -107,6 +105,7 @@ void CalendarWidget::createCalendarGroupBox() {
 
 
 void CalendarWidget::parseCalendar(QString calendarString) {
+
     stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
     QString line;
     QString calendarName = "";
@@ -116,6 +115,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
             int i = 0;
+            /*TODO che fa sto while?*/
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
                     calendarObjects.removeAt(i);
@@ -126,10 +126,8 @@ void CalendarWidget::parseCalendar(QString calendarString) {
         }
         if (line.contains("BEGIN:VEVENT")) {
             parseCalendarObject(calendarName, 0);
-            //parseEvent(calendarName);
         } else if (line.contains("BEGIN:VTODO")) {
             parseCalendarObject(calendarName, 1);
-            //parseToDo(calendarName);
         }
     }
 
@@ -145,7 +143,6 @@ void CalendarWidget::parseCalendar(QString calendarString) {
     showSelectedDateCalendarObjects();
 
 }
-
 
 
 void CalendarWidget::showSelectedDateCalendarObjects() {
@@ -193,13 +190,13 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
                             break;
                         }
                     }
-                    if ( start.date() <= calendar->selectedDate() &&
+                    if (start.date() <= calendar->selectedDate() &&
                         end.date() >= calendar->selectedDate() &&
                         start.date() <= calendarEvent->getUntilDateRepetition()) {
-                        std::shared_ptr<CalendarEvent> calendarEvent_= std::make_shared<CalendarEvent>(
+                        std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                 calendarEvent);
                         calendarEvent_->setStartDateTime(start);
-                        addCalendarObjectWidget( calendarEvent_);
+                        addCalendarObjectWidget(calendarEvent_);
                         break;
                     }
                 }
@@ -250,7 +247,6 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
         }
     }
 }
-
 
 
 void CalendarWidget::addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject) {
@@ -343,6 +339,8 @@ void CalendarWidget::setupConnection() {
             foreach(auto connectionManager, connectionManagers) {
             QObject::connect(connectionManager.get(), &ConnectionManager::calendarReady, this,
                              &CalendarWidget::onCalendarReady); //Connect
+            QObject::connect(connectionManager.get(), &ConnectionManager::ctagChanged, this,
+                             &CalendarWidget::getCalendarRequest); //Connect
             getCalendarRequest(connectionManager->getCalendarName());
         };
 }
@@ -350,10 +348,6 @@ void CalendarWidget::setupConnection() {
 void CalendarWidget::setupTimer() {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &CalendarWidget::onTimeout);
-            foreach(auto connectionManager, connectionManagers) {
-            QObject::connect(connectionManager.get(), &ConnectionManager::ctagChanged, this,
-                             &CalendarWidget::getCalendarRequest); //Connect
-        };
     timer->start(timerInterval);
 }
 
@@ -413,9 +407,8 @@ void CalendarWidget::onTaskModified(const QString calendarName) {
     connectionManager->getctag();
 }
 
-//0 for event
-//1 for todo
-void CalendarWidget::parseCalendarObject(const QString &calendarName, int type) {
+
+void CalendarWidget::parseCalendarObject(const QString &calendarName, unsigned int type) {
     QString line;
     QString lastKey = "";
     QString lastLine = "";
@@ -424,6 +417,7 @@ void CalendarWidget::parseCalendarObject(const QString &calendarName, int type) 
         //event
         calendarObject = std::make_shared<CalendarEvent>();
     } else {
+        //to-do
         calendarObject = std::make_shared<CalendarToDo>();
     }
     while (stream->readLineInto(&line)) {

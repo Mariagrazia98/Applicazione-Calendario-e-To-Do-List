@@ -64,12 +64,14 @@ public:
      */
     void getCalendarRequest(const QString calendarName);
 
+    /**
+    * @brief setups and starts the timer
+    */
     void setupTimer();
 
 
 public slots:
 
-    void parseCalendar(QString calendar);
 
     /***
      * @brief calls the function parseCalendar in order to parse the calendar and starts timer
@@ -136,16 +138,34 @@ private slots:
     void onTimeout();
 
 private:
+
+    /***
+     * @brief  setup the visualization of the calendar and the button to add a new calendar object
+     */
     void setupCalendar();
-
-    void parseCalendarObject(const QString &calendarName, int type);
-
 
     /**
       * Getter
       * @brief return the current date selected
       */
     QDate getCurrentDateSelected();
+
+    /***
+     * @brief parse the calendar received as a QString.
+     * @param QString calendarString: a calendar in a QString format
+     * @details It will call the function calendarObject distinguishing an event from a to-do
+     * If there were not error, it calls the parseCalendar function and starts timer
+     * Otherwise, a QMessageBox will appear
+     */
+    void parseCalendar(QString calendar);
+
+    /***
+    * @brief parse a calendar object
+    * @param the name of the calendar and the type of calendar object (0 for event, 1 for to-do)
+    * @details adds the calendar object parsed in the list of calendar objects
+    */
+    void parseCalendarObject(const QString &calendarName, unsigned int type);
+
 
     /**
     * @brief setup CalendarBox and shareCalendarButton
@@ -198,7 +218,7 @@ private:
     QPushButton *addCalendarObjectButton; /**< button for a adding a new calendarObject */
     QPushButton *shareCalendarButton; /**< button for sharing a calendar */
 
-    QTextStream *stream;
+    QTextStream *stream; /** stores the lines read in parseCalendar*/
     QList<std::shared_ptr<CalendarObject>> calendarObjects; /** list of calendar objects*/
 
     QWidget *taskScrollWidget;
