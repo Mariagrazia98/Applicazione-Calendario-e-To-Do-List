@@ -32,12 +32,11 @@ public:
     /* Constructor */
 
     /**
-    *
     * @param connectionManagers a Map where the key is the name of the Calendar object and
-     * the value is the corresponding ConnectionManager object
+    * the value is the corresponding ConnectionManager object
     * @param calendarObject if the TaskForm is used to add a task/event, this parameter is
-     * null, if it is used to modify an existing task/event this parameter contains a pointer
-     * to the CalendarObject we want to modify
+    * null, if it is used to modify an existing task/event this parameter contains a pointer
+    * to the CalendarObject we want to modify
     */
 
     TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
@@ -49,7 +48,7 @@ public:
 
     /**
     *  @brief initializes beginDateTime, expireDateTime and untilDate fields in the form
-     *  with the value passed as a parameter
+    *  with the value passed as a parameter
     */
     void setDate(const QDate &date);
 

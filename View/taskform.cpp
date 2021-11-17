@@ -169,7 +169,7 @@ void TaskForm::on_buttonBox_accepted() {
     }
 
     if (ui->comboBox->currentIndex() == 0) {
-        /* Fields of CalendarEvent*/
+        /* Fields of CalendarEvent */
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
@@ -208,7 +208,7 @@ void TaskForm::on_buttonBox_accepted() {
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
     /* Composition of request end */
 
-    /* Passing the request to the connectionManager which will handle the request */
+    /* Passing the requestString to the connectionManager which will handle the request*/
     connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
