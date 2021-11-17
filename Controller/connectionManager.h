@@ -53,9 +53,9 @@ public:
     /**
      * @brief add or update a Calendar Object
      *
-     * executes a PUT request on the server built by TaskForm
+     * executes a PUT request on the server built by CalendarObjectForm
      *
-     * @param request the request built by TaskForm
+     * @param request the request built by CalendarObjectForm
      * @param UID the UID of the objects to be added
      */
     void addOrUpdateCalendarObject(const QString &request, const QString &UID);

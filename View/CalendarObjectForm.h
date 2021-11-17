@@ -18,14 +18,14 @@
 #include "../Controller/connectionManager.h"
 
 namespace Ui {
-    class TaskForm;
+    class CalendarObjectForm;
 }
 
 /**
  *  @brief Form to add/modify a VEVENT or a VTODO in the selected calendar
  */
 
-class TaskForm : public QWidget {
+class CalendarObjectForm : public QWidget {
 Q_OBJECT
 
 public:
@@ -34,17 +34,17 @@ public:
     /**
     * @param connectionManagers a Map where the key is the name of the Calendar object and
     * the value is the corresponding ConnectionManager object
-    * @param calendarObject if the TaskForm is used to add a task/event, this parameter is
+    * @param calendarObject if the CalendarObjectForm is used to add a task/event, this parameter is
     * null, if it is used to modify an existing task/event this parameter contains a pointer
     * to the CalendarObject we want to modify
     */
 
-    TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
-             CalendarObject *calendarObject = nullptr);
+    CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
+                       CalendarObject *calendarObject = nullptr);
 
     /* Destructor */
 
-    ~TaskForm();
+    ~CalendarObjectForm();
 
     /**
     *  @brief initializes beginDateTime, expireDateTime and untilDate fields in the form
@@ -84,14 +84,14 @@ private
 
 signals:
 
-    /// @brief callback called when TaskForm is closed
+    /// @brief callback called when CalendarObjectForm is closed
     void taskFormClosed();
 
     /// @brief callback called when task/event is successfully added/modified
     void taskUploaded(const QString calendarName);
 
 private:
-    Ui::TaskForm *ui;
+    Ui::CalendarObjectForm *ui;
 
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
     // map of the connection managers related to all chosen Calendar objects

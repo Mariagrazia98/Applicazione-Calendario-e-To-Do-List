@@ -107,10 +107,10 @@ void CalendarObjectWidget::setupButtons() {
 }
 
 void CalendarObjectWidget::onModifyButtonClicked() {
-    /* When modify button is clicked a pre-compiled TaskForm is displayed */
-    TaskForm *taskForm = new TaskForm(connectionManagers, calendarObject.get());
+    /* When modify button is clicked a pre-compiled CalendarObjectForm is displayed */
+    CalendarObjectForm *taskForm = new CalendarObjectForm(connectionManagers, calendarObject.get());
     taskForm->show();
-    connectionToObjectModified = connect(taskForm, &TaskForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
+    connectionToObjectModified = connect(taskForm, &CalendarObjectForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {

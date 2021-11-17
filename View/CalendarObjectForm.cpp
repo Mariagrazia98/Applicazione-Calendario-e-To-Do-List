@@ -1,15 +1,15 @@
-#include "taskform.h"
-#include "ui_taskform.h"
+#include "CalendarObjectForm.h"
+#include "ui_CalendarObjectForm.h"
 #include "../Model/calendartodo.h"
 
 #include <iostream>
 
-TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
-                   CalendarObject *calendarObject) :
+CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
+                                       CalendarObject *calendarObject) :
         QWidget(nullptr),
         connectionManagers(connectionManagers),
         calendarObject(calendarObject),
-        ui(new Ui::TaskForm) {
+        ui(new Ui::CalendarObjectForm) {
 
     /* Setup UI */
 
@@ -84,18 +84,18 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
     ui->expireDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
     ui->untilDate->setDisplayFormat("yyyy/MM/dd");
 
-    connect(ui->numRepetition, &QSpinBox::valueChanged, this, &TaskForm::onNumRepetitionChanged);
+    connect(ui->numRepetition, &QSpinBox::valueChanged, this, &CalendarObjectForm::onNumRepetitionChanged);
 }
 
-TaskForm::~TaskForm() {
+CalendarObjectForm::~CalendarObjectForm() {
     delete ui;
 }
 
-void TaskForm::on_buttonBox_rejected() {
+void CalendarObjectForm::on_buttonBox_rejected() {
     this->close();
 }
 
-void TaskForm::on_buttonBox_accepted() {
+void CalendarObjectForm::on_buttonBox_accepted() {
     /* Selection of the connection manager which will manage the request */
     std::shared_ptr<ConnectionManager> connectionManager;
     QString UID;
@@ -210,13 +210,13 @@ void TaskForm::on_buttonBox_accepted() {
 
     /* Passing the requestString to the connectionManager which will handle the request*/
     connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
-                                 &TaskForm::handleUploadFinished);
+                                 &CalendarObjectForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
 
 }
 
 
-void TaskForm::handleUploadFinished(QNetworkReply *reply) {
+void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
     /* Handling response of the insert/update request */
     disconnect(connectionToFinish);
     if (reply != nullptr) {
@@ -239,7 +239,7 @@ void TaskForm::handleUploadFinished(QNetworkReply *reply) {
     }
 }
 
-void TaskForm::on_comboBox_currentIndexChanged(int index) {
+void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
     /* Makes visible or not some fields in the form based on the chosen CalendarObject type*/
     switch (index) {
         case 0:
@@ -264,23 +264,23 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
     }
 }
 
-void TaskForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
+void CalendarObjectForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
     if (ui->expireDateTime->dateTime() < dateTime) {
         ui->expireDateTime->setDateTime(dateTime);
     }
 }
 
-void TaskForm::closeEvent(QCloseEvent *event) {
+void CalendarObjectForm::closeEvent(QCloseEvent *event) {
     emit(taskFormClosed());
 }
 
-void TaskForm::setDate(const QDate &date) {
+void CalendarObjectForm::setDate(const QDate &date) {
     ui->beginDateTime->setDate(date);
     ui->expireDateTime->setDate(date);
     ui->untilDate->setDate(date);
 }
 
-void TaskForm::onNumRepetitionChanged(int i) {
+void CalendarObjectForm::onNumRepetitionChanged(int i) {
     if (ui->numRepetition->value() >= 1) {
         ui->untilDate->setVisible(true);
         ui->untilLabel->setVisible(true);

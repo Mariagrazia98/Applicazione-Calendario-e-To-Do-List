@@ -297,11 +297,11 @@ QString CalendarWidget::addCompletedDatesToCalendarObject(CalendarToDo *calendar
 
 void CalendarWidget::addCalendarObjectButtonClicked() {
     addCalendarObjectButton->setEnabled(false);
-    TaskForm *taskForm = new TaskForm(connectionManagers);
+    CalendarObjectForm *taskForm = new CalendarObjectForm(connectionManagers);
     taskForm->setDate(currentDateEdit->date());
     taskForm->show();
-    connect(taskForm, &TaskForm::taskFormClosed, this, &CalendarWidget::onTaskFormClosed);
-    connect(taskForm, &TaskForm::taskUploaded, this, &CalendarWidget::onTaskModified);
+    connect(taskForm, &CalendarObjectForm::taskFormClosed, this, &CalendarWidget::onTaskFormClosed);
+    connect(taskForm, &CalendarObjectForm::taskUploaded, this, &CalendarWidget::onTaskModified);
 }
 
 QDateTime CalendarWidget::getDateTimeFromString(const QString &string) {

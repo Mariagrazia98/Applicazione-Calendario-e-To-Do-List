@@ -27,7 +27,7 @@
 
 #include <iostream>
 
-#include "taskform.h"
+#include "CalendarObjectForm.h"
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
@@ -54,7 +54,10 @@ public:
     */
     void setupConnection();
 
-    /*TODO: NON HO CAPITO*/
+    /**
+     * @brief add an existing connection manager to calendar widget
+     * @param connectionManager to be added
+     */
     void addConnectionManager(ConnectionManager *connectionManager);
 
     /**
@@ -92,7 +95,7 @@ private slots:
     void selectedDateChanged();
 
     /***
-    * @brief shows the TaskForm
+    * @brief shows the CalendarObjectForm
     * @details This is called when the signal "QPushButton::clicked" connected to the slot is emitted by addCalendarObjectButton.
     */
     void addCalendarObjectButtonClicked();
@@ -119,7 +122,7 @@ private slots:
     /***
      * @brief stops the timer calls the function getctag
      * @details This is called when the signal "taskUploaded" connected to the slot is emitted by taskForm.
-     * Todo: perchè ci sono due segnali connessi a questo slot?TaskForm e calendarObjectWidget?
+     * Todo: perchè ci sono due segnali connessi a questo slot?CalendarObjectForm e calendarObjectWidget?
      * Todo: Perchè è uguale a on TaskDeleted?
      */
     void onTaskModified(const QString calendarName);

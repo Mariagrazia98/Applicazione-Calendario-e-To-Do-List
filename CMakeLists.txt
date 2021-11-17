@@ -19,7 +19,7 @@ add_executable(${PROJECT_NAME} main.cpp src.qrc
         View/loginform.h View/loginform.cpp
         View/calendarwidget.h View/calendarwidget.cpp
         View/customcalendarwidget.cpp View/customcalendarwidget.h
-        View/taskform.h View/taskform.cpp View/taskform.ui
+        View/CalendarObjectForm.h View/CalendarObjectForm.cpp View/CalendarObjectForm.ui
         Model/calendarobject.cpp Model/calendarobject.h
         Model/calendarevent.cpp Model/calendarevent.h
         View/calendarobjectwidget.h View/calendarobjectwidget.cpp View/calendarobjectwidget.ui
