@@ -208,8 +208,6 @@ void CalendarObjectForm::on_buttonBox_accepted() {
                 }
             }
             requestString.append("\r\n");
-        } else {
-            requestString.append("STATUS:IN-PROCESS\r\n");
         }
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");

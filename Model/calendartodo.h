@@ -9,17 +9,6 @@
 #include <QObject>
 #include <optional>
 
-/***
- * @brief extends calendar object class.
- * @details add other calendar properties that describe a to-do
- */
-enum class ToDoStatus {
-    COMPLETED, /* To-do completed */
-    NEEDS_ACTION, /* To-do needs action */
-    IN_PROCESS, /* To-do in process of being completed */
-    CANCELLED /* to-do was cancelled */
-};
-
 class CalendarToDo : public CalendarObject {
 Q_OBJECT
 public:
@@ -39,18 +28,6 @@ public:
     QList<QDate> &getCompletedDate();
 
     /**
-     * Getter
-     * @return the status of the to-do component
-     */
-    ToDoStatus getStatus() const;
-
-    /**
-     * Setter
-     * @param status
-     */
-    void setStatus(ToDoStatus status);
-
-    /**
      * add a new Date in completedDateList .
      * @param the date that will be add.
      */
@@ -64,8 +41,6 @@ public:
 
 private:
     QList<QDate> completedDateList; /*! < describes the dates in which the to-do has completed. */
-                                    /*!<  If the to-do has not repetition, it will contain only one element*/
-    ToDoStatus status; /*!< define the status of the calendar to-do */
 };
 
 
