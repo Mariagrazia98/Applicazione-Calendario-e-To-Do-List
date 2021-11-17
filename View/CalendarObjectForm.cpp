@@ -53,7 +53,7 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
         if (calendarEvent) {
             /* The existing calendarObject the user wants to modify is an event */
             ui->comboBox->setCurrentIndex(0);
-            ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
+            ui->endDateTime->setDateTime(calendarEvent->getEndDateTime());
         } else {
             /* The existing calendarObject the user wants to modify is a task */
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
@@ -63,28 +63,30 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
                 ui->priorityLabel->setVisible(true);
                 ui->prioritySpinBox->setValue(calendarToDo->getPriority());
                 ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed);
-                ui->expireDateTime->setVisible(false);
-                ui->expireLabel->setVisible(false);
+                ui->endDateTime->setVisible(false);
+                ui->endLabel->setVisible(false);
             }
         }
     } else {
         /* Add a new calendarObject */
         QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
         ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
-        ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
+        ui->endDateTime->setDateTime(QDateTime::currentDateTime());
         ui->untilDate->setDate(QDate::currentDate());
     }
 
     /* Set dates display format */
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setLocale(locale);
-    ui->expireDateTime->setLocale(locale);
+    ui->endDateTime->setLocale(locale);
     ui->untilDate->setLocale(locale);
     ui->beginDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
-    ui->expireDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
+    ui->endDateTime->setDisplayFormat("yyyy/MM/dd HH:mm");
     ui->untilDate->setDisplayFormat("yyyy/MM/dd");
 
     connect(ui->numRepetition, &QSpinBox::valueChanged, this, &CalendarObjectForm::onNumRepetitionChanged);
+    connect(ui->typeRepetition, &QComboBox::currentIndexChanged, this, &CalendarObjectForm::onTypeRepetitionChanged);
+
 }
 
 CalendarObjectForm::~CalendarObjectForm() {
@@ -124,8 +126,13 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         QMessageBox::warning(this, "Error", "Insert a valid name");
         return;
     }
-    if (ui->expireDateTime->dateTime() < ui->beginDateTime->dateTime()) {
+    if (ui->endDateTime->dateTime() < ui->beginDateTime->dateTime()) {
         std::cerr << "Insert a valid start and end date\n";
+        QMessageBox::warning(this, "Error", "Insert a valid start and end date");
+        return;
+    }
+    if (ui->untilDate->date() < ui->endDateTime->date()) {
+        std::cerr << "Insert a valid until date\n";
         QMessageBox::warning(this, "Error", "Insert a valid start and end date");
         return;
     }
@@ -170,7 +177,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
 
     if (ui->comboBox->currentIndex() == 0) {
         /* Fields of CalendarEvent */
-        requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
@@ -244,8 +251,8 @@ void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
     switch (index) {
         case 0:
             /* EVENT */
-            ui->expireLabel->setVisible(true);
-            ui->expireDateTime->setVisible(true);
+            ui->endLabel->setVisible(true);
+            ui->endDateTime->setVisible(true);
             ui->prioritySpinBox->setVisible(false);
             ui->priorityLabel->setVisible(false);
             ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
@@ -253,8 +260,8 @@ void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
 
         case 1:
             /* TASK */
-            ui->expireLabel->setVisible(false);
-            ui->expireDateTime->setVisible(false);
+            ui->endLabel->setVisible(false);
+            ui->endDateTime->setVisible(false);
             ui->prioritySpinBox->setVisible(true);
             ui->priorityLabel->setVisible(true);
             ui->horizontalSpacer->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -265,8 +272,14 @@ void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
 }
 
 void CalendarObjectForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    if (ui->expireDateTime->dateTime() < dateTime) {
-        ui->expireDateTime->setDateTime(dateTime);
+    if (ui->comboBox->currentIndex() == 0 && ui->endDateTime->dateTime() < dateTime) {
+        /* Event */
+        ui->endDateTime->setDateTime(dateTime);
+        ui->untilDate->setDate(dateTime.date());
+    }
+    if (ui->comboBox->currentIndex() == 1 && ui->untilDate->date() < dateTime.date()) {
+        /* To-Do */
+        ui->untilDate->setDate(dateTime.date());
     }
 }
 
@@ -276,14 +289,45 @@ void CalendarObjectForm::closeEvent(QCloseEvent *event) {
 
 void CalendarObjectForm::setDate(const QDate &date) {
     ui->beginDateTime->setDate(date);
-    ui->expireDateTime->setDate(date);
+    ui->endDateTime->setDate(date);
     ui->untilDate->setDate(date);
 }
 
 void CalendarObjectForm::onNumRepetitionChanged(int i) {
-    if (ui->numRepetition->value() >= 1) {
+    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex()!=-1) {
         ui->untilDate->setVisible(true);
         ui->untilLabel->setVisible(true);
+        if(ui->comboBox->currentIndex() == 0) { //Event
+            ui->untilDate->setDate(ui->endDateTime->date());
+        }
+        else{ //to-do
+            ui->untilDate->setDate(ui->beginDateTime->date());
+        }
+    } else {
+        ui->untilDate->setVisible(false);
+        ui->untilLabel->setVisible(false);
+    }
+}
+
+
+
+void CalendarObjectForm::on_endDateTime_dateTimeChanged(const QDateTime &dateTime) {
+    if (ui->comboBox->currentIndex() == 0 && ui->untilDate->date() < dateTime.date()) {
+        /* Event */
+        ui->untilDate->setDate(dateTime.date());
+    }
+}
+
+void CalendarObjectForm::onTypeRepetitionChanged(int i) {
+    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex()!=-1) {
+        ui->untilDate->setVisible(true);
+        ui->untilLabel->setVisible(true);
+        if(ui->comboBox->currentIndex() == 0) { //Event
+            ui->untilDate->setDate(ui->endDateTime->date());
+        }
+        else{ //to-do
+            ui->untilDate->setDate(ui->beginDateTime->date());
+        }
     } else {
         ui->untilDate->setVisible(false);
         ui->untilLabel->setVisible(false);
