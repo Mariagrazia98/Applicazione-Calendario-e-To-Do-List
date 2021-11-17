@@ -321,15 +321,19 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
 
     /* Insert exception dates */
     QSet<QDate> exDates = calendarObject->getExDates();
-    requestString.append("EXDATE:");
-    QSet<QDate>::const_iterator i = exDates.constBegin();
-    while (i != exDates.constEnd()) {
-        requestString.append(i->toString("yyyyMMddT010000Z"));
-        i++;
-        if (i != exDates.constEnd()) {
-            requestString.append(',');
+    if (!exDates.isEmpty()) {
+        requestString.append("EXDATE:");
+        QSet<QDate>::const_iterator i = exDates.constBegin();
+        while (i != exDates.constEnd()) {
+            requestString.append(i->toString("yyyyMMddT010000Z"));
+            i++;
+            if (i != exDates.constEnd()) {
+                requestString.append(',');
+            }
         }
+        requestString.append("\r\n");
     }
+
 
     requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
 
