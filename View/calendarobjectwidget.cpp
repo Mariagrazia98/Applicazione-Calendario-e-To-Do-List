@@ -383,7 +383,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarObject->getCalendarName()];
 
     /* Passing the requestString to the connectionManager which will handle the update request*/
-    connectionToFinish = connect(connectionManager.get(), &ConnectionManager::onFinished, this,
+    connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &CalendarObjectWidget::manageResponse);
     connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
 }

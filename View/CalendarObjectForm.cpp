@@ -126,14 +126,14 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         QMessageBox::warning(this, "Error", "Insert a valid name");
         return;
     }
-    if (ui->endDateTime->dateTime() < ui->beginDateTime->dateTime()) {
+    if (ui->endDateTime->isVisible() && ui->endDateTime->dateTime() < ui->beginDateTime->dateTime()) {
         std::cerr << "Insert a valid start and end date\n";
         QMessageBox::warning(this, "Error", "Insert a valid start and end date");
         return;
     }
-    if (ui->untilDate->date() < ui->endDateTime->date()) {
+    if (ui->untilDate->isVisible() && ui->untilDate->date() < ui->endDateTime->date()) {
         std::cerr << "Insert a valid until date\n";
-        QMessageBox::warning(this, "Error", "Insert a valid start and end date");
+        QMessageBox::warning(this, "Error", "Insert a valid start and until date");
         return;
     }
 
