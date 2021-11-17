@@ -128,11 +128,19 @@ void CalendarObject::setStartDateTime(const QDateTime &startDateTime) {
     this->startDateTime = startDateTime;
 }
 
-const QSet<QDate> & CalendarObject::getExDates() const {
+const QSet<QDate> &CalendarObject::getExDates() const {
+    if (auto parent_ = parent.lock()) {
+        return parent_->exDates;
+    }
     return exDates;
 }
 
 void CalendarObject::addExDate(QDate exDate) {
+    if (auto parent_ = parent.lock()) {
+        if (!parent_->getExDates().contains(exDate)) {
+            parent_->addExDate(exDate);
+        }
+    }
     exDates.insert(exDate);
 }
 

@@ -110,7 +110,8 @@ void CalendarObjectWidget::onModifyButtonClicked() {
     /* When modify button is clicked a pre-compiled CalendarObjectForm is displayed */
     CalendarObjectForm *taskForm = new CalendarObjectForm(connectionManagers, calendarObject.get());
     taskForm->show();
-    connectionToObjectModified = connect(taskForm, &CalendarObjectForm::taskUploaded, this, &CalendarObjectWidget::onTaskModified);
+    connectionToObjectModified = connect(taskForm, &CalendarObjectForm::taskUploaded, this,
+                                         &CalendarObjectWidget::onTaskModified);
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
@@ -121,7 +122,8 @@ void CalendarObjectWidget::onRemoveButtonClicked() {
          * recurrences or just this one */
         EliminationTaskDialog *dialog = new EliminationTaskDialog(nullptr);
         dialog->show();
-        connect(dialog, &EliminationTaskDialog::eliminateRecurrences, this,&CalendarObjectWidget::handleDeleteRecurrencies);
+        connect(dialog, &EliminationTaskDialog::eliminateRecurrences, this,
+                &CalendarObjectWidget::handleDeleteRecurrencies);
     } else {
         /* The calendarObject the user wants to modify has no repetitions */
         deleteCalendarObject();
@@ -226,7 +228,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 
         requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMdd") +"\r\n");
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMdd") + "\r\n");
 
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
         /* Composition of request end */
@@ -300,21 +302,22 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VTODO\r\n"
                             "UID:" + calendarObject->getUID() + "\r\n"
-                            "VERSION:2.0\r\n"
-                            "DTSTAMP:" +calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +"\r\n"
-                            "SUMMARY:" + calendarObject->getName() + "\r\n""LOCATION:" +calendarObject->getLocation() + "\r\n"
-                            "DESCRIPTION:" + calendarObject->getDescription() +"\r\n"
-                            "TRANSP:OPAQUE\r\n";
+                                                                "VERSION:2.0\r\n"
+                                                                "DTSTAMP:" +
+                            calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                                                                                                 "SUMMARY:" +
+                            calendarObject->getName() + "\r\n""LOCATION:" + calendarObject->getLocation() + "\r\n"
+                                                                                                            "DESCRIPTION:" +
+                            calendarObject->getDescription() + "\r\n"
+                                                               "TRANSP:OPAQUE\r\n";
 
     if (auto parent = calendarObject->getParent().lock()) {
         /* This is an occurrence, we must save parent's startDateTime */
-        requestString.append("DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") +"\r\n");
+        requestString.append("DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
     } else {
         /* This is not an occurrence */
         requestString.append("DTSTART:" + calendarObject->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
     }
-
-    requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
 
     /* Insert exception dates */
     QSet<QDate> exDates = calendarObject->getExDates();
@@ -327,6 +330,9 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
             requestString.append(',');
         }
     }
+
+    requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
+
 
     if (!calendarToDo->getCompletedDate().isEmpty()) {
         QList<QDate> completedDates = calendarToDo->getCompletedDate();
