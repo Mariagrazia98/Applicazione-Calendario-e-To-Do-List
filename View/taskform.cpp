@@ -10,6 +10,9 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         connectionManagers(connectionManagers),
         calendarObject(calendarObject),
         ui(new Ui::TaskForm) {
+
+    /* Setup UI */
+
     ui->setupUi(this);
     setFixedSize(ui->formLayout->sizeHint() + ui->buttonBox->sizeHint());
     ui->numRepetition->setValue(0);
@@ -18,12 +21,14 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
     ui->priorityLabel->setVisible(false);
     ui->untilDate->setVisible(false);
     ui->untilLabel->setVisible(false);
+
     for (auto connectionManager = connectionManagers.begin();
          connectionManager != connectionManagers.end(); connectionManager++) {
         ui->calendarComboBox->addItem(connectionManager.key());
     }
-    /* MODIFY */
+
     if (calendarObject) {
+        /* Modify an existing calendarObject */
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
@@ -38,16 +43,19 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
         ui->comboBox->setDisabled(true);
 
         if (auto parent = calendarObject->getParent().lock()) {
-            // this is a recurrence
+            /* This is a recurrence */
             ui->beginDateTime->setDateTime(parent->getStartDateTime());
         } else {
             ui->beginDateTime->setDateTime(calendarObject->getStartDateTime());
         }
+
         CalendarEvent *calendarEvent = dynamic_cast<CalendarEvent *>(calendarObject);
         if (calendarEvent) {
+            /* The existing calendarObject the user wants to modify is an event */
             ui->comboBox->setCurrentIndex(0);
             ui->expireDateTime->setDateTime(calendarEvent->getEndDateTime());
         } else {
+            /* The existing calendarObject the user wants to modify is a task */
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
             if (calendarToDo) {
                 ui->comboBox->setCurrentIndex(1);
@@ -60,11 +68,14 @@ TaskForm::TaskForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionM
             }
         }
     } else {
+        /* Add a new calendarObject */
         QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
         ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
         ui->expireDateTime->setDateTime(QDateTime::currentDateTime());
         ui->untilDate->setDate(QDate::currentDate());
     }
+
+    /* Set dates display format */
     QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
     ui->beginDateTime->setLocale(locale);
     ui->expireDateTime->setLocale(locale);
@@ -85,6 +96,7 @@ void TaskForm::on_buttonBox_rejected() {
 }
 
 void TaskForm::on_buttonBox_accepted() {
+    /* Selection of the connection manager which will manage the request */
     std::shared_ptr<ConnectionManager> connectionManager;
     QString UID;
     if (calendarObject) {
@@ -96,8 +108,9 @@ void TaskForm::on_buttonBox_accepted() {
         UID = QDateTime::currentDateTime().toString("yyyyMMdd-HHMM-00ss") + "-0000-" +
               ui->beginDateTime->dateTime().toString("yyyyMMddHHMM");
     }
-    calendarName = connectionManager->getCalendarName();
 
+    /* Set the type of object and the calendar name for the request */
+    calendarName = connectionManager->getCalendarName();
     QString objectType;
     if (ui->comboBox->currentIndex() == 0) {
         objectType = "VEVENT";
@@ -105,6 +118,7 @@ void TaskForm::on_buttonBox_accepted() {
         objectType = "VTODO";
     }
 
+    /* Input validation */
     if (ui->name->text().isEmpty()) {
         std::cerr << "Insert a valid name\n";
         QMessageBox::warning(this, "Error", "Insert a valid name");
@@ -116,6 +130,7 @@ void TaskForm::on_buttonBox_accepted() {
         return;
     }
 
+    /* Composition of the request */
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:" + objectType + "\r\n"
                                                     "UID:" + UID + "\r\n"
@@ -130,6 +145,7 @@ void TaskForm::on_buttonBox_accepted() {
                                                    "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
                                                                                                      "TRANSP:OPAQUE\r\n";
     if (ui->typeRepetition->currentIndex() != CalendarObject::RepetitionType::NONE && ui->numRepetition->value() > 0) {
+        /* Part of the request related to the repetitions */
         QString rrule = "RRULE:FREQ=";
         switch (ui->typeRepetition->currentIndex()) {
             case CalendarObject::RepetitionType::DAILY:
@@ -152,8 +168,8 @@ void TaskForm::on_buttonBox_accepted() {
         requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMdd") + "\r\n");
     }
 
-    // TODO: campi opzionali
-    if (ui->comboBox->currentIndex() == 0) { //Event
+    if (ui->comboBox->currentIndex() == 0) {
+        /* Fields of CalendarEvent*/
         requestString.append("DTEND:" + ui->expireDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
@@ -161,6 +177,7 @@ void TaskForm::on_buttonBox_accepted() {
         if (calendarObject) {
             std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
             if (calendarToDo) {
+                /* Optional fields of CalendarToDo*/
                 QList<QDate> completedDates = calendarToDo->getCompletedDate();
                 requestString.append("COMPLETED:");
                 for (int i = 0; i < completedDates.size(); i++) {
@@ -172,6 +189,7 @@ void TaskForm::on_buttonBox_accepted() {
                 requestString.append("\r\n");
             }
 
+            /* Exception dates of CalendarEvent and CalendarToDO */
             QSet<QDate> exDates = calendarObject->getExDates();
             requestString.append("EXDATE:");
             QSet<QDate>::const_iterator i = exDates.constBegin();
@@ -188,8 +206,9 @@ void TaskForm::on_buttonBox_accepted() {
         }
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
+    /* Composition of request end */
 
-
+    /* Passing the request to the connectionManager which will handle the request */
     connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &TaskForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
@@ -198,28 +217,30 @@ void TaskForm::on_buttonBox_accepted() {
 
 
 void TaskForm::handleUploadFinished(QNetworkReply *reply) {
+    /* Handling response of the insert/update request */
     disconnect(connectionToFinish);
     if (reply != nullptr) {
         QByteArray answer = reply->readAll();
         QString answerString = QString::fromUtf8(answer);
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
+            /* Success */
             emit(taskUploaded(calendarName));
             close();
         } else {
-            //const QString &errorString = reply->errorString();
+            /* Error */
             std::cerr << error << '\n';
             QMessageBox::warning(this, "Error", "Could not create or modify selected object");
         }
         reply->deleteLater();
     } else {
-        // null reply
+        /* Null reply */
         QMessageBox::warning(this, "Error", "Something went wrong");
     }
-
 }
 
 void TaskForm::on_comboBox_currentIndexChanged(int index) {
+    /* Makes visible or not some fields in the form based on the chosen CalendarObject type*/
     switch (index) {
         case 0:
             /* EVENT */
@@ -229,6 +250,7 @@ void TaskForm::on_comboBox_currentIndexChanged(int index) {
             ui->priorityLabel->setVisible(false);
             ui->horizontalSpacer->changeSize(40, 20, QSizePolicy::Expanding);
             break;
+
         case 1:
             /* TASK */
             ui->expireLabel->setVisible(false);
