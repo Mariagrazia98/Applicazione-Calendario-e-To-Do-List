@@ -128,14 +128,14 @@
      </widget>
     </item>
     <item row="7" column="0">
-     <widget class="QLabel" name="expireLabel">
+     <widget class="QLabel" name="endLabel">
       <property name="text">
        <string>End</string>
       </property>
      </widget>
     </item>
     <item row="7" column="1">
-     <widget class="QDateTimeEdit" name="expireDateTime">
+     <widget class="QDateTimeEdit" name="endDateTime">
       <property name="maximumDate">
        <date>
         <year>2121</year>

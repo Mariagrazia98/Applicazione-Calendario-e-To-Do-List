@@ -47,7 +47,7 @@ public:
     ~CalendarObjectForm();
 
     /**
-    *  @brief initializes beginDateTime, expireDateTime and untilDate fields in the form
+    *  @brief initializes beginDateTime, endDateTime and untilDate fields in the form
     *  with the value passed as a parameter
     */
     void setDate(const QDate &date);
@@ -68,16 +68,28 @@ private
     void on_comboBox_currentIndexChanged(int index);
 
     /**
-     * @brief callback called when the user chooses a beginDateTime,
-     * it updates the value of expireDateTime
+     * @brief callback called when the user changes the beginDateTime
+     * @details it updates the values of endDateTime and untilDateTime
      */
     void on_beginDateTime_dateTimeChanged(const QDateTime &dateTime);
+
+    /**
+     * @brief callback called when the user changes the endDateTime,
+     * @details it updates the value of untilDate
+     */
+    void on_endDateTime_dateTimeChanged(const QDateTime &dateTime);
 
     /**
      * @brief callback called when the user chooses a number of repetition,
      * if this number is greater than 0 the untilDate field is visible
      */
     void onNumRepetitionChanged(int i);
+
+    /**
+     * @brief callback called when the user chooses a type of repetition,
+     * if this number is greater than 0 the untilDate field is visible
+     */
+    void onTypeRepetitionChanged(int i);
 
     /// @brief callback to handle the response of the insert/update request
     void handleUploadFinished(QNetworkReply *reply);
