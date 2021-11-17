@@ -17,47 +17,92 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
     for (int i = 0; i < calendarObjects.size(); ++i) {
-        // check recurrencies
-        if (calendarObjects[i]->getTypeRepetition() != CalendarObject::NONE &&
-            calendarObjects[i]->getNumRepetition() > 0 && calendarObjects[i]->getUntilDateRepetition() >= date) {
-            if (!calendarObjects[i]->getExDates().contains(date)) {
-                QDate start = calendarObjects[i]->getStartDateTime().date();
-                while (start < date) {
-                    switch (calendarObjects[i]->getTypeRepetition()) {
-                        case CalendarObject::RepetitionType::DAILY:
-                            start = start.addDays(calendarObjects[i]->getNumRepetition());
+        //std::shared_ptr<CalendarObject> calendarObject = calendarObjects[i];
+        if (calendarObjects[i]->getExDates().contains(date)) {
+            continue;
+        }
+        std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
+        if (calendarEvent) {
+            if (calendarEvent->getStartDateTime().date() <= date &&
+                calendarEvent->getEndDateTime().date() >= date) {
+                paintDate(painter, rect);
+                return;
+            } else if (calendarEvent->getTypeRepetition() != CalendarObject::RepetitionType::NONE &&
+                       calendarEvent->getNumRepetition() > 0) {
+                QDateTime start = calendarEvent->getStartDateTime();
+                QDateTime end = calendarEvent->getEndDateTime();
+                while (start.date() < date &&
+                       start.date() <= calendarEvent->getUntilDateRepetition()) {
+                    switch (calendarEvent->getTypeRepetition()) {
+                        case CalendarObject::RepetitionType::DAILY: {
+                            start = start.addDays(calendarEvent->getNumRepetition());
+                            end = end.addDays(calendarEvent->getNumRepetition());
                             break;
-                        case CalendarObject::RepetitionType::WEEKLY:
-                            start = start.addDays(calendarObjects[i]->getNumRepetition() * 7);
+                        }
+                        case CalendarObject::RepetitionType::WEEKLY: {
+                            start = start.addDays(7 * calendarEvent->getNumRepetition());
+                            end = end.addDays(7 * calendarEvent->getNumRepetition());
                             break;
-                        case CalendarObject::RepetitionType::MONTHLY:
-                            start = start.addMonths(calendarObjects[i]->getNumRepetition());
+                        }
+                        case CalendarObject::RepetitionType::MONTHLY: {
+                            start = start.addMonths(calendarEvent->getNumRepetition());
+                            end = end.addMonths(calendarEvent->getNumRepetition());
                             break;
-                        case CalendarObject::RepetitionType::YEARLY:
-                            start = start.addYears(calendarObjects[i]->getNumRepetition());
+                        }
+                        case CalendarObject::RepetitionType::YEARLY: {
+                            start = start.addYears(calendarEvent->getNumRepetition());
+                            end = end.addYears(calendarEvent->getNumRepetition());
                             break;
-                        default:
-                            break;
+                        }
                     }
-                }
-                if (start == date) {
-                    paintDate(painter, rect);
-                    return;
+                    if (start.date() <= date &&
+                        end.date() >= date &&
+                        start.date() <= calendarEvent->getUntilDateRepetition()) {
+                        paintDate(painter, rect);
+                        return;
+                    }
                 }
             }
         } else {
-            if (calendarObjects[i]->getStartDateTime().date() == date) {
-                paintDate(painter, rect);
-                return;
-            }
-            // multiple-day-long event checks
-            auto calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
-            if (calendarEvent.get() != nullptr) {
-                if (calendarEvent->getStartDateTime().date() <= date &&
-                    calendarEvent->getEndDateTime().date() >= date) {
+            std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObjects[i]);
+            QDateTime start;
+            start = calendarToDo->getStartDateTime();
+            if (start.date() <= date) {
+                if (start.date() == date) {
                     paintDate(painter, rect);
                     return;
+                } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
+                    if (calendarToDo->getUntilDateRepetition() >= date) {
+                        while (start.date() < date &&
+                               start.date() <= calendarToDo->getUntilDateRepetition()) {
+
+                            switch (calendarToDo->getTypeRepetition()) {
+                                case CalendarObject::RepetitionType::DAILY: {   // daily
+                                    start = start.addDays(calendarToDo->getNumRepetition());
+                                    break;
+                                }
+                                case CalendarObject::RepetitionType::WEEKLY: {      //weekly
+                                    start = start.addDays(7 * calendarToDo->getNumRepetition());
+                                    break;
+                                }
+                                case CalendarObject::RepetitionType::MONTHLY: {      //monthly
+                                    start = start.addMonths(calendarToDo->getNumRepetition());
+                                    break;
+                                }
+                                case CalendarObject::RepetitionType::YEARLY: {      //yearly
+                                    start = start.addYears(calendarToDo->getNumRepetition());
+                                    break;
+                                }
+                            }
+                            if (start.date() == date &&
+                                start.date() <= calendarToDo->getUntilDateRepetition()) {
+                                paintDate(painter, rect);
+                                return;
+                            }
+                        }
+                    }
                 }
+
             }
         }
     }
