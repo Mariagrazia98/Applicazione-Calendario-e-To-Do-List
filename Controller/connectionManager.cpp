@@ -25,6 +25,7 @@ void ConnectionManager::setup() {
 
 ConnectionManager::~ConnectionManager() {
     delete calendar;
+    delete networkAccessManager;
 }
 
 void ConnectionManager::getCalendarRequest() {
