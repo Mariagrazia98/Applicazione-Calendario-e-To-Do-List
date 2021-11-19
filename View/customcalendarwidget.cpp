@@ -33,6 +33,14 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 QDateTime end = calendarEvent->getEndDateTime();
                 while (start.date() < date &&
                        start.date() <= calendarEvent->getUntilDateRepetition()) {
+                    /*
+                     * if the event takes more than one day i have to readjust the dates
+                     */
+                    if (start.date() != end.date()) {
+                        int diff = start.daysTo(end);
+                        start = start.addDays(diff);
+                        end = end.addDays(diff);
+                    }
                     switch (calendarEvent->getTypeRepetition()) {
                         case CalendarObject::RepetitionType::DAILY: {
                             start = start.addDays(calendarEvent->getNumRepetition());

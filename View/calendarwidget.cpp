@@ -17,7 +17,7 @@ CalendarWidget::CalendarWidget(QWidget *parent) :
     calendarGroupBox->setMinimumSize(calendar->sizeHint());
     tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
 
-    QDockWidget *dockWidget = new QDockWidget(tr("Dock Widget"), this);
+    QDockWidget * dockWidget = new QDockWidget(tr("Dock Widget"), this);
     dockWidget->setAllowedAreas(Qt::RightDockWidgetArea);
     dockWidget->setWidget(tasksGroupBox);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
@@ -156,6 +156,7 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
             continue;
         }
         std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
+        /* this is a Calendar Event */
         if (calendarEvent) {
             if (calendarEvent->getStartDateTime().date() <= calendar->selectedDate() &&
                 calendarEvent->getEndDateTime().date() >= calendar->selectedDate()) {
@@ -167,6 +168,15 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
 
                 while (start.date() < calendar->selectedDate() &&
                        start.date() <= calendarEvent->getUntilDateRepetition()) {
+
+                    /*
+                     * if the event takes more than one day i have to readjust the dates
+                     */
+                    if (start.date() != end.date()) {
+                        int diff = start.daysTo(end);
+                        start = start.addDays(diff);
+                        end = end.addDays(diff);
+                    }
 
                     switch (calendarEvent->getTypeRepetition()) {
                         case CalendarObject::RepetitionType::DAILY: {   //daily
@@ -196,6 +206,7 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
                         std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(
                                 calendarEvent);
                         calendarEvent_->setStartDateTime(start);
+                        calendarEvent_->setEndDateTime(end);
                         addCalendarObjectWidget(calendarEvent_);
                         break;
                     }
@@ -336,7 +347,8 @@ QDate CalendarWidget::getCurrentDateSelected() {
 }
 
 void CalendarWidget::setupConnection() {
-            foreach(auto connectionManager, connectionManagers) {
+            foreach(auto
+                            connectionManager, connectionManagers) {
             QObject::connect(connectionManager.get(), &ConnectionManager::calendarReady, this,
                              &CalendarWidget::onCalendarReady); //Connect
             QObject::connect(connectionManager.get(), &ConnectionManager::ctagChanged, this,
@@ -372,7 +384,8 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
 }
 
 void CalendarWidget::onTimeout() {
-            foreach(auto connectionManager, connectionManagers) {
+            foreach(auto
+                            connectionManager, connectionManagers) {
             connectionManager->getctag();
         };
 }
