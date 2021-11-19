@@ -270,12 +270,15 @@ void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
 }
 
 void CalendarObjectForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    if (ui->comboBox->currentIndex() == 0 && ui->endDateTime->dateTime() < dateTime) {
+    if (ui->comboBox->currentIndex() == 0) {
         /* Event */
-        ui->endDateTime->setDateTime(dateTime);
-        ui->untilDate->setDate(dateTime.date());
-    }
-    if (ui->comboBox->currentIndex() == 1 && ui->untilDate->date() < dateTime.date()) {
+        if (ui->endDateTime->dateTime() < dateTime) {
+            ui->endDateTime->setDateTime(dateTime);
+        }
+        if (ui->untilDate->dateTime() < dateTime) {
+            ui->untilDate->setDate(dateTime.date());
+        }
+    } else if (ui->comboBox->currentIndex() == 1 && ui->untilDate->date() < dateTime.date()) {
         /* To-Do */
         ui->untilDate->setDate(dateTime.date());
     }
@@ -292,13 +295,12 @@ void CalendarObjectForm::setDate(const QDate &date) {
 }
 
 void CalendarObjectForm::onNumRepetitionChanged(int i) {
-    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex()!=-1) {
+    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex() != -1) {
         ui->untilDate->setVisible(true);
         ui->untilLabel->setVisible(true);
-        if(ui->comboBox->currentIndex() == 0) { //Event
+        if (ui->comboBox->currentIndex() == 0) { //Event
             ui->untilDate->setDate(ui->endDateTime->date());
-        }
-        else{ //to-do
+        } else { //to-do
             ui->untilDate->setDate(ui->beginDateTime->date());
         }
     } else {
@@ -306,7 +308,6 @@ void CalendarObjectForm::onNumRepetitionChanged(int i) {
         ui->untilLabel->setVisible(false);
     }
 }
-
 
 
 void CalendarObjectForm::on_endDateTime_dateTimeChanged(const QDateTime &dateTime) {
@@ -317,13 +318,12 @@ void CalendarObjectForm::on_endDateTime_dateTimeChanged(const QDateTime &dateTim
 }
 
 void CalendarObjectForm::onTypeRepetitionChanged(int i) {
-    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex()!=-1) {
+    if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex() != -1) {
         ui->untilDate->setVisible(true);
         ui->untilLabel->setVisible(true);
-        if(ui->comboBox->currentIndex() == 0) { //Event
+        if (ui->comboBox->currentIndex() == 0) { //Event
             ui->untilDate->setDate(ui->endDateTime->date());
-        }
-        else{ //to-do
+        } else { //to-do
             ui->untilDate->setDate(ui->beginDateTime->date());
         }
     } else {
