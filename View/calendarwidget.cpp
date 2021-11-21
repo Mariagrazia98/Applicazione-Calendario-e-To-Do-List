@@ -20,6 +20,7 @@ CalendarWidget::CalendarWidget(QWidget *parent) :
     QDockWidget * dockWidget = new QDockWidget(tr("Dock Widget"), this);
     dockWidget->setAllowedAreas(Qt::RightDockWidgetArea);
     dockWidget->setWidget(tasksGroupBox);
+    dockWidget->setFeatures(dockWidget->features() & ~QDockWidget::DockWidgetClosable);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
 
     setMinimumHeight(480);
