@@ -3,8 +3,6 @@
  * @author Mariagrazia Paladino, Manuel Pepe, Adriana Provenzano
  * @date 17 Sep 2021
  * @brief handles connections between server and widgets
- *
- *
  */
 
 #ifndef APPLICAZIONE_CALENDARIO_E_TO_DO_LIST_ALL_IN_ONE_CONNECTIONMANAGER_H
@@ -128,6 +126,7 @@ public:
                                   const QString &comment);
 
 private slots:
+
     /**
      * @details when called it emits a signal which says that the calendar is ready and passes
      * the response to a method which will parse the getCalendar response
@@ -163,6 +162,7 @@ private slots:
     void shareCalendarDone();
 
 signals:
+
     /**
      * @param reply server reply
      */
@@ -204,65 +204,65 @@ signals:
     void calendars(QList<Calendar *> calendarsList);
 
 private:
-/** it allows the application to send network requests and receive replies. */
-QNetworkAccessManager *networkAccessManager;
+    /** it allows the application to send network requests and receive replies. */
+    QNetworkAccessManager *networkAccessManager;
 
-/** url of the current connectionManager calendar */
-QUrl serverUrl;
+    /** url of the current connectionManager calendar */
+    QUrl serverUrl;
 
-/** calendars of the logged user */
-QList<Calendar *> calendarsList;
+    /** calendars of the logged user */
+    QList<Calendar *> calendarsList;
 
-/** username of the logged user */
-QString username;
-/** password of the logged user */
-QString password;
+    /** username of the logged user */
+    QString username;
+    /** password of the logged user */
+    QString password;
 
-/** about the management of the response corresponding to the getctag request */
-QMetaObject::Connection connectionToGetCtag;
-/** about the management of the response corresponding to the login request */
-QMetaObject::Connection connectionToLogin;
+    /** about the management of the response corresponding to the getctag request */
+    QMetaObject::Connection connectionToGetCtag;
+    /** about the management of the response corresponding to the login request */
+    QMetaObject::Connection connectionToLogin;
 
-/** reply to get calendar request */
-QNetworkReply *getCalendarReply;
-/** reply to delete calendar object request */
-QNetworkReply *deleteResourceNetworkReply;
-/** reply to add/update calendar object request */
-QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
-/** reply to get calendars list request */
-QNetworkReply *getCalendarsListReply;
-/** reply to share calendar request */
-QNetworkReply *shareCalendarRequestReply;
+    /** reply to get calendar request */
+    QNetworkReply *getCalendarReply;
+    /** reply to delete calendar object request */
+    QNetworkReply *deleteResourceNetworkReply;
+    /** reply to add/update calendar object request */
+    QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
+    /** reply to get calendars list request */
+    QNetworkReply *getCalendarsListReply;
+    /** reply to share calendar request */
+    QNetworkReply *shareCalendarRequestReply;
 
-/** calendar object which characterizes the current connectionManager */
-Calendar *calendar;
+    /** calendar object which characterizes the current connectionManager */
+    Calendar *calendar;
 
-/**
- * @details it sets up the connection beewteen requests which require authentication
- * and the authenticator's setter methods
- */
-void setup();
+    /**
+     * @details it sets up the connection beewteen requests which require authentication
+     * and the authenticator's setter methods
+     */
+    void setup();
 
-/**
- * @details it updates the serverUrl according to the current logged user and the calendar name
- */
-void updateUrl();
+    /**
+     * @details it updates the serverUrl according to the current logged user and the calendar name
+     */
+    void updateUrl();
 
-/**
- * @details it parses the getctag response and emits a signal if it has changed
- * @param answerString passed by checkctag, it is the server reply to getctag request
- */
-void parseAndUpdatectag(const QString &answerString);
+    /**
+     * @details it parses the getctag response and emits a signal if it has changed
+     * @param answerString passed by checkctag, it is the server reply to getctag request
+     */
+    void parseAndUpdatectag(const QString &answerString);
 
-/**
- * @brief it sends a server request for having the current ctag
- */
-void makectagRequest();
+    /**
+     * @brief it sends a server request for having the current ctag
+     */
+    void makectagRequest();
 
-/**
- * @brief it parse the get calendars list response
- */
-void printCalendarsList();
+    /**
+     * @brief it parse the get calendars list response
+     */
+    void printCalendarsList();
 
 };
 
