@@ -17,11 +17,9 @@ ConnectionManager::ConnectionManager(QString username, QString password) :
 }
 
 void ConnectionManager::setup() {
-    //connect(networkAccessManager, &QNetworkAccessManager::onCalendarReady, this, &ConnectionManager::responseHandler);
     connect(networkAccessManager, &QNetworkAccessManager::authenticationRequired, this,
             &ConnectionManager::authenticationRequired);
 }
-
 
 ConnectionManager::~ConnectionManager() {
     delete calendar;
@@ -73,7 +71,6 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     if (deleteResourceNetworkReply != nullptr) {
         QMessageBox::information(nullptr, "Task Deleted", "Task deleted successfully");
     } else {
-        // std::cerr << "[ConnectionManager] deleteCalendarObject went wrong" << std::endl;
         QMessageBox::warning(nullptr, "Task Deleted", "Could not delete selected object");
     }
 }
@@ -107,12 +104,7 @@ void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, 
     if (addOrUpdateCalendarObjectNetworkReply) {
         connect(addOrUpdateCalendarObjectNetworkReply, &QNetworkReply::finished, this,
                 &ConnectionManager::onInsertOrUpdateCalendarObject);
-        /*connect(qNetworkReply, SIGNAL(error(QNetworkReply::NetworkError)),
-                this, SLOT(handleUploadHTTPError())); */
-
-        //m_UploadRequestTimeoutTimer.start(m_RequestTimeoutMS);
     } else {
-        //QDEBUG << m_DisplayName << ": " << "ERROR: Invalid reply pointer when requesting URL.";
         std::cerr << "Invalid reply pointer when requesting URL\n";
     }
 }
@@ -158,14 +150,6 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
     }
 }
 
-/*
-void ConnectionManager::tryLogin() {
-    makectagRequest();
-    connectionToLogin = connect(networkAccessManager, &QNetworkAccessManager::onCalendarReady, this,
-                                &ConnectionManager::onLoginRequestFinished);
-}
- */
-
 void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     const int startPosition = answerString.indexOf("<cs:getctag>");
     const int endPosition = answerString.indexOf("</cs:getctag>");
@@ -181,7 +165,6 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 }
 
 void ConnectionManager::makectagRequest() {
-    //std::cout << "[ConnectionManager] makectagRequest\n";
     QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
@@ -208,7 +191,6 @@ void ConnectionManager::makectagRequest() {
     QNetworkRequest networkRequest;
     networkRequest.setUrl(serverUrl);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
     networkRequest.setRawHeader("Depth", "0");
     networkRequest.setRawHeader("Prefer", "return-minimal");
     networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
@@ -232,7 +214,6 @@ void ConnectionManager::getCalendarList() {
             "       <d:resourcetype />\n"
             "       <d:displayname />\n"
             "       <cs:getctag />\r\n"
-            //"       <c:supported-Calendar-component-set />"
             "   </d:prop>\r\n"
             "</d:propfind>";
 
@@ -249,7 +230,6 @@ void ConnectionManager::getCalendarList() {
     QNetworkRequest networkRequest;
     networkRequest.setUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/');
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
     networkRequest.setRawHeader("Depth", "1");
     networkRequest.setRawHeader("Prefer", "return-minimal");
     networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
@@ -270,15 +250,11 @@ void ConnectionManager::printCalendarsList() {
     QNetworkReply::NetworkError error = getCalendarsListReply->error();
     const QString &errorString = getCalendarsListReply->errorString();
     if (error == QNetworkReply::NoError) {
-        //std::cout << answerString.toStdString() << "\n\n";
         const int startPosition = answerString.indexOf("<?xml version=\"1.0\"?>");
         answerString = answerString.mid(startPosition, -1);
-        //std::cout << answerString.toStdString() << '\n';
         QDomDocument document;
         document.setContent(answerString);
-        //std::cout << "document: " << document.toString().toStdString() << "\n\n";
         QDomNodeList response = document.elementsByTagName("d:response");
-        //std::cout << response.size() << " nodes\n";
         calendarsList.clear();
         for (int i = 1; i < response.size(); i++) { // first element is not useful
             QDomNode node = response.item(i);
@@ -355,7 +331,6 @@ ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QStri
     networkRequest.setUrl(
             "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
-    //networkRequest.setRawHeader("Authorization", authorization.toUtf8());
     networkRequest.setRawHeader("Content-Type", "application/davsharing+xml; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", contentlength);
 
