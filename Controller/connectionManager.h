@@ -25,130 +25,244 @@
 
 #include "../Model/calendar.h"
 
+/**
+ *  @brief manager of server requests and response
+ */
+
 class ConnectionManager : public QObject {
 Q_OBJECT
 public:
 
+    /**
+     * Constructor
+     * @param username of the logged user
+     * @param password of the logged user
+     */
     ConnectionManager(QString username = "", QString password = "");
 
+    /**
+     * Destructor
+     */
     virtual ~ConnectionManager();
 
+    /**
+     * @brief get the calendar object at serverUrl
+     * @details it is based on the calendar set for the current connectionManager
+     */
     void getCalendarRequest();
 
     /**
      * @brief deletes calendar object by UID
-     *
      * @param UID the UID of the object to be deleted
      */
     void deleteCalendarObject(const QString &UID);
 
+    /**
+     * Setter
+     * @param username of the logged user
+     */
     void setUsername(QString username);
 
+    /**
+     * Setter
+     * @param password of the logged user
+     */
     void setPassword(QString password);
 
+    /**
+     * Getter
+     * @return username of the logged user (QString)
+     */
     const QString &getUsername() const;
 
+    /**
+     * Getter
+     * @return password of the logged user (QString)
+     */
     const QString &getPassword() const;
 
     /**
      * @brief add or update a Calendar Object
-     *
-     * executes a PUT request on the server built by CalendarObjectForm
-     *
+     * @details executes a PUT request on the server built by CalendarObjectForm
      * @param request the request built by CalendarObjectForm
      * @param UID the UID of the objects to be added
      */
     void addOrUpdateCalendarObject(const QString &request, const QString &UID);
 
+    /**
+     * @brief calls makectagRequest() and connects to checkctag() when the response is ready
+     * @details it is based on the name of the calendar set for the current connectionManager
+     */
     void getctag();
 
+    /**
+     * Getter
+     * @return the name of the calendar which characterizes the current connectionManager
+     */
     const QString &getCalendarName() const;
 
+    /**
+     * Setter
+     * @param calendar the name of the calendar which will characterize the current connectionManager
+     */
     void setCalendarName(const QString &calendar);
 
-    //void tryLogin();
-
+    /**
+     * @brief get the list of calendars names which the logged user has
+     */
     void getCalendarList();
 
+    /**
+    * Setter
+    * @param calendar the calendar object which will characterize the current connectionManager
+    */
     void setCalendar(Calendar *calendar);
 
+    /**
+     * @param calendar the name of the calendar which the user wants to share with someone
+     * @param email email address of the user with who the logged user wants to share his calendar
+     * @param displayName a human- readable string identifying the user.
+     * @param comment comment from the sharer to the sharee (optional)
+     */
     void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName,
                                   const QString &comment);
 
 private slots:
-
+    /**
+     * @details when called it emits a signal which says that the calendar is ready and passes
+     * the response to a method which will parse the getCalendar response
+     */
     void onGetCalendarRequestFinished();
 
     /**
-     * @brief authenticates with username and password
-     *
+     * @brief it authenticates with username and password
      * @param networkReply server reply
      * @param authenticator QAuthenticator object
      */
     void authenticationRequired(QNetworkReply *networkReply, QAuthenticator *authenticator);
 
+    /**
+     * @brief it handles the response of the ctag request and calls parseAndUpdatectag method
+     * @param reply server reply
+     */
     void checkctag(QNetworkReply *reply);
 
     /**
-     * @brief tryLogin callback
-     *
-     *
-     * check errors and emits the loggedin signal
-     *
-     * @param reply network reply to getctag request
+     * @brief it emits a signal which says that a calendar object has been deleted
      */
-    //void onLoginRequestFinished(QNetworkReply *reply);
-
     void onObjectDeleted();
 
+    /**
+     * @brief it emits a signal which says that a calendar object has been added or updated
+     */
     void onInsertOrUpdateCalendarObject();
 
+    /**
+     * @brief it handles the response of a share calendar request
+     */
     void shareCalendarDone();
 
 signals:
-
+    /**
+     * @param reply server reply
+     */
     void onFinished(QNetworkReply *reply);
 
+    /**
+     * @brief emitted when the response to get calendar request is ready
+     * @param reply server reply
+     */
     void calendarReady(QNetworkReply *reply);
 
+    /**
+     * @brief emitted when the response to delete calendar object request is ready
+     * @param reply server reply
+     */
     void objectDeleted(QNetworkReply *reply);
 
-    void loggedin(QNetworkReply *reply);
-
-    void ctagChanged(const QString);
-
+    /**
+     * @brief emitted when the response to insert or update a calendar object request is ready
+     * @param reply server reply
+     */
     void insertOrUpdatedCalendarObject(QNetworkReply *reply);
 
+    /**
+     * @brief emitted when the response to get calendars list request is ready
+     * @param reply server reply
+     */
+    void loggedin(QNetworkReply *reply);
+
+    /**
+     * @brief emitted when the new ctag is different from the last saved one
+     */
+    void ctagChanged(const QString calendarName);
+
+    /**
+     * @brief emitted when the list of calendars is ready
+     * @param calendarsList list of Calendar objects
+     */
     void calendars(QList<Calendar *> calendarsList);
 
 private:
-    QNetworkAccessManager *networkAccessManager;
-    QString username;
-    QString password;
-    QUrl serverUrl;
-    QList<Calendar *> calendarsList;
+/** it allows the application to send network requests and receive replies. */
+QNetworkAccessManager *networkAccessManager;
 
-    QMetaObject::Connection connectionToGetCtag;
-    QMetaObject::Connection connectionToLogin;
+/** url of the current connectionManager calendar */
+QUrl serverUrl;
 
-    QNetworkReply *getCalendarReply;
-    QNetworkReply *deleteResourceNetworkReply;
-    QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
-    QNetworkReply *getCalendarsListReply;
-    QNetworkReply *shareCalendarRequestReply;
+/** calendars of the logged user */
+QList<Calendar *> calendarsList;
 
-    Calendar *calendar;
+/** username of the logged user */
+QString username;
+/** password of the logged user */
+QString password;
 
-    void setup();
+/** about the management of the response corresponding to the getctag request */
+QMetaObject::Connection connectionToGetCtag;
+/** about the management of the response corresponding to the login request */
+QMetaObject::Connection connectionToLogin;
 
-    void updateUrl();
+/** reply to get calendar request */
+QNetworkReply *getCalendarReply;
+/** reply to delete calendar object request */
+QNetworkReply *deleteResourceNetworkReply;
+/** reply to add/update calendar object request */
+QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
+/** reply to get calendars list request */
+QNetworkReply *getCalendarsListReply;
+/** reply to share calendar request */
+QNetworkReply *shareCalendarRequestReply;
 
-    void parseAndUpdatectag(const QString &answerString);
+/** calendar object which characterizes the current connectionManager */
+Calendar *calendar;
 
-    void makectagRequest();
+/**
+ * @details it sets up the connection beewteen requests which require authentication
+ * and the authenticator's setter methods
+ */
+void setup();
 
+/**
+ * @details it updates the serverUrl according to the current logged user and the calendar name
+ */
+void updateUrl();
 
-    void printCalendarsList();
+/**
+ * @details it parses the getctag response and emits a signal if it has changed
+ * @param answerString passed by checkctag, it is the server reply to getctag request
+ */
+void parseAndUpdatectag(const QString &answerString);
+
+/**
+ * @brief it sends a server request for having the current ctag
+ */
+void makectagRequest();
+
+/**
+ * @brief it parse the get calendars list response
+ */
+void printCalendarsList();
 
 };
 
