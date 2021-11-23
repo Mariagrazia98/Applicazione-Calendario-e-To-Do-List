@@ -106,7 +106,7 @@ public:
     void setCalendarName(const QString &calendar);
 
     /**
-     * @brief get the list of calendars names which the logged user has
+     * @brief get the list of calendar objects which the logged user has
      */
     void getCalendarList();
 
@@ -129,7 +129,7 @@ private slots:
 
     /**
      * @details when called it emits a signal which says that the calendar is ready and passes
-     * the response to a method which will parse the getCalendar response
+     * the response to a method which will parse the GET Calendar response
      */
     void onGetCalendarRequestFinished();
 
@@ -169,7 +169,7 @@ signals:
     void onFinished(QNetworkReply *reply);
 
     /**
-     * @brief emitted when the response to get calendar request is ready
+     * @brief emitted when the response to GET calendar request is ready
      * @param reply server reply
      */
     void calendarReady(QNetworkReply *reply);
@@ -187,7 +187,7 @@ signals:
     void insertOrUpdatedCalendarObject(QNetworkReply *reply);
 
     /**
-     * @brief emitted when the response to get calendars list request is ready
+     * @brief emitted when the response to GET calendars list request is ready
      * @param reply server reply
      */
     void loggedin(QNetworkReply *reply);
@@ -218,18 +218,18 @@ private:
     /** password of the logged user */
     QString password;
 
-    /** about the management of the response corresponding to the getctag request */
+    /** about the management of the response corresponding to the GET ctag request */
     QMetaObject::Connection connectionToGetCtag;
     /** about the management of the response corresponding to the login request */
     QMetaObject::Connection connectionToLogin;
 
-    /** reply to get calendar request */
+    /** reply to GET calendar request */
     QNetworkReply *getCalendarReply;
     /** reply to delete calendar object request */
     QNetworkReply *deleteResourceNetworkReply;
     /** reply to add/update calendar object request */
     QNetworkReply *addOrUpdateCalendarObjectNetworkReply;
-    /** reply to get calendars list request */
+    /** reply to GET calendars list request */
     QNetworkReply *getCalendarsListReply;
     /** reply to share calendar request */
     QNetworkReply *shareCalendarRequestReply;
@@ -249,8 +249,8 @@ private:
     void updateUrl();
 
     /**
-     * @details it parses the getctag response and emits a signal if it has changed
-     * @param answerString passed by checkctag, it is the server reply to getctag request
+     * @details it parses the GET ctag response and emits a signal if it has changed
+     * @param answerString passed by checkctag, it is the server reply to GET ctag request
      */
     void parseAndUpdatectag(const QString &answerString);
 
@@ -260,7 +260,7 @@ private:
     void makectagRequest();
 
     /**
-     * @brief it parse the get calendars list response
+     * @brief it parses the GET calendars list response
      */
     void printCalendarsList();
 
