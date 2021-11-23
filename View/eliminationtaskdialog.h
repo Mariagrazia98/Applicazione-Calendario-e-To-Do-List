@@ -12,29 +12,29 @@
 #include <QDialogButtonBox>
 
 /**
- *
  * @details An EliminationTaskDialog appears when a user clicks on the delete icon connected to
  * a CalendarTodo or a CalendarEvent, particularly, when this is characterized by a series of recurrences.
  * Its goal is to let the user choose if he/she wants to delete all the recurrences or only the one selected.
  */
-
 class EliminationTaskDialog : public QDialog {
 Q_OBJECT
 
 public:
-    /* Constructor */
     /**
+     * Constructor
      * @param parent the parent QWidget
      */
     explicit EliminationTaskDialog(QWidget *parent = nullptr);
 
-    /* Destructor */
+    /**
+     * Destructor
+     */
     ~EliminationTaskDialog() override;
 
 public slots:
 
     /**
-    * 'OK' button pressed callback
+    * @brief 'OK' button pressed callback
     */
     void onAccept();
 

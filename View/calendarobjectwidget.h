@@ -27,9 +27,9 @@ class CalendarObjectWidget : public QWidget {
 Q_OBJECT
 
 public:
-    /* Constructor */
 
     /**
+    * Constructor
     * @param parent the parent QWidget
     * @param calendarObject the calendarObject whose details are shown in this widget
     * @param connectionManagers a Map where the key is the name of the Calendar object and
@@ -38,65 +38,88 @@ public:
     CalendarObjectWidget(QWidget *parent, std::shared_ptr<CalendarObject> calendarObject,
                          QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers);
 
-    /* Destructor */
-
+    /**
+    * Destructor
+    */
     ~CalendarObjectWidget();
 
-    /// @brief Set up the user interface
+    /**
+    * @brief Set up the user interface
+    */
     void setupUI();
 
-private
-    slots:
+private slots:
 
-    /// @brief ModifyIcon clicked callback
+    /**
+    * @brief ModifyIcon clicked callback
+    */
     void onModifyButtonClicked();
 
-    /// @brief DeleteIcon clicked callback
+    /**
+    * @brief DeleteIcon clicked callback
+    */
     void onRemoveButtonClicked();
 
-    /// @brief Complete check callback
+    /**
+    * @brief Complete check callback
+    */
     void onCheckBoxToggled(bool checked);
 
     /**
-     * @brief handles the response of the delete/update
-     * (in case of checked as completed) request
-     */
+    * @brief handles the response of the delete/update
+    * (in case of checked as completed) request
+    */
     void manageResponse(QNetworkReply *reply);
 
-    /// @brief called when a CalendarObject is successfully modified
+    /**
+    * @brief called when a CalendarObject is successfully modified
+    */
     void onTaskModified();
 
-    /// @brief called after EliminationTaskDialog is shown and "OK" button is clicked
+    /**
+    * @brief called after EliminationTaskDialog is shown and "OK" button is clicked
+    */
     void handleDeleteRecurrencies(int type);
 
 signals:
-    /// @brief emitted when the CalendarObject is successfully modified
+
+    /**
+    * @brief emitted when the CalendarObject is successfully modified
+    */
     void taskModified(const QString calendarName);
 
-    /// @bried emitted when the CalendarObject is successfully deleted
+    /**
+    * @brief emitted when the CalendarObject is successfully deleted
+    */
     void taskDeleted(CalendarObject &obj);
 
 private:
-    /// @brief called to display CalendarObject details
+    /**
+    * @brief called to display CalendarObject details
+    */
     void setupText();
 
-    /// @brief called to display delete and modify icons
+    /**
+    * @brief called to display delete and modify icons
+    */
     void setupButtons();
 
-    /// @bried called when calendarObject has no repetitions and the user decides to delete it
+    /**
+    * @brief called when calendarObject has no repetitions and the user decides to delete it
+    */
     void deleteCalendarObject();
 
-    std::shared_ptr <CalendarObject> calendarObject;
-    // the calendarObject whose details are shown in this widget
+    /** the calendarObject whose details are shown in this widget */
+    std::shared_ptr<CalendarObject> calendarObject;
 
+    /** about the management of the response corresponding to the delete/update response */
     QMetaObject::Connection connectionToFinish;
-    // about the management of the response corresponding to the delete/update response
 
+    /** about the management of the response corresponding to the update response */
     QMetaObject::Connection connectionToObjectModified;
-    // about the management of the response corresponding to the update response
 
+    /** map of the connection managers related to all chosen Calendar objects */
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
-    // map of the connection managers related to all chosen Calendar objects
 
     /* UI */
 

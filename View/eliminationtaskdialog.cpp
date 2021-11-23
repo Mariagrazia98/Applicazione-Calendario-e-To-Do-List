@@ -4,7 +4,6 @@
 
 #include "eliminationtaskdialog.h"
 
-
 EliminationTaskDialog::EliminationTaskDialog(QWidget *parent) :
         QDialog(parent),
         vBoxLayout(new QVBoxLayout),
@@ -21,20 +20,21 @@ EliminationTaskDialog::EliminationTaskDialog(QWidget *parent) :
 }
 
 void EliminationTaskDialog::onAccept(){
-    // 'OK' button pressed
+    /* 'OK' button pressed */
     if(allRepetition->isChecked()){
-        // user wants to delete all the repetitions
+        /* User wants to delete all the repetitions */
         emit(eliminateRecurrences(0));
     }
-    else if(onlyThisRepetition->isChecked())
-    {   //user wants to delete only this repetition
+    else if(onlyThisRepetition->isChecked()){
+    /* User wants to delete only this repetition */
         emit(eliminateRecurrences(1));
     }
     else{
-        // nothing happens, equivalent to 'Close' button
+        /* Nothing happens, equivalent to 'Close' button */
         emit(eliminateRecurrences(-1));
     }
     close();
 }
+
 EliminationTaskDialog::~EliminationTaskDialog() {
 }

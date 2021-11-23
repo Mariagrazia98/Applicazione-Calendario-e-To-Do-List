@@ -70,12 +70,12 @@ void CalendarObjectWidget::setupText() {
     text.append("Start date and time: " + calendarObject->getStartDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
     if (calendarEvent.get() != nullptr) {
-        // calendarObject is a CalendarEvent
+        /* calendarObject is a CalendarEvent */
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
     } else {
         std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
         if (calendarToDo.get() != nullptr) {
-            // calendarObject is a CalendarEvent
+            /* calendarObject is a CalendarEvent */
             if (calendarToDo->getCompletedDate().contains(calendarToDo->getStartDateTime().date())) {
                 textBrowser->setTextColor(QColor(0, 150, 0));
             }
@@ -112,6 +112,12 @@ void CalendarObjectWidget::onModifyButtonClicked() {
     taskForm->show();
     connectionToObjectModified = connect(taskForm, &CalendarObjectForm::taskUploaded, this,
                                          &CalendarObjectWidget::onTaskModified);
+}
+
+void CalendarObjectWidget::onTaskModified() {
+    /* calendarObject successfully modified */
+    disconnect(connectionToObjectModified);
+    emit(taskModified(calendarObject->getCalendarName()));
 }
 
 void CalendarObjectWidget::onRemoveButtonClicked() {
@@ -273,12 +279,6 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
     }
 }
 
-void CalendarObjectWidget::onTaskModified() {
-    /* calendarObject successfully modified */
-    disconnect(connectionToObjectModified);
-    emit(taskModified(calendarObject->getCalendarName()));
-}
-
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     /* the user wants to change the status of the calendarObject (completed or not) */
     auto calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
@@ -302,14 +302,12 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VTODO\r\n"
                             "UID:" + calendarObject->getUID() + "\r\n"
-                                                                "VERSION:2.0\r\n"
-                                                                "DTSTAMP:" +
-                            calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
-                                                                                                 "SUMMARY:" +
-                            calendarObject->getName() + "\r\n""LOCATION:" + calendarObject->getLocation() + "\r\n"
-                                                                                                            "DESCRIPTION:" +
-                            calendarObject->getDescription() + "\r\n"
-                                                               "TRANSP:OPAQUE\r\n";
+                            "VERSION:2.0\r\n"
+                            "DTSTAMP:" + calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                            "SUMMARY:" + calendarObject->getName() + "\r\n"
+                            "LOCATION:" + calendarObject->getLocation() + "\r\n"
+                            "DESCRIPTION:" + calendarObject->getDescription() + "\r\n"
+                            "TRANSP:OPAQUE\r\n";
 
     if (auto parent = calendarObject->getParent().lock()) {
         /* This is an occurrence, we must save parent's startDateTime */
@@ -334,9 +332,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
         requestString.append("\r\n");
     }
 
-
     requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
-
 
     if (!calendarToDo->getCompletedDate().isEmpty()) {
         QList<QDate> completedDates = calendarToDo->getCompletedDate();

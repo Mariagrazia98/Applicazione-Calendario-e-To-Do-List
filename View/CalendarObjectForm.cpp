@@ -220,7 +220,6 @@ void CalendarObjectForm::on_buttonBox_accepted() {
 
 }
 
-
 void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
     /* Handling response of the insert/update request */
     disconnect(connectionToFinish);
@@ -269,31 +268,6 @@ void CalendarObjectForm::on_comboBox_currentIndexChanged(int index) {
     }
 }
 
-void CalendarObjectForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    if (ui->comboBox->currentIndex() == 0) {
-        /* Event */
-        if (ui->endDateTime->dateTime() < dateTime) {
-            ui->endDateTime->setDateTime(dateTime);
-        }
-        if (ui->untilDate->dateTime() < dateTime) {
-            ui->untilDate->setDate(dateTime.date());
-        }
-    } else if (ui->comboBox->currentIndex() == 1 && ui->untilDate->date() < dateTime.date()) {
-        /* To-Do */
-        ui->untilDate->setDate(dateTime.date());
-    }
-}
-
-void CalendarObjectForm::closeEvent(QCloseEvent *event) {
-    emit(taskFormClosed());
-}
-
-void CalendarObjectForm::setDate(const QDate &date) {
-    ui->beginDateTime->setDate(date);
-    ui->endDateTime->setDate(date);
-    ui->untilDate->setDate(date);
-}
-
 void CalendarObjectForm::onNumRepetitionChanged(int i) {
     if (ui->numRepetition->value() >= 1 && ui->typeRepetition->currentIndex() != -1) {
         ui->untilDate->setVisible(true);
@@ -306,14 +280,6 @@ void CalendarObjectForm::onNumRepetitionChanged(int i) {
     } else {
         ui->untilDate->setVisible(false);
         ui->untilLabel->setVisible(false);
-    }
-}
-
-
-void CalendarObjectForm::on_endDateTime_dateTimeChanged(const QDateTime &dateTime) {
-    if (ui->comboBox->currentIndex() == 0 && ui->untilDate->date() < dateTime.date()) {
-        /* Event */
-        ui->untilDate->setDate(dateTime.date());
     }
 }
 
@@ -330,4 +296,36 @@ void CalendarObjectForm::onTypeRepetitionChanged(int i) {
         ui->untilDate->setVisible(false);
         ui->untilLabel->setVisible(false);
     }
+}
+
+void CalendarObjectForm::on_beginDateTime_dateTimeChanged(const QDateTime &dateTime) {
+    if (ui->comboBox->currentIndex() == 0) {
+        /* Event */
+        if (ui->endDateTime->dateTime() < dateTime) {
+            ui->endDateTime->setDateTime(dateTime);
+        }
+        if (ui->untilDate->dateTime() < dateTime) {
+            ui->untilDate->setDate(dateTime.date());
+        }
+    } else if (ui->comboBox->currentIndex() == 1 && ui->untilDate->date() < dateTime.date()) {
+        /* To-Do */
+        ui->untilDate->setDate(dateTime.date());
+    }
+}
+
+void CalendarObjectForm::on_endDateTime_dateTimeChanged(const QDateTime &dateTime) {
+    if (ui->comboBox->currentIndex() == 0 && ui->untilDate->date() < dateTime.date()) {
+        /* Event */
+        ui->untilDate->setDate(dateTime.date());
+    }
+}
+
+void CalendarObjectForm::setDate(const QDate &date) {
+    ui->beginDateTime->setDate(date);
+    ui->endDateTime->setDate(date);
+    ui->untilDate->setDate(date);
+}
+
+void CalendarObjectForm::closeEvent(QCloseEvent *event) {
+    emit(taskFormClosed());
 }

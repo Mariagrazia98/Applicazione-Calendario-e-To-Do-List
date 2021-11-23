@@ -26,7 +26,6 @@
 /**
  *  @brief manager of server requests and response
  */
-
 class ConnectionManager : public QObject {
 Q_OBJECT
 public:

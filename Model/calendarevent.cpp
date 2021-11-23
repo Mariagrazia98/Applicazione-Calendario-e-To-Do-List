@@ -6,12 +6,11 @@
 #include "calendarevent.h"
 
 CalendarEvent::CalendarEvent() {
-
 }
 
 CalendarEvent::CalendarEvent(std::shared_ptr<CalendarEvent> other) :
-    CalendarObject(other),
-    endDateTime(other->endDateTime) {
+        CalendarObject(other),
+        endDateTime(other->endDateTime) {
 }
 
 const QDateTime &CalendarEvent::getEndDateTime() const {
