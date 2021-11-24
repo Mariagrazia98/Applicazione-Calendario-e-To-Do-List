@@ -116,7 +116,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
             int i = 0;
-            /*TODO che fa sto while?*/
+            /* TODO che fa sto while? */
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
                     calendarObjects.removeAt(i);

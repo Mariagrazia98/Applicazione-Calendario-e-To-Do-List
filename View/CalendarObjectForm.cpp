@@ -146,11 +146,15 @@ void CalendarObjectForm::on_buttonBox_accepted() {
                             QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
                                                                                         "SUMMARY:" + ui->name->text() +
                             "\r\n"
-                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n"
-                                                                                                     "LOCATION:" +
-                            ui->location->text() + "\r\n"
-                                                   "DESCRIPTION:" + ui->description->toPlainText() + "\r\n"
-                                                                                                     "TRANSP:OPAQUE\r\n";
+                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n";
+    if (!ui->location->text().isEmpty()) {
+        requestString.append("LOCATION:" + ui->location->text() + "\r\n");
+    }
+
+    if (!ui->description->toPlainText().isEmpty()) {
+        requestString.append("DESCRIPTION:" + ui->description->toPlainText() + "\r\n");
+    }
+    requestString.append("TRANSP:OPAQUE\r\n");
     if (ui->typeRepetition->currentIndex() != CalendarObject::RepetitionType::NONE && ui->numRepetition->value() > 0) {
         /* Part of the request related to the repetitions */
         QString rrule = "RRULE:FREQ=";
@@ -217,15 +221,13 @@ void CalendarObjectForm::on_buttonBox_accepted() {
     connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &CalendarObjectForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
-
+    //std::cout << requestString.toStdString() << '\n';
 }
 
 void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
     /* Handling response of the insert/update request */
     disconnect(connectionToFinish);
     if (reply != nullptr) {
-        QByteArray answer = reply->readAll();
-        QString answerString = QString::fromUtf8(answer);
         QNetworkReply::NetworkError error = reply->error();
         if (error == QNetworkReply::NoError) {
             /* Success */
@@ -233,6 +235,9 @@ void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
             close();
         } else {
             /* Error */
+            QByteArray answer = reply->readAll();
+            QString answerString = QString::fromUtf8(answer);
+            /*std::cerr << answerString.toStdString() << '\n';*/
             std::cerr << error << '\n';
             QMessageBox::warning(this, "Error", "Could not create or modify selected object");
         }
