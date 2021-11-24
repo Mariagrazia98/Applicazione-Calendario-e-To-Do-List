@@ -24,8 +24,10 @@
 #include <QTimer>
 #include <QMainWindow>
 #include <QDockWidget>
+#include <QtConcurrent>
 
 #include <iostream>
+#include <istream>
 
 #include "CalendarObjectForm.h"
 #include "../Model/calendarobject.h"
@@ -33,6 +35,7 @@
 #include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
 #include "../Controller/connectionManager.h"
+#include "../Controller/utils.h"
 #include "customcalendarwidget.h"
 #include "sharecalendarform.h"
 
@@ -169,18 +172,13 @@ private:
     */
     void parseCalendarObject(const QString &calendarName, unsigned int type);
 
+    //std::shared_ptr<CalendarObject> parseCalendarObject_parallel(const QString &calendarObjectString);
+
 
     /**
     * @brief setup CalendarBox and shareCalendarButton
     */
     void createCalendarGroupBox();
-
-    /**
-     * @brief get a QDateTime from a QString
-     * @param a Qstring date
-     * @return QDateTime date
-     */
-    QDateTime getDateTimeFromString(const QString &string);
 
     /**
     * @brief shows all the calendar objects in the data selected
@@ -194,17 +192,6 @@ private:
     */
     void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
 
-    /**
-    * @brief parses the Qstring value received as param and for each exDate calls the function addExDate of calendarObject
-    * @param the pointer to a calendar object and the list of exDates in a QString format
-    */
-    QString addExDatesToCalendarObject(CalendarObject *calendarObject, QString &value);
-
-    /**
-     * @brief parses the Qstring value received as param and for each completeDate calls the function addCompleteDate of calendarToDo
-     * @param the pointer to a calendar to-do object and the list of completeDate in a QString format
-     */
-    QString addCompletedDatesToCalendarObject(CalendarToDo *calendarTodo, QString &value);
 
     /* Attributes */
     QGroupBox *calendarGroupBox; /**< shows the calendar and button for sharing a calendar on the left side of the window */
