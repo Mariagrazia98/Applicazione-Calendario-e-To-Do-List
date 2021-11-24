@@ -141,10 +141,64 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         /* The user chose to delete all recurrences */
         deleteCalendarObject();
     } else if (type == 1) {
+        bool hasToUpdateExDates = true;
         /* The user chose to delete only one recurrence */
         calendarObject->addExDate(calendarObject->getStartDateTime().date());
         if (auto parent = calendarObject->getParent().lock()) {
             parent->addExDate(calendarObject->getStartDateTime().date());
+        } else {
+            hasToUpdateExDates = false;
+            QDateTime newStartDateTime = calendarObject->getStartDateTime();
+            QDateTime newEndDateTime;
+            std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
+            if (calendarEvent.get() != nullptr) {
+                newEndDateTime = calendarEvent->getEndDateTime();
+            } else {
+                newEndDateTime = newStartDateTime;
+            }
+
+            while (calendarObject->getExDates().contains(newStartDateTime.date()) &&
+                   newStartDateTime.date() < calendarObject->getUntilDateRepetition()) {
+
+                /* if the event takes more than one day i have to readjust the dates */
+
+                if (newStartDateTime.date() != newEndDateTime.date()) {
+                    int diff = newStartDateTime.daysTo(newEndDateTime);
+                    newStartDateTime = newStartDateTime.addDays(diff);
+                    newEndDateTime = newEndDateTime.addDays(diff);
+                }
+
+                switch (calendarObject->getTypeRepetition()) {
+                    case CalendarObject::RepetitionType::DAILY:
+                        newStartDateTime = newStartDateTime.addDays(calendarObject->getNumRepetition());
+                        newEndDateTime = newEndDateTime.addDays(calendarObject->getNumRepetition());
+                        break;
+                    case CalendarObject::RepetitionType::WEEKLY:
+                        newStartDateTime = newStartDateTime.addDays(calendarObject->getNumRepetition() * 7);
+                        newEndDateTime = newEndDateTime.addDays(calendarObject->getNumRepetition() * 7);
+                        break;
+                    case CalendarObject::RepetitionType::MONTHLY:
+                        newStartDateTime = newStartDateTime.addMonths(calendarObject->getNumRepetition());
+                        newEndDateTime = newEndDateTime.addMonths(calendarObject->getNumRepetition());
+                        break;
+                    case CalendarObject::RepetitionType::YEARLY:
+                        newStartDateTime = newStartDateTime.addYears(calendarObject->getNumRepetition());
+                        newEndDateTime = newEndDateTime.addYears(calendarObject->getNumRepetition());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (newStartDateTime.date() >= calendarObject->getUntilDateRepetition()) {
+                // this is the last one recurrence remaining
+                deleteCalendarObject();
+                return;
+            }
+
+            calendarObject->setStartDateTime(newStartDateTime);
+            if (calendarEvent.get() != nullptr) {
+                calendarEvent->setEndDateTime(newEndDateTime);
+            }
         }
 
         /* Set the type of object for the request */
@@ -203,10 +257,16 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         requestString.append("EXDATE:");
         QSet<QDate>::const_iterator i = exDates.constBegin();
         while (i != exDates.constEnd()) {
-            requestString.append(i->toString("yyyyMMddT010000Z") + ',');
+            requestString.append(i->toString("yyyyMMddT010000Z"));
             i++;
+            if (i != exDates.constEnd()) {
+                requestString.append(',');
+            }
         }
-        requestString.append(recurrenceDate.toString("yyyyMMddT010000Z") + "\r\n");
+        if (hasToUpdateExDates) {
+            requestString.append(','+recurrenceDate.toString("yyyyMMddT010000Z"));
+        }
+        requestString.append("\r\n");
 
         /* Part of the request related to the repetitions */
         if (calendarObject->getTypeRepetition() != CalendarObject::RepetitionType::NONE &&
@@ -245,6 +305,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         connectionToFinish = connect(connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
                                      this, SLOT(manageResponse(QNetworkReply * )));
         connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
+        std::cout << requestString.toStdString() << "\n\n";
     }
 }
 
@@ -302,12 +363,15 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     QString requestString = "BEGIN:VCALENDAR\r\n"
                             "BEGIN:VTODO\r\n"
                             "UID:" + calendarObject->getUID() + "\r\n"
-                            "VERSION:2.0\r\n"
-                            "DTSTAMP:" + calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
-                            "SUMMARY:" + calendarObject->getName() + "\r\n"
-                            "LOCATION:" + calendarObject->getLocation() + "\r\n"
-                            "DESCRIPTION:" + calendarObject->getDescription() + "\r\n"
-                            "TRANSP:OPAQUE\r\n";
+                                                                "VERSION:2.0\r\n"
+                                                                "DTSTAMP:" +
+                            calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
+                                                                                                 "SUMMARY:" +
+                            calendarObject->getName() + "\r\n"
+                                                        "LOCATION:" + calendarObject->getLocation() + "\r\n"
+                                                                                                      "DESCRIPTION:" +
+                            calendarObject->getDescription() + "\r\n"
+                                                               "TRANSP:OPAQUE\r\n";
 
     if (auto parent = calendarObject->getParent().lock()) {
         /* This is an occurrence, we must save parent's startDateTime */
