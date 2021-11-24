@@ -106,7 +106,6 @@ void CalendarWidget::createCalendarGroupBox() {
 
 
 void CalendarWidget::parseCalendar(QString calendarString) {
-
     stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
     QString line;
     QString calendarName = "";
@@ -116,7 +115,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
             int i = 0;
-            /* TODO che fa sto while? */
+            /* deletes calendarObjects relative to the changed Calendar */
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
                     calendarObjects.removeAt(i);
