@@ -257,7 +257,8 @@ void CalendarWidget::showSelectedDateCalendarObjects() {
                             break;
                         }
                     }
-                    if (start.date() <= calendar->selectedDate() &&
+                    if (!calendarEvent->getExDates().contains(start.date()) &&
+                        start.date() <= calendar->selectedDate() &&
                         end.date() >= calendar->selectedDate() &&
                         start.date() <= calendarEvent->getUntilDateRepetition()) {
                         std::shared_ptr<CalendarEvent> calendarEvent_ = std::make_shared<CalendarEvent>(

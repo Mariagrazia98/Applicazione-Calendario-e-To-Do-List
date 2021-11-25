@@ -63,7 +63,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                             break;
                         }
                     }
-                    if (start.date() <= date &&
+                    if (!calendarEvent->getExDates().contains(start.date()) && start.date() <= date &&
                         end.date() >= date &&
                         start.date() <= calendarEvent->getUntilDateRepetition()) {
                         paintDate(painter, rect);
