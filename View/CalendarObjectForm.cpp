@@ -54,6 +54,10 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
             /* The existing calendarObject the user wants to modify is an event */
             ui->comboBox->setCurrentIndex(0);
             ui->endDateTime->setDateTime(calendarEvent->getEndDateTime());
+            if(auto parent = calendarObject->getParent().lock()){
+                CalendarEvent *parent_ = dynamic_cast<CalendarEvent *>(parent.get());
+                ui->endDateTime->setDateTime(parent_->getEndDateTime());
+            }
         } else {
             /* The existing calendarObject the user wants to modify is a task */
             CalendarToDo *calendarToDo = dynamic_cast<CalendarToDo *>(calendarObject);
