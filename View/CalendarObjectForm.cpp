@@ -54,7 +54,7 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
             /* The existing calendarObject the user wants to modify is an event */
             ui->comboBox->setCurrentIndex(0);
             ui->endDateTime->setDateTime(calendarEvent->getEndDateTime());
-            if(auto parent = calendarObject->getParent().lock()){
+            if (auto parent = calendarObject->getParent().lock()) {
                 CalendarEvent *parent_ = dynamic_cast<CalendarEvent *>(parent.get());
                 ui->endDateTime->setDateTime(parent_->getEndDateTime());
             }
@@ -189,35 +189,35 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
-        if (calendarObject) {
-            std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
-            if (calendarToDo) {
-                /* Optional fields of CalendarToDo*/
-                QList<QDate> completedDates = calendarToDo->getCompletedDate();
-                requestString.append("COMPLETED:");
-                for (int i = 0; i < completedDates.size(); i++) {
-                    requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
-                    if (i != completedDates.size() - 1) {
-                        requestString.append(',');
-                    }
+    }
+    if (calendarObject) {
+        std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
+        if (calendarToDo) {
+            /* Optional fields of CalendarToDo*/
+            QList<QDate> completedDates = calendarToDo->getCompletedDate();
+            requestString.append("COMPLETED:");
+            for (int i = 0; i < completedDates.size(); i++) {
+                requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+                if (i != completedDates.size() - 1) {
+                    requestString.append(',');
                 }
-                requestString.append("\r\n");
             }
+            requestString.append("\r\n");
+        }
 
-            /* Exception dates of CalendarEvent and CalendarToDO */
-            QSet<QDate> exDates = calendarObject->getExDates();
-            if (!exDates.isEmpty()) {
-                requestString.append("EXDATE:");
-                QSet<QDate>::const_iterator i = exDates.constBegin();
-                while (i != exDates.constEnd()) {
-                    requestString.append(i->toString("yyyyMMddT010000Z"));
-                    i++;
-                    if (i != exDates.constEnd()) {
-                        requestString.append(',');
-                    }
+        /* Exception dates of CalendarEvent and CalendarToDO */
+        QSet<QDate> exDates = calendarObject->getExDates();
+        if (!exDates.isEmpty()) {
+            requestString.append("EXDATE:");
+            QSet<QDate>::const_iterator i = exDates.constBegin();
+            while (i != exDates.constEnd()) {
+                requestString.append(i->toString("yyyyMMddT010000Z"));
+                i++;
+                if (i != exDates.constEnd()) {
+                    requestString.append(',');
                 }
-                requestString.append("\r\n");
             }
+            requestString.append("\r\n");
         }
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
@@ -227,7 +227,6 @@ void CalendarObjectForm::on_buttonBox_accepted() {
     connectionToFinish = connect(connectionManager.get(), &ConnectionManager::insertOrUpdatedCalendarObject, this,
                                  &CalendarObjectForm::handleUploadFinished);
     connectionManager->addOrUpdateCalendarObject(requestString, UID);
-    //std::cout << requestString.toStdString() << '\n';
 }
 
 void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
