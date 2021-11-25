@@ -195,14 +195,16 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         if (calendarToDo) {
             /* Optional fields of CalendarToDo*/
             QList<QDate> completedDates = calendarToDo->getCompletedDate();
-            requestString.append("COMPLETED:");
-            for (int i = 0; i < completedDates.size(); i++) {
-                requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
-                if (i != completedDates.size() - 1) {
-                    requestString.append(',');
+            if (!completedDates.isEmpty()) {
+                requestString.append("COMPLETED:");
+                for (int i = 0; i < completedDates.size(); i++) {
+                    requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+                    if (i != completedDates.size() - 1) {
+                        requestString.append(',');
+                    }
                 }
+                requestString.append("\r\n");
             }
-            requestString.append("\r\n");
         }
 
         /* Exception dates of CalendarEvent and CalendarToDO */
@@ -242,7 +244,7 @@ void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
             /* Error */
             QByteArray answer = reply->readAll();
             QString answerString = QString::fromUtf8(answer);
-            /*std::cerr << answerString.toStdString() << '\n';*/
+            std::cerr << answerString.toStdString() << '\n';
             std::cerr << error << '\n';
             QMessageBox::warning(this, "Error", "Could not create or modify selected object");
         }
