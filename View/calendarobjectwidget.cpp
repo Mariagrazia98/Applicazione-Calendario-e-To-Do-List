@@ -214,9 +214,14 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         QString requestString =
                 "BEGIN:VCALENDAR\r\nBEGIN:" + objectType + "\r\nUID:" + calendarObject->getUID() +
                 "\r\nVERSION:2.0\r\nDTSTAMP:" + calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") +
-                "\r\nSUMMARY:" + calendarObject->getName() + "\r\nLOCATION:" + calendarObject->getLocation() +
-                "\r\nDESCRIPTION:" + calendarObject->getDescription() +
-                "\r\nTRANSP:OPAQUE\r\n";
+                "\r\nSUMMARY:" + calendarObject->getName();
+        if (!calendarObject->getLocation().isEmpty()) {
+            requestString.append("\r\nLOCATION:" + calendarObject->getLocation());
+        }
+        if (!calendarObject->getDescription().isEmpty()) {
+            requestString.append("\r\nDESCRIPTION:" + calendarObject->getDescription());
+        }
+        requestString.append("\r\nTRANSP:OPAQUE\r\n");
         if (auto parent = calendarObject->getParent().lock()) {
             requestString.append("DTSTART:" + parent->getStartDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
         } else {
@@ -294,7 +299,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
 
         requestString.append("PRIORITY:" + QString::number(calendarObject->getPriority()) + "\r\n");
 
-        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMdd") + "\r\n");
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT010000Z") + "\r\n");
 
         requestString.append("END:" + objectType + "\r\nEND:VCALENDAR");
         /* Composition of request end */
