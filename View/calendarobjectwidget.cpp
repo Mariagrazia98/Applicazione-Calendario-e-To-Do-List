@@ -81,7 +81,7 @@ void CalendarObjectWidget::setupText() {
             }
         }
     }
-    text.append("CalendarName: " + calendarObject->getCalendarName() + '\n');
+    text.append("Name of the calendar: " + calendarObject->getCalendarName() + '\n');
     textBrowser->setText(text);
 }
 
