@@ -269,7 +269,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
             }
         }
         if (hasToUpdateExDates) {
-            requestString.append(','+recurrenceDate.toString("yyyyMMddT010000Z"));
+            requestString.append(',' + recurrenceDate.toString("yyyyMMddT010000Z"));
         }
         requestString.append("\r\n");
 
@@ -372,11 +372,15 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
                                                                 "DTSTAMP:" +
                             calendarObject->getCreationDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
                                                                                                  "SUMMARY:" +
-                            calendarObject->getName() + "\r\n"
-                                                        "LOCATION:" + calendarObject->getLocation() + "\r\n"
-                                                                                                      "DESCRIPTION:" +
-                            calendarObject->getDescription() + "\r\n"
-                                                               "TRANSP:OPAQUE\r\n";
+                            calendarObject->getName() + "\r\n";
+    if (!calendarObject->getLocation().isEmpty()) {
+        requestString.append("\r\nLOCATION:" + calendarObject->getLocation());
+    }
+    if (!calendarObject->getDescription().isEmpty()) {
+        requestString.append("\r\nDESCRIPTION:" + calendarObject->getDescription());
+    }
+    requestString.append("\r\nTRANSP:OPAQUE\r\n");
+
 
     if (auto parent = calendarObject->getParent().lock()) {
         /* This is an occurrence, we must save parent's startDateTime */
