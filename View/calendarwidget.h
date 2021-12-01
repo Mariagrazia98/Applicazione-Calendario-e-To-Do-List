@@ -28,6 +28,7 @@
 
 #include <iostream>
 #include <istream>
+#include <execution>
 
 #include "calendarobjectform.h"
 #include "../Model/calendarobject.h"

@@ -103,7 +103,6 @@ void CalendarWidget::createCalendarGroupBox() {
     calendarGroupBox->setLayout(calendarLayout);
 }
 
-
 void CalendarWidget::parseCalendar(QString calendarString) {
     stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
     QString line;
@@ -138,11 +137,15 @@ void CalendarWidget::parseCalendar(QString calendarString) {
     QFuture<std::shared_ptr<CalendarObject>> future = QtConcurrent::mapped(strings,
                                                                            &parseCalendarObject_parallel);
     if (future.isValid()) {
-        calendarObjects = future.results();
+        QList <std::shared_ptr<CalendarObject>> calendarObjectsObtained = future.results();
 
-        for (auto calendarObject: calendarObjects) {
-            calendarObject->setCalendarName(calendarName);
-        }
+        std::for_each(std::execution::par_unseq,calendarObjectsObtained.begin(),calendarObjectsObtained.end(),
+                      [calendarName](auto&& calendarObject)
+                {
+                    calendarObject->setCalendarName(calendarName);
+                });
+
+        calendarObjects.append(calendarObjectsObtained);
 
         std::sort(calendarObjects.begin(), calendarObjects.end(),
                   [](std::shared_ptr<CalendarObject> a, std::shared_ptr<CalendarObject> b) {
@@ -169,7 +172,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
             int i = 0;
-            / deletes calendarObjects relative to the changed Calendar
+            // deletes calendarObjects relative to the changed Calendar
             while (i < calendarObjects.length()) {
                 if (calendarObjects[i]->getCalendarName() == calendarName) {
                     calendarObjects.removeAt(i);
