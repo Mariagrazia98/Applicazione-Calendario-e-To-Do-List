@@ -20,8 +20,6 @@ ShareCalendarForm::ShareCalendarForm(QWidget *parent,
         email(new QLineEdit),
         nameLabel(new QLabel("Name")),
         name(new QLineEdit),
-        commentLabel(new QLabel("Comment")),
-        comment(new QLineEdit),
         dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)) {
     setupUI();
 }
@@ -36,7 +34,6 @@ void ShareCalendarForm::setupUI() {
     formLayout->addRow(calendarLabel, calendar);
     formLayout->addRow(emailLabel, email);
     formLayout->addRow(nameLabel, name);
-    formLayout->addRow(commentLabel, comment);
     formLayout->addWidget(dialogButtonBox);
 
     groupBox->setLayout(formLayout);
@@ -66,6 +63,6 @@ void ShareCalendarForm::onAcceptButtonClicked() {
     QMessageBox::warning(this, "Error", "Insert a name");
     return;
     }
-    connectionManagers[calendar->currentText()]->makeShareCalendarRequest(calendar->currentText(), email->text(), name->text(), comment->text());
+    connectionManagers[calendar->currentText()]->makeShareCalendarRequest(calendar->currentText(), email->text(), name->text());
     this->close();
 }

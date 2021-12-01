@@ -330,7 +330,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
 }
 
 void ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QString &email,
-                                                 const QString &displayName, const QString &comment) {
+                                                 const QString &displayName) {
     /* Composing request */
 
     /* Body request */
@@ -345,7 +345,6 @@ void ConnectionManager::makeShareCalendarRequest(const QString &calendar, const 
             "       <D:prop>\n"
             "         <D:displayname>" + displayName + "</D:displayname>\n"
             "       </D:prop>\n"
-            "       <D:comment>" + comment + "</D:comment>\n"
             "       <D:share-access>\n"
             "         <D:read-write />\n"
             "       </D:share-access>\n"

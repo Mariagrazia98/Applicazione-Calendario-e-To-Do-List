@@ -119,10 +119,8 @@ public:
      * @param calendar the name of the calendar which the user wants to share with someone
      * @param email email address of the user with who the logged user wants to share his calendar
      * @param displayName a human- readable string identifying the user.
-     * @param comment comment from the sharer to the sharee (optional)
      */
-    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName,
-                                  const QString &comment);
+    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName);
 
 private slots:
 

@@ -43,8 +43,6 @@ private:
     QLineEdit *email; /**< email of the the user to whom a calendar has been shared */
     QLabel *nameLabel;
     QLineEdit *name; /**< name of the the user to whom a calendar has been shared */
-    QLabel *commentLabel;
-    QLineEdit *comment; /**< comment about the sharing */
     QDialogButtonBox *dialogButtonBox;  /**< buttons for closing the dialog and for sharing the calendar */
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
