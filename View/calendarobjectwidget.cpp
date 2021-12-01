@@ -351,8 +351,10 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
     if (checked) {
         /* calendarObject will be marked as completed */
         calendarToDo->addCompletedDate(calendarToDo->getStartDateTime().date());
+        // if this a child objecr
         if (auto parent = calendarObject->getParent().lock()) {
             auto parentToDo = std::dynamic_pointer_cast<CalendarToDo>(parent);
+            // add to completedDates
             parentToDo->addCompletedDate(calendarToDo->getStartDateTime().date());
         }
     } else {
@@ -405,7 +407,9 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
         requestString.append("\r\n");
     }
 
-    requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
+    if (!calendarObject->getUntilDateRepetition().isNull()) {
+        requestString.append("UNTIL:" + calendarObject->getUntilDateRepetition().toString("yyyyMMddT000000Z") + "\r\n");
+    }
 
     if (!calendarToDo->getCompletedDate().isEmpty()) {
         QList<QDate> completedDates = calendarToDo->getCompletedDate();

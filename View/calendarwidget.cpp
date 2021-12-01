@@ -137,13 +137,12 @@ void CalendarWidget::parseCalendar(QString calendarString) {
     QFuture<std::shared_ptr<CalendarObject>> future = QtConcurrent::mapped(strings,
                                                                            &parseCalendarObject_parallel);
     if (future.isValid()) {
-        QList <std::shared_ptr<CalendarObject>> calendarObjectsObtained = future.results();
+        QList<std::shared_ptr<CalendarObject>> calendarObjectsObtained = future.results();
 
-        std::for_each(std::execution::par_unseq,calendarObjectsObtained.begin(),calendarObjectsObtained.end(),
-                      [calendarName](auto&& calendarObject)
-                {
-                    calendarObject->setCalendarName(calendarName);
-                });
+        std::for_each(std::execution::par_unseq, calendarObjectsObtained.begin(), calendarObjectsObtained.end(),
+                      [calendarName](auto &&calendarObject) {
+                          calendarObject->setCalendarName(calendarName);
+                      });
 
         calendarObjects.append(calendarObjectsObtained);
 
