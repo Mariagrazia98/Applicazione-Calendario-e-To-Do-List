@@ -1,5 +1,5 @@
-#include "CalendarObjectForm.h"
-#include "ui_CalendarObjectForm.h"
+#include "calendarobjectform.h"
+#include "ui_calendarobjectform.h"
 #include "../Model/calendartodo.h"
 
 #include <iostream>

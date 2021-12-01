@@ -11,7 +11,7 @@
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
-#include "CalendarObjectForm.h"
+#include "calendarobjectform.h"
 #include "eliminationtaskdialog.h"
 #include "calendarwidget.h"
 

@@ -28,13 +28,14 @@
 
 #include <iostream>
 #include <istream>
+#include <execution>
 
-#include "CalendarObjectForm.h"
+#include "calendarobjectform.h"
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
 #include "calendarobjectwidget.h"
-#include "../Controller/connectionManager.h"
+#include "../Controller/connectionmanager.h"
 #include "../Controller/utils.h"
 #include "customcalendarwidget.h"
 #include "sharecalendarform.h"
@@ -48,8 +49,6 @@ public:
     * @brief set up widget
     */
     explicit CalendarWidget(QWidget *parent = nullptr);
-
-    ~CalendarWidget();
 
     /**
     * @brief setup connection manager

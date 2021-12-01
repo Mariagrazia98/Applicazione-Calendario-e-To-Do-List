@@ -13,7 +13,7 @@
 #include <QLineEdit>
 #include <QDialogButtonBox>
 #include <QLabel>
-#include "../Controller/connectionManager.h"
+#include "../Controller/connectionmanager.h"
 
 /***
  * @brief Form to fill in order to share the calendar with another user.

@@ -7,7 +7,7 @@
 #include <memory>
 #include "View/loginform.h"
 #include "View/calendarwidget.h"
-#include "Controller/connectionManager.h"
+#include "Controller/connectionmanager.h"
 #include "View/calendarchoicedialog.h"
 
 
