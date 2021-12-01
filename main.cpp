@@ -32,11 +32,13 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>();
     LoginForm loginForm(nullptr, connectionManager);
+    loginForm.resize(300,200);
     CalendarChoiceDialog calendarChoiceDialog(nullptr, connectionManager);
     Calendar::connect(connectionManager.get(), &ConnectionManager::calendars, &calendarChoiceDialog,
                       &CalendarChoiceDialog::setupUI);
     // when login is successful
     if (loginForm.exec() == QDialog::Accepted) {
+        calendarChoiceDialog.resize(loginForm.size());
         calendarChoiceDialog.show();
         if (calendarChoiceDialog.exec() == QDialog::Accepted) {
             CalendarWidget calendarWidget(nullptr);
