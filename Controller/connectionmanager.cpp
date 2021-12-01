@@ -202,10 +202,10 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
 
     if (deleteResourceNetworkReply != nullptr) {
         /* Success */
-        QMessageBox::information(nullptr, "Task Deleted", "Task deleted successfully");
+        QMessageBox::information(nullptr, "Object Deleted", "Object deleted successfully");
     } else {
         /* Error */
-        QMessageBox::warning(nullptr, "Task Deleted", "Could not delete selected object");
+        QMessageBox::warning(nullptr, "Object Deleted", "Could not delete selected object");
     }
 }
 
