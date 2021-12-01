@@ -20,13 +20,12 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<Conn
 void CalendarChoiceDialog::setupUI(QList<Calendar *> list) {
     calendarsList.clear();
     this->calendarsList = list;
-    for (int i = 0; i < calendarsList.length(); ++i) {
-        Calendar *calendar = calendarsList[i];
+    for (auto calendar: calendarsList) {
         if (calendar) {
-            QCheckBox *checkBox = new QCheckBox();
+            QCheckBox * checkBox = new QCheckBox();
             connect(checkBox, &QCheckBox::stateChanged, this, &CalendarChoiceDialog::checkBoxToggled);
             checkBoxes.append(checkBox);
-            QLabel *label = new QLabel(calendar->getName());
+            QLabel * label = new QLabel(calendar->getDisplayName());
             formLayout->addRow(checkBox, label);
         } else {
             std::cerr << "[CalendarChoiceDialog] null Calendar\n";
@@ -58,6 +57,8 @@ void CalendarChoiceDialog::checkBoxToggled(int state) {
             // calendar checked
             calendarSelected++;
             pushButton->setEnabled(true);
+            break;
+        default:
             break;
     }
 }

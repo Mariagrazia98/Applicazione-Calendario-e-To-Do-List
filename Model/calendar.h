@@ -23,7 +23,7 @@ public:
      * @param name
      * @param ctag
      */
-    Calendar(const QString &href = "", const QString &name = "", const int ctag = -1);
+    Calendar(const QString &href = "", const QString &name = "", const QString &displayName = "", const int ctag = -1);
 
     /**
      * Copy constructor
@@ -67,8 +67,12 @@ public:
      */
     int getCtag() const;
 
+    const QString &getDisplayName() const;
+
+
 private:
     QString name; /**< name of the calendar */
+    QString displayName;
     QString href; /**< indicates the URL */
     int ctag; /**< ctag works like a change id. Every time the ctag has changed, something in the calendar has changed too. */
 };

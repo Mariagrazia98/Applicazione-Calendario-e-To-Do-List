@@ -4,8 +4,8 @@
 
 #include "calendar.h"
 
-Calendar::Calendar(const QString &href, const QString &name, const int ctag)
-        : href(href), name(name), ctag(ctag) {
+Calendar::Calendar(const QString &href, const QString &name, const QString &displayName, const int ctag)
+        : href(href), name(name), ctag(ctag), displayName(displayName) {
 
 }
 
@@ -36,6 +36,10 @@ void Calendar::setName(const QString &name) {
 
 void Calendar::setCtag(int ctag) {
     Calendar::ctag = ctag;
+}
+
+const QString &Calendar::getDisplayName() const {
+    return displayName;
 }
 
 

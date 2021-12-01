@@ -73,7 +73,6 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
         }
     } else {
         /* Add a new calendarObject */
-        QLocale locale = QLocale(QLocale::English, QLocale::UnitedKingdom); // set the locale you want here
         ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
         ui->endDateTime->setDateTime(QDateTime::currentDateTime());
         ui->untilDate->setDate(QDate::currentDate());

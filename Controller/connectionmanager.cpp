@@ -64,14 +64,14 @@ void ConnectionManager::setCalendarName(const QString &calendarName) {
 }
 
 const QString &ConnectionManager::getCalendarName() const {
-    return calendar->getName();
+    return calendar->getDisplayName();
 }
 
 /* End Setters and Getters */
 
 void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/"
-            + username + '/' + calendar->getName());
+                     + username + '/' + calendar->getName());
 }
 
 void ConnectionManager::getCalendarList() {
@@ -150,12 +150,15 @@ void ConnectionManager::printCalendarsList() {
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
                     if (!prop.isNull()) {
+                        QDomElement displayname = prop.firstChildElement("d:displayname");
+                        QString displayNameString = displayname.text();
+                        //std::cout << displaynameString.toStdString() << "\n\n";
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
                             const int startPosition = ctag.text().lastIndexOf("sync/");
                             QString ctagString = ctag.text().mid(startPosition + 5, -1);
                             /* Creation of a new Calendar object */
-                            Calendar *calendar = new Calendar(hrefString, name, ctagString.toInt());
+                            Calendar *calendar = new Calendar(hrefString, name, displayNameString, ctagString.toInt());
                             calendarsList.append(calendar);
                         }
                     }
@@ -342,14 +345,14 @@ void ConnectionManager::makeShareCalendarRequest(const QString &calendar, const 
             "<D:share-resource xmlns:D=\"DAV:\">\n"
             "     <D:sharee>\n"
             "       <D:href>" + email + "</D:href>\n"
-            "       <D:prop>\n"
-            "         <D:displayname>" + displayName + "</D:displayname>\n"
-            "       </D:prop>\n"
-            "       <D:share-access>\n"
-            "         <D:read-write />\n"
-            "       </D:share-access>\n"
-            "     </D:sharee>\n"
-            "   </D:share-resource>";
+                                        "       <D:prop>\n"
+                                        "         <D:displayname>" + displayName + "</D:displayname>\n"
+                                                                                   "       </D:prop>\n"
+                                                                                   "       <D:share-access>\n"
+                                                                                   "         <D:read-write />\n"
+                                                                                   "       </D:share-access>\n"
+                                                                                   "     </D:sharee>\n"
+                                                                                   "   </D:share-resource>";
 
     int buffersize = buffer->write(requestString.toUtf8());
     buffer->seek(0);
