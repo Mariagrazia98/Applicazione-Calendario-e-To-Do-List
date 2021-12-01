@@ -49,8 +49,6 @@ public:
     */
     explicit CalendarWidget(QWidget *parent = nullptr);
 
-    ~CalendarWidget();
-
     /**
     * @brief setup connection manager
     * Each connection manager makes a get for a calendar
