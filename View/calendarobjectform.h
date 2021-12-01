@@ -15,7 +15,7 @@
 
 #include "../Model/calendarobject.h"
 #include "../Model/calendarevent.h"
-#include "../Controller/connectionManager.h"
+#include "../Controller/connectionmanager.h"
 
 namespace Ui {
     class CalendarObjectForm;

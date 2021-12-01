@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include <QButtonGroup>
 #include <QFormLayout>
-#include "../Controller/connectionManager.h"
+#include "../Controller/connectionmanager.h"
 
 class CalendarChoiceDialog : public QDialog {
 Q_OBJECT

@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "connectionManager.h"
+#include "connectionmanager.h"
 #include "../View/calendarwidget.h"
 
 ConnectionManager::ConnectionManager(QString username, QString password) :

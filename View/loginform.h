@@ -12,7 +12,7 @@
 #include <QGroupBox>
 #include <QDialogButtonBox>
 #include <memory>
-#include "../Controller/connectionManager.h"
+#include "../Controller/connectionmanager.h"
 #include "calendarchoicedialog.h"
 
 /**
