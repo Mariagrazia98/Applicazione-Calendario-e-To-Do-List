@@ -64,14 +64,14 @@ void ConnectionManager::setCalendarName(const QString &calendarName) {
 }
 
 const QString &ConnectionManager::getCalendarName() const {
-    return calendar->getDisplayName();
+    return calendar->getName();
 }
 
 /* End Setters and Getters */
 
 void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/"
-                     + username + '/' + calendar->getName());
+                     + username + '/' + getCalendarName());
 }
 
 void ConnectionManager::getCalendarList() {
@@ -179,11 +179,13 @@ void ConnectionManager::getCalendarRequest() {
     /* GET request for the calendar characterized by serverUrl */
     QNetworkRequest networkRequest;
     networkRequest.setUrl(QUrl(serverUrl.toString() + "?export"));
+
     getCalendarReply = networkAccessManager->get(networkRequest);
     if (getCalendarReply) {
         connect(getCalendarReply, &QNetworkReply::finished, this, &ConnectionManager::onGetCalendarRequestFinished);
     }
 }
+
 
 void ConnectionManager::onGetCalendarRequestFinished() {
     emit(calendarReady(getCalendarReply));
@@ -327,8 +329,7 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     if (calendar->getCtag() != new_ctag && new_ctag > 0) {
         /* The new ctag of the calendar is different from the last saved one */
         calendar->setCtag(new_ctag);
-        emit(ctagChanged(calendar->getName()));
-        std::cout << "new ctag: " << new_ctag << '\n';
+        emit(ctagChanged(calendar->getDisplayName()));
     }
 }
 
@@ -388,9 +389,12 @@ void ConnectionManager::shareCalendarDone() {
         /* Success */
         QByteArray answer = shareCalendarRequestReply->readAll();
         QString answerString = QString::fromUtf8(answer);
-        std::cout << "answer: " << answer.toStdString() << '\n';
     } else {
         /* Error */
         std::cerr << "shareCalendarDone: " << errorString.toStdString() << '\n';
     }
+}
+
+const QString &ConnectionManager::getCalendarDisplayName() const {
+    return calendar->getDisplayName();
 }

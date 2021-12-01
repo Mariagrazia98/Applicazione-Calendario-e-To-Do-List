@@ -6,6 +6,10 @@
 #include "customcalendarwidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
+#include <iostream>
+#include "customcalendarwidget.h"
+#include "../Model/calendarevent.h"
+#include "../Model/calendartodo.h"
 
 CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(parent) {
     setLocale(QLocale::English);

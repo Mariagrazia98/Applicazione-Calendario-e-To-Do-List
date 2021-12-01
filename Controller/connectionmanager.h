@@ -98,6 +98,8 @@ public:
      */
     const QString &getCalendarName() const;
 
+    const QString &getCalendarDisplayName() const;
+
     /**
      * Setter
      * @param calendar the name of the calendar which will characterize the current connectionManager
@@ -121,6 +123,7 @@ public:
      * @param displayName a human- readable string identifying the user.
      */
     void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName);
+
 
 private slots:
 
