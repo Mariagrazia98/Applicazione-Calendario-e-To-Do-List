@@ -20,7 +20,7 @@ ShareCalendarForm::ShareCalendarForm(QWidget *parent,
         calendarLabel(new QLabel("Calendar")),
         emailLabel(new QLabel("Email")),
         email(new QLineEdit),
-        nameLabel(new QLabel("Name")),
+        nameLabel(new QLabel("Username")),
         name(new QLineEdit),
         dialogButtonBox(new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close)) {
     setupUI();
