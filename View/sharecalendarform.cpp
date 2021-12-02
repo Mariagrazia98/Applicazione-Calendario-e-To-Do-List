@@ -43,7 +43,7 @@ void ShareCalendarForm::setupUI() {
     layout->addWidget(groupBox);
     layout->setAlignment(Qt::AlignCenter);
     this->setLayout(layout);
-
+    resize(300,200);
     connect(dialogButtonBox, &QDialogButtonBox::accepted, this, &ShareCalendarForm::onAcceptButtonClicked);
     connect(dialogButtonBox, &QDialogButtonBox::rejected, this, &ShareCalendarForm::close);
 }
