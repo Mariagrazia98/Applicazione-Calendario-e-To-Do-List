@@ -385,10 +385,10 @@ void ConnectionManager::shareCalendarDone() {
     const QString &errorString = shareCalendarRequestReply->errorString();
     if (error == QNetworkReply::NoError) {
         /* Success */
-        QMessageBox::information(nullptr, "Calendar shared", "Calendare shared successfully");
+        QMessageBox::information(nullptr, "Calendar shared", "Calendar shared successfully");
     } else {
         /* Error */
-        QMessageBox::warning(nullptr, "Calendar not shared", "Couls not share the calendar");
+        QMessageBox::warning(nullptr, "Calendar not shared", "Could not share the calendar");
     }
 }
 
