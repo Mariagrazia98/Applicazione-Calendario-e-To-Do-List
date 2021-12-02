@@ -67,7 +67,7 @@ public:
      * @details When the timer expires, the connection manager, associated to a certain calendar, makes the request
      * @param Name of the calendar to get
      */
-    void getCalendarRequest(const QString calendarName);
+    void getCalendarRequest(const QString& calendarName);
 
     /**
     * @brief setups and starts the timer
@@ -124,16 +124,14 @@ private slots:
     /***
      * @brief stops the timer calls the function getctag
      * @details This is called when the signal "taskUploaded" connected to the slot is emitted by taskForm.
-     * Todo: perchè ci sono due segnali connessi a questo slot?CalendarObjectForm e calendarObjectWidget?
-     * Todo: Perchè è uguale a on TaskDeleted?
      */
-    void onTaskModified(const QString calendarName);
+    void onTaskModified(const QString &calendarName);
 
     /***
      * @brief stops the timer and calls the function getctag
      * @details This is called when the signal "taskDeleted" connected to the slot is emitted by CalendarObjectWidget.
      */
-    void onTaskDeleted(CalendarObject &obj);
+    void onTaskDeleted(const CalendarObject &obj);
 
     /***
     * @brief each connection manager calls the function getctag
@@ -189,34 +187,34 @@ private:
     * @param the shared pointer to a calendar object
     * @details create a new CalendarObjectWidget object and adds it to taskViewLayout in order to visualize it
     */
-    void addCalendarObjectWidget(std::shared_ptr<CalendarObject> calendarObject);
+    void addCalendarObjectWidget(const std::shared_ptr<CalendarObject>& calendarObject);
 
 
     /* Attributes */
-    QGroupBox *calendarGroupBox; /**< shows the calendar and button for sharing a calendar on the left side of the window */
-    QGridLayout *calendarLayout;
-    CustomCalendarWidget *calendar; /**< Custom calendar widget */
+    QGroupBox *calendarGroupBox{}; /**< shows the calendar and button for sharing a calendar on the left side of the window */
+    QGridLayout *calendarLayout{};
+    CustomCalendarWidget *calendar{}; /**< Custom calendar widget */
 
-    QGroupBox *tasksGroupBox; /**< shows the list of events and to-dos in the day selected and a button for adding a new calendar object.
+    QGroupBox *tasksGroupBox{}; /**< shows the list of events and to-dos in the day selected and a button for adding a new calendar object.
  * They are showed on the right side of the window */
-    QVBoxLayout *tasksLayout;
+    QVBoxLayout *tasksLayout{};
 
-    QDateEdit *currentDateEdit; /**< shows the current date selected on the top-right side of the window */
+    QDateEdit *currentDateEdit{}; /**< shows the current date selected on the top-right side of the window */
     QTextBrowser *dateString; /**< shows the current date selected on the top-right side of the window */
 
-    QPushButton *addCalendarObjectButton; /**< button for a adding a new calendarObject */
+    QPushButton *addCalendarObjectButton{}; /**< button for a adding a new calendarObject */
     QPushButton *shareCalendarButton; /**< button for sharing a calendar */
 
     QTextStream *stream; /** stores the lines read in parseCalendar*/
     QList<std::shared_ptr<CalendarObject>> calendarObjects; /** list of calendar objects*/
 
-    QWidget *taskScrollWidget;
-    QScrollArea *scrollArea;
-    QVBoxLayout *taskViewLayout;
+    QWidget *taskScrollWidget{};
+    QScrollArea *scrollArea{};
+    QVBoxLayout *taskViewLayout{};
 
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
-    QTimer *timer;  /**< When the timer expires, check whether the ctag of a calendar has changed */
+    QTimer *timer{};  /**< When the timer expires, check whether the ctag of a calendar has changed */
     const unsigned int timerInterval;
 
 

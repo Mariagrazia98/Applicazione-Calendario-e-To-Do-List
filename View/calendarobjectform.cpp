@@ -213,7 +213,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
             QSet<QDate>::const_iterator i = exDates.constBegin();
             while (i != exDates.constEnd()) {
                 requestString.append(i->toString("yyyyMMddT010000Z"));
-                i++;
+                ++i;
                 if (i != exDates.constEnd()) {
                     requestString.append(',');
                 }

@@ -9,7 +9,7 @@ CalendarObject::CalendarObject() {
 
 }
 
-CalendarObject::CalendarObject(std::shared_ptr<CalendarObject> other) :
+CalendarObject::CalendarObject(const std::shared_ptr<CalendarObject> &other) :
         name(other->name),
         calendarName(other->calendarName),
         UID(other->UID),
@@ -48,7 +48,7 @@ const QString &CalendarObject::getLocation() const {
     return location;
 }
 
-void CalendarObject::setLocation(const QString location) {
+void CalendarObject::setLocation(const QString &location) {
     this->location = location;
 }
 
@@ -98,9 +98,7 @@ unsigned int CalendarObject::getPriority() const {
 }
 
 void CalendarObject::setPriority(unsigned int priority) {
-    if (priority < 0) {
-        this->priority = 0;
-    } else if (priority > 9) {
+    if (priority > 9) {
         this->priority = 9;
     } else {
         this->priority = priority;

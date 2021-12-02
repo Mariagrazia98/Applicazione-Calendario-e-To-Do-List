@@ -28,7 +28,7 @@ public:
     * @param other
     * @brief copy constructor and set other as parent of this
     */
-    CalendarEvent(std::shared_ptr<CalendarEvent> other);
+    CalendarEvent(const std::shared_ptr<CalendarEvent>& other);
 
     /**
     * Getter

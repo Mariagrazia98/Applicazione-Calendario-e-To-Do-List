@@ -44,7 +44,7 @@ public:
      *
      * @brief copy constructor and set other as parent of this
      */
-    CalendarObject(std::shared_ptr<CalendarObject> other);
+    CalendarObject(const std::shared_ptr<CalendarObject>& other);
 
     /* Destructor */
 
@@ -153,7 +153,7 @@ public:
      *
      * @param location the new location of this CalendarObject
      */
-    void setLocation(const QString location);
+    void setLocation(const QString& location);
 
     /**
      *
@@ -217,10 +217,10 @@ private:
     QString location; // CalendarObject location
     QString description; // CalendarObject description
     QString UID; // the UID of this CalendarObject, which is the same of his father if this is a recurrence
-    int numRepetition; // number of future repetitions
+    int numRepetition{}; // number of future repetitions
     RepetitionType typeRepetition; // describes the type of repetitions of this CalendarObject
     QDateTime creationDateTime; // when this CalendarObject is created
-    unsigned int priority; // describes the CalendarObject priority [0-9]
+    unsigned int priority{}; // describes the CalendarObject priority [0-9]
     QDateTime startDateTime; // when this CalendarObject begins
     QDate untilDateRepetition; // last valid recurrence date. If the object has no recurrences, it coincides to startDateTime.
     QSet<QDate> exDates; // dates excluded by recurrence

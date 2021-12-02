@@ -8,7 +8,7 @@
 CalendarEvent::CalendarEvent() {
 }
 
-CalendarEvent::CalendarEvent(std::shared_ptr<CalendarEvent> other) :
+CalendarEvent::CalendarEvent(const std::shared_ptr<CalendarEvent>& other) :
         CalendarObject(other),
         endDateTime(other->endDateTime) {
 }

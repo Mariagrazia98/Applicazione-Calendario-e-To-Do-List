@@ -46,7 +46,7 @@ private:
      * @param painter the Painter object to paint
      * @param rect the QRect object to be drawn
      */
-    void paintDate(QPainter *painter, const QRect &rect) const;
+    static void paintDate(QPainter *painter, const QRect &rect) ;
 };
 
 

@@ -35,6 +35,3 @@ void EliminationTaskDialog::onAccept(){
     }
     close();
 }
-
-EliminationTaskDialog::~EliminationTaskDialog() {
-}

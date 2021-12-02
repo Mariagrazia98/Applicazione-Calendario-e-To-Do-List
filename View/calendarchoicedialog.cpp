@@ -3,12 +3,14 @@
 //
 
 #include "calendarchoicedialog.h"
+
+#include <utility>
 #include "calendarwidget.h"
 
 
 CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<ConnectionManager> connectionManager) :
         QDialog(parent),
-        connectionManager(connectionManager),
+        connectionManager(std::move(connectionManager)),
         groupBox(new QGroupBox("Calendars")),
         formLayout(new QFormLayout),
         verticalLayout(new QVBoxLayout),
@@ -19,7 +21,7 @@ CalendarChoiceDialog::CalendarChoiceDialog(QWidget *parent, std::shared_ptr<Conn
 
 void CalendarChoiceDialog::setupUI(QList<Calendar *> list) {
     calendarsList.clear();
-    this->calendarsList = list;
+    this->calendarsList = std::move(list);
     for (auto calendar: calendarsList) {
         if (calendar) {
             QCheckBox * checkBox = new QCheckBox();

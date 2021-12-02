@@ -26,11 +26,6 @@ public:
      */
     explicit EliminationTaskDialog(QWidget *parent = nullptr);
 
-    /**
-     * Destructor
-     */
-    ~EliminationTaskDialog() override;
-
 public slots:
 
     /**

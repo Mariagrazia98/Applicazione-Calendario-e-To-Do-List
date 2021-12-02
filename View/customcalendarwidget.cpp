@@ -3,10 +3,7 @@
 //
 
 #include <iostream>
-#include "customcalendarwidget.h"
-#include "../Model/calendarevent.h"
-#include "../Model/calendartodo.h"
-#include <iostream>
+#include <utility>
 #include "customcalendarwidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
@@ -20,12 +17,12 @@ CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(pa
 
 void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate date) const {
     QCalendarWidget::paintCell(painter, rect, date);
-    for (int i = 0; i < calendarObjects.size(); ++i) {
+    for (const auto & calendarObject : calendarObjects) {
         //std::shared_ptr<CalendarObject> calendarObject = calendarObjects[i];
-        if (calendarObjects[i]->getExDates().contains(date)) {
+        if (calendarObject->getExDates().contains(date)) {
             continue;
         }
-        std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObjects[i]);
+        std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
         if (calendarEvent) {
             if (calendarEvent->getStartDateTime().date() <= date &&
                 calendarEvent->getEndDateTime().date() >= date) {
@@ -38,10 +35,10 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 while (start.date() < date &&
                        start.date() <= calendarEvent->getUntilDateRepetition()) {
                     /*
-                     * if the event takes more than one day i have to readjust the dates
+                     * if the event takes more than one day I have to readjust the dates
                      */
                     if (start.date() != end.date()) {
-                        int diff = start.daysTo(end);
+                        qint64 diff = start.daysTo(end);
                         start = start.addDays(diff);
                         end = end.addDays(diff);
                     }
@@ -76,14 +73,14 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                 }
             }
         } else {
-            std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObjects[i]);
+            std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
             QDateTime start;
             start = calendarToDo->getStartDateTime();
             if (start.date() <= date) {
                 if (start.date() == date) {
                     paintDate(painter, rect);
                     return;
-                } else if (calendarToDo->getTypeRepetition() != -1 && calendarToDo->getNumRepetition() > 0) {
+                } else if (calendarToDo->getTypeRepetition() != CalendarObject::RepetitionType::NONE && calendarToDo->getNumRepetition() > 0) {
                     if (calendarToDo->getUntilDateRepetition() >= date) {
                         while (start.date() < date &&
                                start.date() <= calendarToDo->getUntilDateRepetition()) {
@@ -120,7 +117,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
     }
 }
 
-void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const {
+void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) {
     QPen pen;
     pen.setColor(QColorConstants::Red);
     painter->setPen(pen);
@@ -135,6 +132,6 @@ void CustomCalendarWidget::paintDate(QPainter *painter, const QRect &rect) const
 
 void CustomCalendarWidget::setCalendarObjects(QList<std::shared_ptr<CalendarObject>> calendarObjects) {
     this->calendarObjects.clear();
-    this->calendarObjects = calendarObjects;
+    this->calendarObjects = std::move(calendarObjects);
     updateCells();
 }

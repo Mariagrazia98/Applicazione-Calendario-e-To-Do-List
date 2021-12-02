@@ -5,12 +5,14 @@
 
 #include "sharecalendarform.h"
 
+#include <utility>
+
 
 ShareCalendarForm::ShareCalendarForm(QWidget *parent,
                                      QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QDialog(parent),
         parent(parent),
-        connectionManagers(connectionManagers),
+        connectionManagers(std::move(connectionManagers)),
         groupBox(new QGroupBox),
         formLayout(new QFormLayout),
         layout(new QGridLayout),

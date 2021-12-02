@@ -25,7 +25,7 @@ namespace Ui {
  *  @brief Form to add/modify a VEVENT or a VTODO in the selected calendar
  */
 class CalendarObjectForm : public QWidget {
-Q_OBJECT
+    Q_OBJECT
 
 public:
 
@@ -37,8 +37,8 @@ public:
     * null, if it is used to modify an existing task/event this parameter contains a pointer
     * to the CalendarObject we want to modify
     */
-    CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers,
-                       CalendarObject *calendarObject = nullptr);
+    explicit CalendarObjectForm(QMap <QString, std::shared_ptr<ConnectionManager>> connectionManagers,
+                                CalendarObject *calendarObject = nullptr);
 
     /**
     * Destructor
@@ -55,10 +55,10 @@ public:
 private
     slots:
 
-    /**
-    * @brief "Cancel" button clicked callback
-    */
-    void on_buttonBox_rejected();
+            /**
+            * @brief "Cancel" button clicked callback
+            */
+            void on_buttonBox_rejected();
 
     /**
     * @brief "Save" button clicked callback
@@ -100,12 +100,12 @@ private
     */
     void handleUploadFinished(QNetworkReply *reply);
 
-signals:
+    signals:
 
-    /**
-    * @brief callback called when CalendarObjectForm is closed
-    */
-    void taskFormClosed();
+            /**
+            * @brief callback called when CalendarObjectForm is closed
+            */
+            void taskFormClosed();
 
     /**
     * @brief callback called when task/event is successfully added/modified
@@ -116,7 +116,7 @@ private:
     Ui::CalendarObjectForm *ui;
 
     /** map of the connection managers related to all chosen Calendar objects */
-    QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
+    QMap <QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
     /** about the management of the response corresponding to the insert/update response */
     QMetaObject::Connection connectionToFinish;
