@@ -3,14 +3,15 @@
 //
 
 #include <iostream>
+#include <utility>
 
 #include "connectionmanager.h"
 #include "../View/calendarwidget.h"
 
 ConnectionManager::ConnectionManager(QString username, QString password) :
         networkAccessManager(new QNetworkAccessManager),
-        username(username),
-        password(password),
+        username(std::move(username)),
+        password(std::move(password)),
         calendar(new Calendar) {
     updateUrl();
     setup();
@@ -36,12 +37,12 @@ void ConnectionManager::authenticationRequired(QNetworkReply *reply, QAuthentica
 
 /* Setters and Getters*/
 
-void ConnectionManager::setUsername(QString username) {
+void ConnectionManager::setUsername(const QString &username) {
     this->username = username;
     updateUrl();
 }
 
-void ConnectionManager::setPassword(QString password) {
+void ConnectionManager::setPassword(const QString &password) {
     this->password = password;
 }
 
@@ -75,7 +76,7 @@ void ConnectionManager::updateUrl() {
 }
 
 void ConnectionManager::getCalendarList() {
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -92,7 +93,7 @@ void ConnectionManager::getCalendarList() {
             "   </d:prop>\r\n"
             "</d:propfind>";
 
-    int buffersize = buffer->write(requestString.toUtf8());
+    qint64 buffersize = buffer->write(requestString.toUtf8());
     buffer->seek(0);
     buffer->size();
 
@@ -129,7 +130,7 @@ void ConnectionManager::printCalendarsList() {
     const QString &errorString = getCalendarsListReply->errorString();
     if (error == QNetworkReply::NoError) {
         /* Success */
-        const int startPosition = answerString.indexOf("<?xml version=\"1.0\"?>");
+        qsizetype startPosition = answerString.indexOf("<?xml version=\"1.0\"?>");
         answerString = answerString.mid(startPosition, -1);
         QDomDocument document;
         document.setContent(answerString);
@@ -142,10 +143,10 @@ void ConnectionManager::printCalendarsList() {
             QDomElement href = node.firstChildElement("d:href");
             const QString hrefString = href.text();
             if (!href.isNull()) {
-                const int startPosition = hrefString.indexOf(username + '/');
-                const int endPosition = hrefString.lastIndexOf('/');
-                QString name = hrefString.mid(startPosition + username.length() + 1,
-                                              endPosition - (startPosition + username.length() + 1));
+                qsizetype hrefStartPosition = hrefString.indexOf(username + '/');
+                qsizetype endPosition = hrefString.lastIndexOf('/');
+                QString name = hrefString.mid(hrefStartPosition + username.length() + 1,
+                                              endPosition - (hrefStartPosition + username.length() + 1));
                 QDomNode propstat = node.firstChildElement("d:propstat");
                 if (!propstat.isNull()) {
                     QDomNode prop = propstat.firstChildElement("d:prop");
@@ -155,11 +156,11 @@ void ConnectionManager::printCalendarsList() {
                         //std::cout << displaynameString.toStdString() << "\n\n";
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
-                            const int startPosition = ctag.text().lastIndexOf("sync/");
-                            QString ctagString = ctag.text().mid(startPosition + 5, -1);
+                            qsizetype ctagStartPosition = ctag.text().lastIndexOf("sync/");
+                            QString ctagString = ctag.text().mid(ctagStartPosition + 5, -1);
                             /* Creation of a new Calendar object */
-                            Calendar *calendar = new Calendar(hrefString, name, displayNameString, ctagString.toInt());
-                            calendarsList.append(calendar);
+                            Calendar *pCalendar = new Calendar(hrefString, name, displayNameString, ctagString.toInt());
+                            calendarsList.append(pCalendar);
                         }
                     }
                 }
@@ -199,7 +200,7 @@ void ConnectionManager::deleteCalendarObject(const QString &UID) {
     QNetworkRequest networkRequest;
     networkRequest.setUrl(QUrl(serverUrl.toString() + "/" + UID + ".ics"));
     networkRequest.setRawHeader("Content-Type", "text/Calendar; charset=utf-8");
-    networkRequest.setRawHeader("Content-Length", 0);
+    networkRequest.setRawHeader("Content-Length", nullptr);
 
     /* DELETE request send and connection to the handler of the response */
     deleteResourceNetworkReply = networkAccessManager->deleteResource(networkRequest);
@@ -220,22 +221,22 @@ void ConnectionManager::onObjectDeleted() {
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
     /* Composing request, in this case the response body is already done and passed as a parameter */
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
-    int buffersize = buffer->write(requestString.toUtf8());
+    qint64 bufferSize = buffer->write(requestString.toUtf8());
     buffer->seek(0);
     buffer->size();
 
     /* Request headers */
-    QByteArray contentlength;
-    contentlength.append(buffersize);
+    QByteArray contentLength;
+    contentLength.append(bufferSize);
 
     QNetworkRequest networkRequest;
     QString filename = UID + ".ics";
     networkRequest.setUrl(QUrl(serverUrl.toString() + '/' + filename));
     networkRequest.setRawHeader("Content-Type", "text/Calendar; charset=utf-8");
-    networkRequest.setRawHeader("Content-Length", contentlength);
+    networkRequest.setRawHeader("Content-Length", contentLength);
 
     /* PUT request send and connection to the handler of the response */
     addOrUpdateCalendarObjectNetworkReply = networkAccessManager->put(networkRequest, buffer);
@@ -264,7 +265,7 @@ void ConnectionManager::makectagRequest() {
     /* Composing request */
 
     /* Body request */
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
     buffer->open(QIODevice::ReadWrite);
 
     QString requestString =
@@ -320,10 +321,10 @@ void ConnectionManager::checkctag(QNetworkReply *reply) {
 }
 
 void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
-    const int startPosition = answerString.indexOf("<cs:getctag>");
-    const int endPosition = answerString.indexOf("</cs:getctag>");
+    qsizetype startPosition = answerString.indexOf("<cs:getctag>");
+    qsizetype endPosition = answerString.indexOf("</cs:getctag>");
     QString ctagString = answerString.mid(startPosition, endPosition - startPosition);
-    const int startctag = ctagString.lastIndexOf('/');
+    qsizetype startctag = ctagString.lastIndexOf('/');
     ctagString = ctagString.mid(startctag + 1, -1);
     int new_ctag = ctagString.toInt();
     if (calendar->getCtag() != new_ctag && new_ctag > 0) {
@@ -333,12 +334,12 @@ void ConnectionManager::parseAndUpdatectag(const QString &answerString) {
     }
 }
 
-void ConnectionManager::makeShareCalendarRequest(const QString &calendar, const QString &email,
+void ConnectionManager::makeShareCalendarRequest(const QString &calendarString, const QString &email,
                                                  const QString &displayName) {
     /* Composing request */
 
     /* Body request */
-    QBuffer *buffer = new QBuffer();
+    QBuffer * buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -368,7 +369,7 @@ void ConnectionManager::makeShareCalendarRequest(const QString &calendar, const 
     authorization.append((username + ":" + password).toUtf8().toBase64());
 
     QNetworkRequest networkRequest;
-    networkRequest.setUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendar);
+    networkRequest.setUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendarString);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
     networkRequest.setRawHeader("Content-Type", "application/davsharing+xml; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", contentlength);
@@ -387,8 +388,6 @@ void ConnectionManager::shareCalendarDone() {
     const QString &errorString = shareCalendarRequestReply->errorString();
     if (error == QNetworkReply::NoError) {
         /* Success */
-        QByteArray answer = shareCalendarRequestReply->readAll();
-        QString answerString = QString::fromUtf8(answer);
     } else {
         /* Error */
         std::cerr << "shareCalendarDone: " << errorString.toStdString() << '\n';

@@ -58,13 +58,13 @@ public:
      * Setter
      * @param username of the logged user
      */
-    void setUsername(QString username);
+    void setUsername(const QString &username);
 
     /**
      * Setter
      * @param password of the logged user
      */
-    void setPassword(QString password);
+    void setPassword(const QString &password);
 
     /**
      * Getter
@@ -118,11 +118,11 @@ public:
     void setCalendar(Calendar *calendar);
 
     /**
-     * @param calendar the name of the calendar which the user wants to share with someone
+     * @param calendarString the name of the calendar which the user wants to share with someone
      * @param email email address of the user with who the logged user wants to share his calendar
      * @param displayName a human- readable string identifying the user.
      */
-    void makeShareCalendarRequest(const QString &calendar, const QString &email, const QString &displayName);
+    void makeShareCalendarRequest(const QString &calendarString, const QString &email, const QString &displayName);
 
 
 private slots:

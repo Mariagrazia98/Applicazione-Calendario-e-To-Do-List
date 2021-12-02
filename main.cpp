@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
     }*/
 
     // set the Application icon
-    application.setWindowIcon(QIcon(":/resources/list.png"));
+    QApplication::setWindowIcon(QIcon(":/resources/list.png"));
 
     std::shared_ptr<ConnectionManager> connectionManager = std::make_shared<ConnectionManager>();
     LoginForm loginForm(nullptr, connectionManager);
@@ -44,10 +44,10 @@ int main(int argc, char *argv[]) {
             CalendarWidget calendarWidget(nullptr);
             QList<Calendar *> calendars = calendarChoiceDialog.getSelectedCalendars();
             // creates a new ConnectionManager for each Calendar selected
-            for (int i = 0; i < calendars.length(); ++i) {
+            for (auto & calendar : calendars) {
                 ConnectionManager *connectionManager_ = new ConnectionManager(connectionManager->getUsername(),
                                                                               connectionManager->getPassword());
-                connectionManager_->setCalendar(calendars[i]);
+                connectionManager_->setCalendar(calendar);
                 calendarWidget.addConnectionManager(connectionManager_);
             }
             // calendarWidget setups
