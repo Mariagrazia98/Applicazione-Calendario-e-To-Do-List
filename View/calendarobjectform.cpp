@@ -115,7 +115,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
     }
 
     /* Set the type of object and the calendar name for the request */
-    calendarName = connectionManager->getCalendarDisplayName();
+    calendarName = connectionManager->getCalendar()->getDisplayName();
     QString objectType;
     if (ui->comboBox->currentIndex() == 0) {
         objectType = "VEVENT";

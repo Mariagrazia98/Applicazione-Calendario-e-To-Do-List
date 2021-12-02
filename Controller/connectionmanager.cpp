@@ -64,15 +64,12 @@ void ConnectionManager::setCalendarName(const QString &calendarName) {
     updateUrl();
 }
 
-const QString &ConnectionManager::getCalendarName() const {
-    return calendar->getName();
-}
 
 /* End Setters and Getters */
 
 void ConnectionManager::updateUrl() {
     serverUrl = QUrl("http://localhost/progettopds/calendarserver.php/calendars/"
-                     + username + '/' + getCalendarName());
+                     + username + '/' + calendar->getName());
 }
 
 void ConnectionManager::getCalendarList() {
@@ -394,6 +391,8 @@ void ConnectionManager::shareCalendarDone() {
     }
 }
 
-const QString &ConnectionManager::getCalendarDisplayName() const {
-    return calendar->getDisplayName();
+Calendar *ConnectionManager::getCalendar() const {
+    return calendar;
 }
+
+

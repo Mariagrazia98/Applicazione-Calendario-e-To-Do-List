@@ -67,12 +67,16 @@ public:
      */
     int getCtag() const;
 
+    /**
+      * Getter
+      * @return calendar display name
+      */
     const QString &getDisplayName() const;
 
 
 private:
     QString name; /**< name of the calendar */
-    QString displayName;
+    QString displayName; /**< display name of the calendar */
     QString href; /**< indicates the URL */
     int ctag; /**< ctag works like a change id. Every time the ctag has changed, something in the calendar has changed too. */
 };

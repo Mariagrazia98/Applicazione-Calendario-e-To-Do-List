@@ -92,13 +92,6 @@ public:
      */
     void getctag();
 
-    /**
-     * Getter
-     * @return the name of the calendar which characterizes the current connectionManager
-     */
-    const QString &getCalendarName() const;
-
-    const QString &getCalendarDisplayName() const;
 
     /**
      * Setter
@@ -116,6 +109,12 @@ public:
     * @param calendar the calendar object which will characterize the current connectionManager
     */
     void setCalendar(Calendar *calendar);
+
+    /**
+    * Getter
+    * @returns calendar associate to the current connectionManager
+    */
+    Calendar *getCalendar() const;
 
     /**
      * @param calendarString the name of the calendar which the user wants to share with someone
@@ -236,6 +235,9 @@ private:
 
     /** calendar object which characterizes the current connectionManager */
     Calendar *calendar;
+
+
+private:
 
     /**
      * @details it sets up the connection beewteen requests which require authentication
