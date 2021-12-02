@@ -2,10 +2,11 @@
 
 #include <QMessageBox>
 #include <iostream>
+#include <utility>
 
 LoginForm::LoginForm(QWidget *parent, std::shared_ptr<ConnectionManager> connectionManager) :
         QDialog(parent),
-        connectionManager(connectionManager),
+        connectionManager(std::move(connectionManager)),
         groupBox(new QGroupBox),
         formLayout(new QFormLayout),
         layout(new QGridLayout),
@@ -44,7 +45,7 @@ void LoginForm::onLoginButtonClicked() {
 
 void LoginForm::responseHandler(QNetworkReply *reply) {
     disconnect(connectionManager.get(), &ConnectionManager::loggedin, this, &LoginForm::responseHandler);
-    QByteArray answer = reply->readAll();
+    //QByteArray answer = reply->readAll();
     //QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = reply->error();
     if (error != QNetworkReply::NoError) {
