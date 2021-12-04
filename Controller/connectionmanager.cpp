@@ -150,7 +150,6 @@ void ConnectionManager::printCalendarsList() {
                     if (!prop.isNull()) {
                         QDomElement displayname = prop.firstChildElement("d:displayname");
                         QString displayNameString = displayname.text();
-                        //std::cout << displaynameString.toStdString() << "\n\n";
                         QDomElement ctag = prop.firstChildElement("cs:getctag");
                         if (!ctag.isNull()) {
                             qsizetype ctagStartPosition = ctag.text().lastIndexOf("sync/");
