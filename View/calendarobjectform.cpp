@@ -29,12 +29,13 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
 
     if (calendarObject) {
         /* Modify an existing calendarObject */
+        ui->calendarComboBox->setCurrentText(calendarObject->getCalendarName());
+        ui->calendarComboBox->setDisabled(true);
         ui->name->setText(calendarObject->getName());
         ui->description->setText((calendarObject->getDescription()));
         ui->location->setText(calendarObject->getLocation());
         ui->numRepetition->setValue(calendarObject->getNumRepetition());
         ui->typeRepetition->setCurrentIndex(calendarObject->getTypeRepetition());
-        ui->calendarComboBox->setVisible(false);
         if (calendarObject->getNumRepetition() >= 1) {
             ui->untilDate->setVisible(true);
             ui->untilLabel->setVisible(true);
