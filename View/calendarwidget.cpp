@@ -19,7 +19,7 @@ CalendarWidget::CalendarWidget(QWidget *parent) :
     calendarGroupBox->setMinimumSize(calendar->sizeHint());
     tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
 
-    QDockWidget * dockWidget = new QDockWidget(tr("Dock Widget"), this);
+    QDockWidget * dockWidget = new QDockWidget(tr(""), this);
     dockWidget->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     dockWidget->setWidget(tasksGroupBox);
     dockWidget->setFeatures(dockWidget->features() & ~QDockWidget::DockWidgetClosable);
