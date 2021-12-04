@@ -14,19 +14,6 @@
 int main(int argc, char *argv[]) {
     QApplication application(argc, argv);
 
-    //Set the app style sheet
-    /*
-    QFile styleSheetStyle(":/QTheme/Toolery.qss");
-    if (styleSheetStyle.exists()) {
-        bool flag = styleSheetStyle.open(QFile::ReadOnly | QFile::Text);
-        if (flag) {
-            QString styleSheet = QLatin1String(styleSheetStyle.readAll());
-            a.setStyleSheet(styleSheet);
-        }
-    } else {
-        std::cerr << "Could not open stylesheet file\n";
-    }*/
-
     // set the Application icon
     QApplication::setWindowIcon(QIcon(":/resources/list.png"));
 
