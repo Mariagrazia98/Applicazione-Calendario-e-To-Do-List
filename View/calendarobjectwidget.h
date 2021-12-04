@@ -35,7 +35,7 @@ public:
     * @param connectionManagers a Map where the key is the name of the Calendar object and
     * the value is the corresponding ConnectionManager object
     */
-    CalendarObjectWidget(QWidget *parent, std::shared_ptr<CalendarObject> calendarObject,
+    CalendarObjectWidget(QWidget *parent, const std::shared_ptr<CalendarObject>& calendarObject,
                          QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers);
 
     /**

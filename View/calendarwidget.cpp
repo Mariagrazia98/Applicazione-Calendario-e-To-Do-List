@@ -89,7 +89,7 @@ void CalendarWidget::selectedDateChanged() {
 
 
 void CalendarWidget::createCalendarGroupBox() {
-    calendarGroupBox = new QGroupBox(tr("CalendarWidget"));
+    calendarGroupBox = new QGroupBox(tr("Calendar"));
 
     calendar = new CustomCalendarWidget();
 
