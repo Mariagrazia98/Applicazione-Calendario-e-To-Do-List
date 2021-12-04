@@ -18,8 +18,10 @@ public:
      */
     CalendarToDo();
 
-    /* TODO: è un costruttore?*/
-    CalendarToDo(std::shared_ptr<CalendarToDo> other);
+    /**
+     * Copy Constructor
+     */
+    explicit CalendarToDo(std::shared_ptr<CalendarToDo> other);
 
     /**
      * Getter
@@ -31,13 +33,13 @@ public:
      * add a new Date in completedDateList .
      * @param the date that will be add.
      */
-    void addCompletedDate(const QDate& completedDate);
+    void addCompletedDate(const QDate &completedDate);
 
     /**
     * remove the Date passed as params in completedDateList .
     * @param the date that will be remove.
     */
-    void removeCompletedDate(const QDate& completedDate);
+    void removeCompletedDate(const QDate &completedDate);
 
 private:
     QList<QDate> completedDateList; /*! < describes the dates in which the to-do has completed. */

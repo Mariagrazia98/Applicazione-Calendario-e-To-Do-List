@@ -3,8 +3,9 @@
 #include "eliminationtaskdialog.h"
 
 #include <iostream>
+#include <utility>
 
-CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<CalendarObject> calendarObject,
+CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, const std::shared_ptr<CalendarObject> &calendarObject,
                                            QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers) :
         QWidget(parent),
         calendarObject(calendarObject),
@@ -14,7 +15,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<Cale
         textBrowser(new QTextBrowser),
         modifyButton(new QPushButton(this)),
         removeButton(new QPushButton(this)),
-        connectionManagers(connectionManagers),
+        connectionManagers(std::move(connectionManagers)),
         ui(new Ui::CalendarObjectWidget) {
 
     ui->setupUi(this);
@@ -163,7 +164,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
                 /* if the event takes more than one day i have to readjust the dates */
 
                 if (newStartDateTime.date() != newEndDateTime.date()) {
-                    int diff = newStartDateTime.daysTo(newEndDateTime);
+                    qint64 diff = newStartDateTime.daysTo(newEndDateTime);
                     newStartDateTime = newStartDateTime.addDays(diff);
                     newEndDateTime = newEndDateTime.addDays(diff);
                 }
@@ -263,7 +264,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         QSet<QDate>::const_iterator i = exDates.constBegin();
         while (i != exDates.constEnd()) {
             requestString.append(i->toString("yyyyMMddT010000Z"));
-            i++;
+            ++i;
             if (i != exDates.constEnd()) {
                 requestString.append(',');
             }
@@ -399,7 +400,7 @@ void CalendarObjectWidget::onCheckBoxToggled(bool checked) {
         QSet<QDate>::const_iterator i = exDates.constBegin();
         while (i != exDates.constEnd()) {
             requestString.append(i->toString("yyyyMMddT010000Z"));
-            i++;
+            ++i;
             if (i != exDates.constEnd()) {
                 requestString.append(',');
             }
