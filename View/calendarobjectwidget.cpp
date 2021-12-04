@@ -20,7 +20,7 @@ CalendarObjectWidget::CalendarObjectWidget(QWidget *parent, std::shared_ptr<Cale
     ui->setupUi(this);
     if (!calendarObject.get()) {
         /* It hasn't received any calendarObject */
-        std::cout << "calendar object null\n";
+        std::cerr << "calendar object null\n";
     }
 }
 
@@ -310,7 +310,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         connectionToFinish = connect(connectionManager.get(), SIGNAL(insertOrUpdatedCalendarObject(QNetworkReply * )),
                                      this, SLOT(manageResponse(QNetworkReply * )));
         connectionManager->addOrUpdateCalendarObject(requestString, calendarObject->getUID());
-        std::cout << requestString.toStdString() << "\n\n";
+
     }
 }
 
