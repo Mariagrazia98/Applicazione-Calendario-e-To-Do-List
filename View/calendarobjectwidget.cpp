@@ -96,9 +96,9 @@ void CalendarObjectWidget::setupButtons() {
     buttonsLayout->addWidget(modifyButton);
     removeButton->setIcon(QIcon(":/resources/garbage.png"));
     if (removeButton->icon().isNull()) {
-        removeButton->setText("Remove");
+        removeButton->setText(QStringLiteral(u"Remove"));
     }
-    removeButton->setToolTip("Remove");
+    removeButton->setToolTip(QStringLiteral(u"Remove"));
     buttonsLayout->addWidget(removeButton);
     displayLayout->addLayout(buttonsLayout);
 

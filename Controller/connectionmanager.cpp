@@ -90,13 +90,13 @@ void ConnectionManager::getCalendarList() {
             "   </d:prop>\r\n"
             "</d:propfind>";
 
-    qint64 buffersize = buffer->write(requestString.toUtf8());
+    qint64 bufferSize = buffer->write(requestString.toUtf8());
     buffer->seek(0);
     buffer->size();
 
     /* Request headers */
-    QByteArray contentlength;
-    contentlength.append(buffersize);
+    QByteArray contentLength;
+    contentLength.append(bufferSize);
 
     QString authorization = "Basic ";
     authorization.append((username + ":" + password).toUtf8().toBase64());
@@ -107,7 +107,7 @@ void ConnectionManager::getCalendarList() {
     networkRequest.setRawHeader("Depth", "1");
     networkRequest.setRawHeader("Prefer", "return-minimal");
     networkRequest.setRawHeader("Content-Type", "text/xml; charset=utf-8");
-    networkRequest.setRawHeader("Content-Length", contentlength);
+    networkRequest.setRawHeader("Content-Length", contentLength);
 
     QSslConfiguration conf = networkRequest.sslConfiguration();
     conf.setPeerVerifyMode(QSslSocket::VerifyNone);
