@@ -365,7 +365,8 @@ void ConnectionManager::makeShareCalendarRequest(const QString &calendarString, 
     authorization.append((username + ":" + password).toUtf8().toBase64());
 
     QNetworkRequest networkRequest;
-    networkRequest.setUrl("http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendarString);
+    networkRequest.setUrl(
+            "http://localhost/progettopds/calendarserver.php/calendars/" + username + '/' + calendarString);
     networkRequest.setRawHeader("User-Agent", "CalendarClient_CalDAV");
     networkRequest.setRawHeader("Content-Type", "application/davsharing+xml; charset=utf-8");
     networkRequest.setRawHeader("Content-Length", contentlength);
@@ -391,8 +392,10 @@ void ConnectionManager::shareCalendarDone() {
     }
 }
 
-Calendar *ConnectionManager::getCalendar() const {
-    return calendar;
+const QString &ConnectionManager::getCalendarDisplayName() const {
+    return calendar->getDisplayName();
 }
 
-
+const QString &ConnectionManager::getCalendarName() const {
+    return calendar->getName();
+}

@@ -27,7 +27,7 @@
  *  @brief manager of server requests and response
  */
 class ConnectionManager : public QObject {
-Q_OBJECT
+    Q_OBJECT
 public:
 
     /**
@@ -92,6 +92,17 @@ public:
      */
     void getctag();
 
+    /**
+     * Getter
+     * @return the name of the calendar which characterizes the current connectionManager
+     */
+    const QString &getCalendarName() const;
+
+    /**
+     * Getter
+     * @return the dispayed name of the calendar which characterizes the current connectionManager
+     */
+    const QString &getCalendarDisplayName() const;
 
     /**
      * Setter
@@ -111,12 +122,6 @@ public:
     void setCalendar(Calendar *calendar);
 
     /**
-    * Getter
-    * @returns calendar associate to the current connectionManager
-    */
-    Calendar *getCalendar() const;
-
-    /**
      * @param calendarString the name of the calendar which the user wants to share with someone
      * @param email email address of the user with who the logged user wants to share his calendar
      * @param displayName a human- readable string identifying the user.
@@ -124,13 +129,14 @@ public:
     void makeShareCalendarRequest(const QString &calendarString, const QString &email, const QString &displayName);
 
 
-private slots:
+private
+    slots:
 
-    /**
-     * @details when called it emits a signal which says that the calendar is ready and passes
-     * the response to a method which will parse the GET Calendar response
-     */
-    void onGetCalendarRequestFinished();
+            /**
+             * @details when called it emits a signal which says that the calendar is ready and passes
+             * the response to a method which will parse the GET Calendar response
+             */
+            void onGetCalendarRequestFinished();
 
     /**
      * @brief it authenticates with username and password
@@ -160,12 +166,12 @@ private slots:
      */
     void shareCalendarDone();
 
-signals:
+    signals:
 
-    /**
-     * @param reply server reply
-     */
-    void onFinished(QNetworkReply *reply);
+            /**
+             * @param reply server reply
+             */
+            void onFinished(QNetworkReply * reply);
 
     /**
      * @brief emitted when the response to GET calendar request is ready

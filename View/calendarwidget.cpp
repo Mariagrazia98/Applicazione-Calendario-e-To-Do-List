@@ -349,14 +349,14 @@ void CalendarWidget::addCalendarObjectButtonClicked() {
 }
 
 void CalendarWidget::addConnectionManager(ConnectionManager *connectionManager) {
-    QString calendarName = connectionManager->getCalendar()->getDisplayName();
+    QString calendarName = connectionManager->getCalendarDisplayName();
     if (!connectionManagers.contains(calendarName)) {
         connectionManagers.insert(calendarName, std::shared_ptr<ConnectionManager>(connectionManager));
     }
 }
 
 
-void CalendarWidget::getCalendarRequest(const QString& calendarName) {
+void CalendarWidget::getCalendarRequest(const QString &calendarName) {
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
     connectionManager->getCalendarRequest();
 }
@@ -372,7 +372,7 @@ void CalendarWidget::setupConnection() {
                          &CalendarWidget::onCalendarReady); //Connect
         QObject::connect(connectionManager.get(), &ConnectionManager::ctagChanged, this,
                          &CalendarWidget::getCalendarRequest); //Connect
-        getCalendarRequest(connectionManager->getCalendar()->getDisplayName());
+        getCalendarRequest(connectionManager->getCalendarDisplayName());
     }
 }
 
