@@ -130,6 +130,8 @@ private:
     QTextBrowser *textBrowser;
     QPushButton *modifyButton;
     QPushButton *removeButton;
+
+    void updateObject(bool isEvent);
 };
 
 #endif // CALENDAROBJECTWIDGET_H
