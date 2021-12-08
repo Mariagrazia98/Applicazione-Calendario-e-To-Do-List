@@ -126,17 +126,14 @@ void CalendarObjectForm::on_buttonBox_accepted() {
 
     /* Input validation */
     if (ui->name->text().isEmpty()) {
-        std::cerr << "Insert a valid name\n";
         QMessageBox::warning(this, "Error", "Insert a valid name");
         return;
     }
     if (ui->endDateTime->isVisible() && ui->endDateTime->dateTime() < ui->beginDateTime->dateTime()) {
-        std::cerr << "Insert a valid start and end date\n";
         QMessageBox::warning(this, "Error", "Insert a valid start and end date");
         return;
     }
     if (ui->untilDate->isVisible() && ui->untilDate->date() < ui->endDateTime->date()) {
-        std::cerr << "Insert a valid until date\n";
         QMessageBox::warning(this, "Error", "Insert a valid start and until date");
         return;
     }
@@ -244,8 +241,6 @@ void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
             /* Error */
             QByteArray answer = reply->readAll();
             QString answerString = QString::fromUtf8(answer);
-            std::cerr << answerString.toStdString() << '\n';
-            std::cerr << error << '\n';
             QMessageBox::warning(this, "Error", "Could not create or modify selected object");
         }
         reply->deleteLater();

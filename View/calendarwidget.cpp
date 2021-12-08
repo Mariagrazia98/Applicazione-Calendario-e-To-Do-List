@@ -392,7 +392,6 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
         } else {
             // error
             const QString &errorString = reply->errorString();
-            std::cerr << errorString.toStdString() << '\n';
             QMessageBox::warning(this, "Error", "Could not get selected calendar");
         }
         reply->deleteLater();

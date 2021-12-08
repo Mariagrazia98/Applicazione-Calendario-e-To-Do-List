@@ -231,7 +231,6 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
             const QString &errorString = reply->errorString();
             QByteArray answer = reply->readAll();
             QString answerString = QString::fromUtf8(answer);
-            std::cerr << answerString.toStdString() << "\n";
             QMessageBox::warning(this, "Error", errorString);
         }
     } else {
