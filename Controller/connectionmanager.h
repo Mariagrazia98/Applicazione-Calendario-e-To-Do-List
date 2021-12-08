@@ -270,7 +270,7 @@ private:
     /**
      * @brief it parses the GET calendars list response
      */
-    void printCalendarsList();
+    void parseCalendarsList();
 
 };
 

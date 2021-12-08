@@ -117,10 +117,10 @@ void ConnectionManager::getCalendarList() {
 
     /* Request send and connection to the handler of the response */
     getCalendarsListReply = networkAccessManager->sendCustomRequest(networkRequest, QByteArray("PROPFIND"), buffer);
-    connect(getCalendarsListReply, &QNetworkReply::finished, this, &ConnectionManager::printCalendarsList);
+    connect(getCalendarsListReply, &QNetworkReply::finished, this, &ConnectionManager::parseCalendarsList);
 }
 
-void ConnectionManager::printCalendarsList() {
+void ConnectionManager::parseCalendarsList() {
     QByteArray answer = getCalendarsListReply->readAll();
     QString answerString = QString::fromUtf8(answer);
     QNetworkReply::NetworkError error = getCalendarsListReply->error();
@@ -166,7 +166,7 @@ void ConnectionManager::printCalendarsList() {
         emit(calendars(calendarsList));
     } else {
         /* Error */
-        std::cerr << "printCalendarsList: " << errorString.toStdString() << '\n';
+        std::cerr << "parseCalendarsList: " << errorString.toStdString() << '\n';
         std::cerr << answerString.toStdString() << '\n';
     }
     emit(loggedin(getCalendarsListReply));
