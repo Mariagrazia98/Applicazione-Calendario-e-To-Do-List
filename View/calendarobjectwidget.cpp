@@ -145,14 +145,18 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
         /* The user chose to delete only one recurrence */
         bool isEvent = false;
         calendarObject->addExDate(calendarObject->getStartDateTime().date());
+
+        std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
+        if (calendarEvent.get() != nullptr) {
+            isEvent = true;
+        }
+
         if (auto parent = calendarObject->getParent().lock()) {
             parent->addExDate(calendarObject->getStartDateTime().date());
         } else {
             QDateTime newStartDateTime = calendarObject->getStartDateTime();
             QDateTime newEndDateTime;
-            std::shared_ptr<CalendarEvent> calendarEvent = std::dynamic_pointer_cast<CalendarEvent>(calendarObject);
-            if (calendarEvent.get() != nullptr) {
-                isEvent = true;
+            if (isEvent) {
                 newEndDateTime = calendarEvent->getEndDateTime();
             } else {
                 newEndDateTime = newStartDateTime;
@@ -197,8 +201,7 @@ void CalendarObjectWidget::handleDeleteRecurrencies(int type) {
             }
 
             calendarObject->setStartDateTime(newStartDateTime);
-            if (calendarEvent.get() != nullptr) {
-                isEvent = true;
+            if (isEvent) {
                 calendarEvent->setEndDateTime(newEndDateTime);
             }
         }
