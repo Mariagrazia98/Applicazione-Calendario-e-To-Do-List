@@ -177,12 +177,12 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         }
         rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
-        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMdd") + "\r\n");
+        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMddT010000Z") + "\r\n");
     }
 
     if (ui->comboBox->currentIndex() == 0) {
         /* Fields of CalendarEvent */
-        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
@@ -220,6 +220,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         }
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
+    std::cout<<requestString.toStdString()<<"\n";
     /* Composition of request end */
 
     /* Passing the requestString to the connectionManager which will handle the request*/
