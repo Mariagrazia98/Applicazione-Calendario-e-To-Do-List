@@ -220,7 +220,6 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         }
     }
     requestString.append("END:" + objectType + "\r\n" + "END:VCALENDAR");
-    std::cout<<requestString.toStdString()<<"\n";
     /* Composition of request end */
 
     /* Passing the requestString to the connectionManager which will handle the request*/
