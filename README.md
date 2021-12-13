@@ -17,6 +17,79 @@ e task (creazione/modifica/cancellazione degli stessi) la natura del problema ri
 necessità di sincronizzare le informazioni con il server al fine di supportare, tra le altre possibilità,
 la condivisione del singolo calendario/task list tra più utenti.
 
+## Tools utilizzati 
+Per la realizzazione del server si è utilizzato sabre/dav. 
+sabre/dav è il framework WebDAV più popolare per PHP, utilizzato per realizzare  server WebDAV, CalDAV e CardDAV.
+sabre/dav supporta un vasto range di standard internet relativi ai suddetti protocolli.
+
+Per la realizzazione dell’interfaccia grafica si è scelto il framework Qt.
+Qt è un toolkit per creare interfacce grafiche cross-platform che possono essere eseguite su diversi hardware e sistemi operativi.  Non si limita solamente allo sviluppo di interfacce grafiche, ma permette anche di integrare funzionalità come la gestione di richieste HTTP verso e da un server, strutture dati generiche e multithreading.
+
+Qt implementa un paradigma di programmazione event-based tramite l’utilizzo di funzioni definite come signal e slot che permettono la comunicazione tra oggetti/widget diversi. 
+Un signal è emesso quando un particolare evento occorre.
+Uno slot è una funzione che è chiamata in risposta a un particolare signal.
+
+## Rappresentazione degli oggetti
+CalDav utilizza il formato iCalendar per la rappresentazione di task ed eventi. Per rappresentarli in C++ abbiamo utilizzato la classe astratta CalendarObject che poi è stata estesa dalle classi CalendarEvent e CalendarToDo
+
+### CalendarEvent (VEVENT)
+
+UID
+
+DTSTAMP
+
+SUMMARY
+
+LOCATION
+
+DESCRIPTION
+
+DTSTART
+
+DTEND
+
+EXDATE
+
+RRLUE:FREQ=DAILY| WEEKLY | MONTHLY | YEARLY
+
+
+### CalendarTodo (VTODO)
+
+UID
+
+DTSTAMP
+
+SUMMARY
+
+LOCATION
+
+DESCRIPTION
+
+PRIORITY
+
+DTSTART
+
+COMPLETED
+
+EXDATE
+
+RRLUE:FREQ=DAILY| WEEKLY | MONTHLY | YEARLY
+
+
+## Funzionalità implementate
+- Autenticazione
+- Scelta della visualizzazione del/dei calendario/calendari
+- Visualizzazione dei ICalendar objects giornalieri
+- Creazione di un ICalendar Object
+- Modifica di un ICalendar Object
+- Eliminazione di un ICalendar Object
+- Eliminazione di una ricorrenza di un ICalendar Object
+- Gestione completamento del task
+- Condivisione del calendario
+- Sincronizzazione col server
+
 Mariagrazia Paladino
+
 Manuel Pepe
+
 Adriana Provenzano
