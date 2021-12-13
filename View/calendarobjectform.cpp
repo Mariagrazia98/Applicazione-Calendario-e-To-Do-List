@@ -74,8 +74,9 @@ CalendarObjectForm::CalendarObjectForm(QMap<QString, std::shared_ptr<ConnectionM
         }
     } else {
         /* Add a new calendarObject */
-        ui->beginDateTime->setDateTime(QDateTime::currentDateTime());
-        ui->endDateTime->setDateTime(QDateTime::currentDateTime());
+        QDateTime dateTime = QDateTime::currentDateTime();
+        ui->beginDateTime->setDateTime(dateTime);
+        ui->endDateTime->setDateTime(dateTime.addSecs(3600));
         ui->untilDate->setDate(QDate::currentDate());
     }
 
@@ -147,7 +148,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
                             QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
                                                                                         "SUMMARY:" + ui->name->text() +
                             "\r\n"
-                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n";
+                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n";
     if (!ui->location->text().isEmpty()) {
         requestString.append("LOCATION:" + ui->location->text() + "\r\n");
     }
@@ -177,12 +178,12 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         }
         rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
-        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMddT010000Z") + "\r\n");
+        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMddT000000") + "\r\n");
     }
 
     if (ui->comboBox->currentIndex() == 0) {
         /* Fields of CalendarEvent */
-        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
+        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
@@ -195,7 +196,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
             if (!completedDates.isEmpty()) {
                 requestString.append("COMPLETED:");
                 for (int i = 0; i < completedDates.size(); i++) {
-                    requestString.append(completedDates[i].toString("yyyyMMddT010000Z"));
+                    requestString.append(completedDates[i].toString("yyyyMMddT000000"));
                     if (i != completedDates.size() - 1) {
                         requestString.append(',');
                     }
@@ -210,7 +211,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
             requestString.append("EXDATE:");
             QSet<QDate>::const_iterator i = exDates.constBegin();
             while (i != exDates.constEnd()) {
-                requestString.append(i->toString("yyyyMMddT010000Z"));
+                requestString.append(i->toString("yyyyMMddT000000"));
                 ++i;
                 if (i != exDates.constEnd()) {
                     requestString.append(',');
@@ -241,6 +242,7 @@ void CalendarObjectForm::handleUploadFinished(QNetworkReply *reply) {
             /* Error */
             QByteArray answer = reply->readAll();
             QString answerString = QString::fromUtf8(answer);
+            std::cerr << answerString.toStdString() << '\n';
             QMessageBox::warning(this, "Error", "Could not create or modify selected object");
         }
         reply->deleteLater();
