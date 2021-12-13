@@ -19,7 +19,7 @@ CalendarWidget::CalendarWidget(QWidget *parent) :
     calendarGroupBox->setMinimumSize(calendar->sizeHint());
     tasksGroupBox->setMinimumWidth(calendar->sizeHint().width() * 1.5);
 
-    QDockWidget * dockWidget = new QDockWidget(tr(""), this);
+    QDockWidget *dockWidget = new QDockWidget(tr(""), this);
     dockWidget->setAllowedAreas(Qt::RightDockWidgetArea | Qt::LeftDockWidgetArea);
     dockWidget->setWidget(tasksGroupBox);
     dockWidget->setFeatures(dockWidget->features() & ~QDockWidget::DockWidgetClosable);
@@ -114,15 +114,11 @@ void CalendarWidget::parseCalendar(QString calendarString) {
             // saves calendar name
             const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
             calendarName = line.mid(deliminatorPosition + 1, -1);
-            int i = 0;
             // deletes calendarObjects relative to the changed Calendar
-            while (i < calendarObjects.length()) {
-                if (calendarObjects[i]->getCalendarName() == calendarName) {
-                    calendarObjects.removeAt(i);
-                } else {
-                    i++;
-                }
-            }
+            calendarObjects.erase(std::remove_if(std::execution::par, calendarObjects.begin(), calendarObjects.end(),
+                                                 [&calendarName](const auto &calendarObject) {
+                                                     return calendarObject->getCalendarName() == calendarName;
+                                                 }), calendarObjects.end());
         } else if (line.contains(QStringLiteral("BEGIN:VEVENT")) || line.contains(QStringLiteral("BEGIN:VTODO"))) {
             currentString = line;
         } else {
