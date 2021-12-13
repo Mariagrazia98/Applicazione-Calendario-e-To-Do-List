@@ -237,6 +237,7 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
         /* Null reply */
         QMessageBox::warning(this, "Error", "Something went wrong");
     }
+    reply->deleteLater();
 }
 
 void CalendarObjectWidget::onCheckBoxToggled(bool checked) {

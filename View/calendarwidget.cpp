@@ -398,6 +398,7 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
     } else {
         QMessageBox::warning(this, "Error", "Something went wrong");
     }
+    reply->deleteLater();
     timer->start(timerInterval);
 }
 
