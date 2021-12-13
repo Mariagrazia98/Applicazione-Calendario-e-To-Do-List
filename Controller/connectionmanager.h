@@ -27,7 +27,7 @@
  *  @brief manager of server requests and response
  */
 class ConnectionManager : public QObject {
-    Q_OBJECT
+Q_OBJECT
 public:
 
     /**
@@ -132,11 +132,11 @@ public:
 private
     slots:
 
-            /**
-             * @details when called it emits a signal which says that the calendar is ready and passes
-             * the response to a method which will parse the GET Calendar response
-             */
-            void onGetCalendarRequestFinished();
+    /**
+     * @details when called it emits a signal which says that the calendar is ready and passes
+     * the response to a method which will parse the GET Calendar response
+     */
+    void onGetCalendarRequestFinished();
 
     /**
      * @brief it authenticates with username and password
@@ -166,17 +166,12 @@ private
      */
     void shareCalendarDone();
 
-    signals:
-
-            /**
-             * @param reply server reply
-             */
-            void onFinished(QNetworkReply * reply);
+signals:
 
     /**
-     * @brief emitted when the response to GET calendar request is ready
-     * @param reply server reply
-     */
+    * @brief emitted when the response to GET calendar request is ready
+    * @param reply server reply
+    */
     void calendarReady(QNetworkReply *reply);
 
     /**
