@@ -162,13 +162,6 @@ private:
      */
     void parseCalendar(QString calendar);
 
-    /***
-    * @brief parse a calendar object
-    * @param the name of the calendar and the type of calendar object (0 for event, 1 for to-do)
-    * @details adds the calendar object parsed in the list of calendar objects
-    */
-    void parseCalendarObject(const QString &calendarName, unsigned int type);
-
     //std::shared_ptr<CalendarObject> parseCalendarObject_parallel(const QString &calendarObjectString);
 
 
