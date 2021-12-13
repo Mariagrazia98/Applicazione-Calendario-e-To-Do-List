@@ -8,7 +8,6 @@
 #include "customcalendarwidget.h"
 #include "../Model/calendarevent.h"
 #include "../Model/calendartodo.h"
-#include "../Debug/DurationLogger.h"
 
 CustomCalendarWidget::CustomCalendarWidget(QWidget *parent) : QCalendarWidget(parent) {
     setLocale(QLocale::English);
@@ -47,7 +46,7 @@ void CustomCalendarWidget::paintCell(QPainter *painter, const QRect &rect, QDate
                                                    case CalendarObject::RepetitionType::DAILY: {
                                                        start = start.addDays(calendarEvent->getNumRepetition());
                                                        end = end.addDays(calendarEvent->getNumRepetition());
-                                                       return false;
+                                                       break;
                                                    }
                                                    case CalendarObject::RepetitionType::WEEKLY: {
                                                        start = start.addDays(7 * calendarEvent->getNumRepetition());
