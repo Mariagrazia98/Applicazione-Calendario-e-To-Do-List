@@ -10,6 +10,9 @@
 #include <QList>
 #include "../Model/calendarobject.h"
 
+#include <algorithm>
+
+
 /**
  * @brief Custom CalendarWidget class which overrides paintCell
  */
