@@ -373,8 +373,8 @@ void CalendarWidget::setupConnection() {
 }
 
 void CalendarWidget::setupTimer() {
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &CalendarWidget::onTimeout);
+    timer = std::make_unique<QTimer>(this);
+    connect(timer.get(), &QTimer::timeout, this, &CalendarWidget::onTimeout);
     timer->start(timerInterval);
 }
 
@@ -394,7 +394,6 @@ void CalendarWidget::onCalendarReady(QNetworkReply *reply) {
     } else {
         QMessageBox::warning(this, "Error", "Something went wrong");
     }
-    reply->deleteLater();
     timer->start(timerInterval);
 }
 

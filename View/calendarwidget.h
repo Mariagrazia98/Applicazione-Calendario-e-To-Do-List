@@ -207,7 +207,7 @@ private:
 
     QMap<QString, std::shared_ptr<ConnectionManager>> connectionManagers;
 
-    QTimer *timer{};  /**< When the timer expires, check whether the ctag of a calendar has changed */
+    std::unique_ptr<QTimer> timer;  /**< When the timer expires, check whether the ctag of a calendar has changed */
     const unsigned int timerInterval;
 
 
