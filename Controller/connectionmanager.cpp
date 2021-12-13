@@ -73,7 +73,7 @@ void ConnectionManager::updateUrl() {
 }
 
 void ConnectionManager::getCalendarList() {
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 
@@ -217,7 +217,7 @@ void ConnectionManager::onObjectDeleted() {
 
 void ConnectionManager::addOrUpdateCalendarObject(const QString &requestString, const QString &UID) {
     /* Composing request, in this case the response body is already done and passed as a parameter */
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
     qint64 bufferSize = buffer->write(requestString.toUtf8());
@@ -253,15 +253,15 @@ void ConnectionManager::onInsertOrUpdateCalendarObject() {
 
 void ConnectionManager::getctag() {
     makectagRequest();
-    connectionToGetCtag = connect(networkAccessManager, &QNetworkAccessManager::finished, this,
-                                  &ConnectionManager::checkctag);
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this,
+            &ConnectionManager::checkctag);
 }
 
 void ConnectionManager::makectagRequest() {
     /* Composing request */
 
     /* Body request */
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
     buffer->open(QIODevice::ReadWrite);
 
     QString requestString =
@@ -335,7 +335,7 @@ void ConnectionManager::makeShareCalendarRequest(const QString &calendarString, 
     /* Composing request */
 
     /* Body request */
-    QBuffer * buffer = new QBuffer();
+    QBuffer *buffer = new QBuffer();
 
     buffer->open(QIODevice::ReadWrite);
 

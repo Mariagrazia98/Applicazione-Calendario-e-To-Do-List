@@ -223,11 +223,6 @@ private:
     /** password of the logged user */
     QString password;
 
-    /** about the management of the response corresponding to the GET ctag request */
-    QMetaObject::Connection connectionToGetCtag;
-    /** about the management of the response corresponding to the login request */
-    QMetaObject::Connection connectionToLogin;
-
     /** reply to GET calendar request */
     QNetworkReply *getCalendarReply;
     /** reply to delete calendar object request */
