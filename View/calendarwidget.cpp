@@ -298,11 +298,11 @@ void CalendarWidget::addCalendarObjectWidget(const std::shared_ptr<CalendarObjec
 
 void CalendarWidget::addCalendarObjectButtonClicked() {
     addCalendarObjectButton->setEnabled(false);
-    CalendarObjectForm *taskForm = new CalendarObjectForm(connectionManagers);
+    taskForm.reset(new CalendarObjectForm(connectionManagers));
     taskForm->setDate(currentDateEdit->date());
     taskForm->show();
-    connect(taskForm, &CalendarObjectForm::taskFormClosed, this, &CalendarWidget::onTaskFormClosed);
-    connect(taskForm, &CalendarObjectForm::taskUploaded, this, &CalendarWidget::onTaskModified);
+    connect(taskForm.get(), &CalendarObjectForm::taskFormClosed, this, &CalendarWidget::onTaskFormClosed);
+    connect(taskForm.get(), &CalendarObjectForm::taskUploaded, this, &CalendarWidget::onTaskModified);
 }
 
 void CalendarWidget::addConnectionManager(ConnectionManager *connectionManager) {
@@ -393,6 +393,15 @@ void CalendarWidget::onTaskModified(const QString &calendarName) {
     timer->stop();
     std::shared_ptr<ConnectionManager> connectionManager = connectionManagers[calendarName];
     connectionManager->getctag();
+}
+
+CalendarWidget::~CalendarWidget() {
+    QLayoutItem *item;
+    while ((item = taskViewLayout->layout()->takeAt(0)) != nullptr) {
+        delete item->widget();
+        delete item;
+    }
+    taskForm.reset();
 }
 
 std::shared_ptr<CalendarObject> parseCalendarObject_parallel(const QString &calendarObjectString) {

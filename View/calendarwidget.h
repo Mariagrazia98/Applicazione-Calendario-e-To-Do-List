@@ -50,6 +50,8 @@ public:
     */
     explicit CalendarWidget(QWidget *parent = nullptr);
 
+    virtual ~CalendarWidget();
+
     /**
     * @brief setup connection manager
     * Each connection manager makes a get for a calendar
@@ -210,7 +212,7 @@ private:
     std::unique_ptr<QTimer> timer;  /**< When the timer expires, check whether the ctag of a calendar has changed */
     const unsigned int timerInterval;
 
-
+    std::unique_ptr<CalendarObjectForm> taskForm;
 };
 
 #endif // CALENDAR_H
