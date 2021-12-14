@@ -62,7 +62,7 @@ void ShareCalendarForm::onAcceptButtonClicked() {
     }
     /* Control if the name has been inserted. It is mandatory */
     if (name->text().isEmpty()){
-    QMessageBox::warning(this, "Error", "Insert a name");
+    QMessageBox::warning(this, "Error", "Insert a username");
     return;
     }
     connectionManagers[calendar->currentText()]->makeShareCalendarRequest(calendar->currentText(), email->text(), name->text());
