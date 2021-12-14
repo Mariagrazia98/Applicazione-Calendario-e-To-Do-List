@@ -73,14 +73,6 @@ void CalendarObjectWidget::setupText() {
     if (calendarEvent.get() != nullptr) {
         /* calendarObject is a CalendarEvent */
         text.append("End date and time: " + calendarEvent->getEndDateTime().toString("dddd, yyyy/MM/d hh:mm") + '\n');
-    } else {
-        std::shared_ptr<CalendarToDo> calendarToDo = std::dynamic_pointer_cast<CalendarToDo>(calendarObject);
-        if (calendarToDo.get() != nullptr) {
-            /* calendarObject is a CalendarEvent */
-            if (calendarToDo->getCompletedDate().contains(calendarToDo->getStartDateTime().date())) {
-                textBrowser->setTextColor(QColor(0, 150, 0));
-            }
-        }
     }
     text.append("Name of the calendar: " + calendarObject->getCalendarName() + '\n');
     textBrowser->setText(text);
@@ -231,7 +223,7 @@ void CalendarObjectWidget::manageResponse(QNetworkReply *reply) {
             const QString &errorString = reply->errorString();
             QByteArray answer = reply->readAll();
             QString answerString = QString::fromUtf8(answer);
-            QMessageBox::warning(this, "Error", errorString);
+
         }
     } else {
         /* Null reply */
