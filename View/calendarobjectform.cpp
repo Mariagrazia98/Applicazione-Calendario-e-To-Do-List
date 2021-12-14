@@ -148,7 +148,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
                             QDateTime::currentDateTime().toString("yyyyMMddTHHmmssZ") + "\r\n"
                                                                                         "SUMMARY:" + ui->name->text() +
                             "\r\n"
-                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n";
+                            "DTSTART:" + ui->beginDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n";
     if (!ui->location->text().isEmpty()) {
         requestString.append("LOCATION:" + ui->location->text() + "\r\n");
     }
@@ -178,12 +178,12 @@ void CalendarObjectForm::on_buttonBox_accepted() {
         }
         rrule += ";COUNT=" + QString::number(ui->numRepetition->value()) + "\r\n";
         requestString.append(rrule);
-        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMddT000000") + "\r\n");
+        requestString.append("UNTIL:" + ui->untilDate->date().toString("yyyyMMddT000000Z") + "\r\n");
     }
 
     if (ui->comboBox->currentIndex() == 0) {
         /* Fields of CalendarEvent */
-        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmss") + "\r\n");
+        requestString.append("DTEND:" + ui->endDateTime->dateTime().toString("yyyyMMddTHHmmssZ") + "\r\n");
         requestString.append("PRIORITY:0\r\n");
     } else {
         requestString.append("PRIORITY:" + QString::number(ui->prioritySpinBox->value()) + "\r\n");
@@ -196,7 +196,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
             if (!completedDates.isEmpty()) {
                 requestString.append("COMPLETED:");
                 for (int i = 0; i < completedDates.size(); i++) {
-                    requestString.append(completedDates[i].toString("yyyyMMddT000000"));
+                    requestString.append(completedDates[i].toString("yyyyMMddT000000Z"));
                     if (i != completedDates.size() - 1) {
                         requestString.append(',');
                     }
@@ -211,7 +211,7 @@ void CalendarObjectForm::on_buttonBox_accepted() {
             requestString.append("EXDATE:");
             QSet<QDate>::const_iterator i = exDates.constBegin();
             while (i != exDates.constEnd()) {
-                requestString.append(i->toString("yyyyMMddT000000"));
+                requestString.append(i->toString("yyyyMMddT000000Z"));
                 ++i;
                 if (i != exDates.constEnd()) {
                     requestString.append(',');
