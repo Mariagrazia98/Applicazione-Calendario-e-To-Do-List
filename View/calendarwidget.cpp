@@ -156,46 +156,7 @@ void CalendarWidget::parseCalendar(QString calendarString) {
 
 }
 
-/*
-void CalendarWidget::parseCalendar(QString calendarString) {
-    stream = new QTextStream(&calendarString, QIODevice::ReadOnly);
-    QString line;
-    QString calendarName = "";
-    while (stream->readLineInto(&line)) {
-        if (line.contains("X-WR-CALNAME")) {
-            // saves calendar name
-            const int deliminatorPosition = line.indexOf(QLatin1Char(':'));
-            calendarName = line.mid(deliminatorPosition + 1, -1);
-            int i = 0;
-            // deletes calendarObjects relative to the changed Calendar
-            while (i < calendarObjects.length()) {
-                if (calendarObjects[i]->getCalendarName() == calendarName) {
-                    calendarObjects.removeAt(i);
-                } else {
-                    i++;
-                }
-            }
-        }
-        if (line.contains("BEGIN:VEVENT")) {
-            parseCalendarObject(calendarName, 0);
-        } else if (line.contains("BEGIN:VTODO")) {
-            parseCalendarObject(calendarName, 1);
-        }
-    }
 
-
-    std::sort(calendarObjects.begin(), calendarObjects.end(),
-              [](std::shared_ptr<CalendarObject> a, std::shared_ptr<CalendarObject> b) {
-                  return a.get()->getPriority() > b.get()->getPriority();
-              });
-
-    stream->seek(0);
-
-    this->calendar->setCalendarObjects(calendarObjects);
-    showSelectedDateCalendarObjects();
-
-}
-*/
 
 void CalendarWidget::showSelectedDateCalendarObjects() {
     QLayoutItem *item;
